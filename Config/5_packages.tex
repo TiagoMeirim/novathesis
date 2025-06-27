@@ -52,8 +52,26 @@
 % \RestyleAlgo{ruled}
 
 % \usepackage{minted}    % Fontification of source code listings
+\usepackage{xspace}
+\newcommand{\whyml}{\gls{WhyML}\xspace}
+\newcommand{\whythree}{\gls{Why3}\xspace}
+\newcommand{\cvc}{\gls{CVC5}\xspace}
+\newcommand{\altergo}{\gls{Alt-Ergo}\xspace}
+\newcommand{\zthree}{\gls{Z3}\xspace}
+\newcommand{\ocaml}{\gls{OCaml}\xspace}
+\newcommand{\gospel}{\gls{GOSPEL}\xspace}
+\newcommand{\cameleer}{\gls{Cameleer}\xspace}
+\newcommand{\gantt}{\gls{Gantt Chart}\xspace}
+\usepackage{caption} 
+\usepackage{bold-extra} 
+\usepackage{xcolor} 
+\usepackage{listings}
+\usepackage{gospel}
+\DeclareCaptionFormat{listing}{\hfill#3}
+\captionsetup[lstlisting]{format=listing,singlelinecheck=false, margin=0pt,
+  font={sf,it},labelsep=space,labelfont=bf,belowskip=-1pt}
 
-% \usepackage{listings}    % Fontification of source code listingsConfig/5_packages.tex
+% Fontification of source code listingsConfig/5_packages.tex
 %                          % In alternative, use the package “minted” (highly recomended)
 
 % \lstset{

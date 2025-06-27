@@ -17,8 +17,42 @@
 \section{Motivation}
 \label{sec:Motivation}
 
+
+Progress for deductive software verification has been steadily increasing for formal languages even if 
+the earliest proof has been written by Alan Turing in 1949. Developments in relation to verified code have 
+become increasingly crucial to achieve correctness and provide safety, the way we define correctness has more
+than one definition, it can be specified informally or written in formal language ~\cite{%Deductive software verification
+}. The weight of functional languages for deductive software verification has been quite low despite having
+good candidates for verification, like OCaml. Ever since 2018 with the introduction of GOSPEL, with providing
+fomal language specification tightly integrated with OCaml, verification has become easier with a modular specification
+that doesn't need much changes to OCaml code. This wasn't the first time formal logic and proof has been merged with 
+functional programming, previous and more foundational systems like COQ, Agda, F*(F star), Liquid Haskell and WhyML have
+paved the way. Now that we have a behavioural specification language for OCaml we can expand this verification for other
+funtional languages, that was already done in 2021 with the addition of Cameleer, an automated deductive verification
+tool that translates a formally-specified program, like GOSPEL, into the corresping code in WhyML. This innovation in
+translation of verified code to other languages gave a new view onto how other functional languages could have their
+code verified while being written in a more expressive language just like OCaml. A clear applicant was CakeML, a
+language based on a substantial subset of Standard ML, having a core goal of creating an end-to-end verified compiler.
+
+
 \section{Problem Definition}
 \label{sec:Problem_Definition}
+
+As apparent as it seems, software verification with its Theorical Computer Science and Mathemetical logic
+hasn't seen a big leap in its research, some reasons for that fact are a lack of Automation and Tooling while also
+writing precise specifications can turn out to be very challenging, since having an incomplete specification will eventually
+make the verification meaningless. PUT SOME RESEARCHES ABOUT SOFTWARE VERIFICATION AND TALK ABOUT HOW THERE ARE NO AUTOMATED VERIFICATION PAPERS.
+Despite all the papers above mentioned there are not much papers that go deep inside automated deductive verification.
+And then we have CakeML, a research-driven language with the main goal of providing a fully proof-producing code generation tool 
+that given ML-like functions in higher-order logic (HOL) automatically produces equivalent executable machine code. Analyzing
+syntactic and semantic foundations with OCaml we see that both share very similar features most notably, functional core, 
+strong static typing, pattern matching and higher-order functions.
+Now we are presented with some questions:
+
+- Now that automated deductive verification has a tool that eases translation, could we expand it for even more languages?
+- Can CakeML's verified compilation pipeline be generalized to other ML-family languages like WhyML?
+- What minimal syntactic and semantic guarantees must a language offer to be compatible with CakeML's verified compiler?
+- Could an OCaml-to-HOL4 transpiler (guided by GOSPEL specs) be created to automate CakeML target generation?
 
 \section{Goals and Expected Contribution}
 \label{sec:Goals_and_Expected_Contribution}
