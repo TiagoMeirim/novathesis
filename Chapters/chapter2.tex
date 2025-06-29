@@ -27,11 +27,62 @@
 \section{Hoare logic}
 \label{sec:Hoare_logic}
 
+Hoare Logic is a formal system for reasoning about the correctness of computer programs. However, 
+computer arithmetic often differs from the standard arithmetic familiar to mathematicians due to issues like finite 
+precision, overflows, and machine-specific behaviors. To account for these differences, C.A.R. Hoare introduced a new logic
+based on assertions and inference rules for reasoning about the partial correctness of programs. Drawing inspiration 
+from mathematical axioms and formal proof techniques, he proposed a framework where program behavior could be specified 
+and verified using logical formulas. This laid the foundation for systematic program verification and emphasized the need 
+to model computational constraints, such as those arising from the limitations of machine arithmetic, within a formal system.
+
+Hoare Logic, introduced by C.A.R. Hoare in his seminal 1969 paper, is a formal system designed to reason about the partial 
+correctness of computer programs. Inspired by mathematical axioms and formal proof methods, it uses assertions and inference 
+rules to specify and verify program behavior. Hoare's framework laid the foundation for systematic program verification and 
+highlighted the importance of modeling low-level computational constraints, such as finite precision, overflows, and 
+machine-specific arithmetic within formal systems.
+
+"The purpose of this study is to provide a logical basis for proofs of the properties of a program"
+
+\textbf{Assignment Axiom}
+
+\[ \{P_0\} x := f \{P\} \]
+
+where
+\begin{itemize}
+  \item{$x$ is a variable identifier;}
+  \item{$f$ is an expression;}
+  \item{$P_0$ is obtained from $P$ by substituting $f$ for all occurrences of $x$}
+\end{itemize}
+
+The axiom expresses that to prove a postcondition $P$ holds after assigning the expression $f$ to the variable $x$,
+it suffices to prove the precondition $P_0$ before the assignment, where $P_0$ is obtained by substituting every occurrence of
+$x$ in $P$ with the expression $f$.
+
+\textbf{Rule of Composition}
+
+\[ \vdash P\{Q_1\}R_1 \quad \text{and} \quad \vdash R_1\{Q_2\}R \quad \text{then} \quad \vdash P\{(Q_1 ; Q_2)\}R \]
+
+The inference rule for composition states that if the postcondition of the first program segment matches the precondition 
+of the second, then the entire program will produce the intended result—assuming the initial precondition of the first 
+segment holds.
+
+
+
+%%https://dl.acm.org/doi/pdf/10.1145/363235.363259
+%%https://scispace.com/pdf/soundness-and-completeness-of-an-axiom-system-for-program-3g7csch545.pdf
+%%https://cdn.bookey.app/files/pdf/book/en/a-discipline-of-programming.pdf
+
 \section{OCaml}
 \label{sec:OCaml}
 
+%% Exemplos das features do OCaml
+%% Falar de features concretas do OCaml
+%% Exemplo place holder
+
 \section{Standard ML}
 \label{sec:Standard_ML}
+
+%% Falar de semanticas operacionais
 
 \section{Why3}
 \label{sec:Why3}

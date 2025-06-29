@@ -18,8 +18,20 @@
 \label{sec:Motivation}
 
 
-Progress for deductive software verification has been steadily increasing for formal languages even if 
-the earliest proof has been written by Alan Turing in 1949. Developments in relation to verified code have 
+Progress in deductive software verification has been steadily advancing, particularly for formal languages. 
+However, the foundational groundwork was laid as early as 1936 by Alan Turing in his seminal paper "On Computable Numbers," 
+which introduced key concepts of computation and formal proof. Other notable papers where mathematical propositions were 
+established purely through theoretical reasoning include Alan Turing's Systems of Logic Based on Ordinals, Alonzo Church's 
+An Unsolvable Problem of Elementary Number Theory and Kurt Gödel's Incompleteness Theorems. These works laid important 
+foundations in logic, computation, and formal reasoning without relying on physical implementation or empirical methods.
+Our research draws on several key papers that directly influenced deductive software verification and the technologies 
+we will use. These include Robin Milner's foundational work on type polymorphism (shaped the ML language) Gordon and 
+Melham's Introduction to HOL (formalized higher-order logic for verification) and Xavier Leroy's CompCert (a landmark 
+in formally verified compilation). 
+%%https://turingarchive.kings.cam.ac.uk/publications-lectures-and-talks-amtb/amt-b-12
+%%https://www.dcc.fc.up.pt/~acm/turing-phd.pdf
+
+Developments in relation to verified code have 
 become increasingly crucial to achieve correctness and provide safety, the way we define correctness has more
 than one definition, it can be specified informally or written in formal language ~\cite{%Deductive software verification
 }. The weight of functional languages for deductive software verification has been quite low despite having
@@ -34,16 +46,26 @@ translation of verified code to other languages gave a new view onto how other f
 code verified while being written in a more expressive language just like OCaml. A clear applicant was CakeML, a
 language based on a substantial subset of Standard ML, having a core goal of creating an end-to-end verified compiler.
 
+Why are verified compilers such an important target for formal verification? If a verified program is compiled by a 
+faulty compiler, the resulting executable may not preserve its intended behavior, invalidating the higher-level correctness 
+so compilers like CompCert and CakeML address this issue by providing formally verified compilation pipelines, thereby 
+eliminating a major source of uncertainty and ensuring that correctness is preserved from source code to machine code.
+%%https://cakeml.org/pldi19.pdf %%https://arxiv.org/pdf/2205.00862
+%%https://xavierleroy.org/publi/compcert-CACM.pdf
+
+%% Standard menos famoso que OCaml entao ha interesse em construir programas corretos em algo mais mainstream, comparação ao SML
+%% Mais verificaçoes em papel, mais sobre compiladores verificados
+
 
 \section{Problem Definition}
 \label{sec:Problem_Definition}
 
-As apparent as it seems, software verification with its Theorical Computer Science and Mathemetical logic
-hasn't seen a big leap in its research, some reasons for that fact are a lack of Automation and Tooling while also
-writing precise specifications can turn out to be very challenging, since having an incomplete specification will eventually
+%% Retirar pontos 
+
+Writing precise specifications can turn out to be very challenging, since having an incomplete specification will eventually
 make the verification meaningless. PUT SOME RESEARCHES ABOUT SOFTWARE VERIFICATION AND TALK ABOUT HOW THERE ARE NO AUTOMATED VERIFICATION PAPERS.
 Despite all the papers above mentioned there are not much papers that go deep inside automated deductive verification.
-And then we have CakeML, a research-driven language with the main goal of providing a fully proof-producing code generation tool 
+And then we have CakeML, a research-driven compiler with the main goal of providing a fully proof-producing code generation tool 
 that given ML-like functions in higher-order logic (HOL) automatically produces equivalent executable machine code. Analyzing
 syntactic and semantic foundations with OCaml we see that both share very similar features most notably, functional core, 
 strong static typing, pattern matching and higher-order functions.
