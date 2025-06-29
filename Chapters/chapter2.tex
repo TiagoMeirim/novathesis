@@ -35,17 +35,11 @@ from mathematical axioms and formal proof techniques, he proposed a framework wh
 and verified using logical formulas. This laid the foundation for systematic program verification and emphasized the need 
 to model computational constraints, such as those arising from the limitations of machine arithmetic, within a formal system.
 
-Hoare Logic, introduced by C.A.R. Hoare in his seminal 1969 paper, is a formal system designed to reason about the partial 
-correctness of computer programs. Inspired by mathematical axioms and formal proof methods, it uses assertions and inference 
-rules to specify and verify program behavior. Hoare's framework laid the foundation for systematic program verification and 
-highlighted the importance of modeling low-level computational constraints, such as finite precision, overflows, and 
-machine-specific arithmetic within formal systems.
-
 "The purpose of this study is to provide a logical basis for proofs of the properties of a program"
 
 \textbf{Assignment Axiom}
 
-\[ \{P_0\} x := f \{P\} \]
+\[ \vdash\{P_0\} x := f \{P\} \]
 
 where
 \begin{itemize}
@@ -66,7 +60,25 @@ The inference rule for composition states that if the postcondition of the first
 of the second, then the entire program will produce the intended result—assuming the initial precondition of the first 
 segment holds.
 
+Hoare Logic was significantly strengthened by Cook's seminal work on the soundness and completeness of an axiom system 
+for program verification. In his paper, Cook presented a Hoare-style axiom system tailored to a simple programming language 
+and rigorously established both its soundness and adequacy. He concluded that, under reasonable assumptions, Hoare Logic is 
+not only intuitively effective but also formally complete as a system for reasoning about program correctness.
 
+After setting an elegant axiomatic framework for reasoning about program correctness through the use of Hoare triples 
+$\{P\}C\{Q\}$, its practical application in large-scale or automated verification tasks presents significant challenges. 
+Chief among these is the burden of manually identifying appropriate preconditions and invariants. To address this, 
+Edsger W. Dijkstra introduced the weakest precondition calculus, which reformulates program correctness into a computational 
+problem: given a command $C$ and a desired postcondition $Q$, the function $wp(C,Q)$ computes the weakest precondition $P$ 
+such that $\{P\}C\{Q\}$ holds.
+
+This transformation from proof obligations to a calculable precondition function represents a critical step toward automating 
+program verification. Unlike Hoare's original formulation, which requires deductive reasoning to derive correctness properties, 
+weakest precondition semantics allow for algorithmic generation of verification conditions, thereby enabling integration 
+with automated theorem provers and SMT solvers.
+
+The influence of weakest preconditions is particularly evident in modern deductive verification tools such as Why3, Boogie, 
+Frama-C, and Dafny.
 
 %%https://dl.acm.org/doi/pdf/10.1145/363235.363259
 %%https://scispace.com/pdf/soundness-and-completeness-of-an-axiom-system-for-program-3g7csch545.pdf
@@ -79,8 +91,144 @@ segment holds.
 %% Falar de features concretas do OCaml
 %% Exemplo place holder
 
+OCaml is a statically typed functional programming language rooted in the ML family, originally developed 
+to serve as the implementation language for theorem provers such as LCF. It inherits the foundational principles 
+of typed $\lambda$-calculus, formal logic, and abstract interpretation, and extends them through practical language design 
+aimed at enabling both expressiveness and efficiency.
+
+First released in the mid-1990s, OCaml is the principal evolution of the Caml dialect of the ML family. The name OCaml, 
+originally short for Objective Caml, reflects the addition of object-oriented features to the Caml language. While Caml 
+stood for Categorical Abstract Machine Language, OCaml moved away from its dependence on the original abstract machine model. 
+The language is primarily developed and maintained by INRIA, which continues to guide its implementation and evolution.
+
+OCaml distinguishes itself from many academically inspired languages through its strong emphasis on performance. Its static 
+type system eliminates the need for runtime type checking by ensuring type correctness at compile time, thereby avoiding the 
+performance overhead commonly associated with dynamically typed languages. This design enables OCaml to maintain high 
+execution efficiency while preserving strong safety guarantees at runtime. Exceptions to this safety model arise only in 
+specific low-level scenarios, such as when array bounds checking is explicitly disabled or when employing type-unsafe features 
+like runtime serialization.
+
+For the standard compiler toolchain features, OCaml has both a high-performance native-code compiler (\textbf{ocamlopt}) and a 
+bytecode compiler (\textbf{ocamlc}). The native-code compiler produces efficient machine code via a sophisticated optimizing 
+backend, while the bytecode compiler offers portability and rapid development. Both compilers are integrated with a runtime 
+system that supports automatic memory management via a garbage collector and provides facilities for exception handling, 
+concurrency, and system interaction.
+
+\textbf{Verification-Oriented Language Features}
+
+\textbf{ADTs} (Algebraic Data Types)
+
+In OCaml, data types fall into three broad categories: atomic predefined types (e.g., \texttt{int}, \texttt{bool}), type 
+constructors provided by the language (e.g., \texttt{list}, \texttt{array}, \texttt{option}), and user-defined types, which 
+are declared through the general mechanism of algebraic data types, for instance:
+
+\begin{ocamlenv}
+  type envir = Empty
+    | Regular of int * string list * envir
+    | Special of int * string list * envir
+    | Weird of string list * envir ;;
+\end{ocamlenv}
+
+ADTs support exhaustive pattern matching, which is particularly useful for enabling structural recursion and inductive reasoning.
+From a verification perspective, this ensures all possible cases are covered, making formal reasoning both precise and complete. 
+Such properties are essential for theorem proving and are readily leveraged by formal tools like GOSPEL, Coq, and Why3.
+
+\textbf{Immutability by default}
+
+Immutability is promotted as a default design principle in this language. Rather than modifying existing values, new ones 
+are created through expression evaluation. This absence of mutable shared state simplifies reasoning about program behavior 
+and eliminates many common sources of verification complexity, such as aliasing and unintended side effects.
+
+\begin{ocamlenv}
+  let x = 5
+  let y = x + 1 (* x is not modified, just referenced *)
+\end{ocamlenv}
+
+Since values are not modified in place, program semantics are preserved under substitution, facilitating referential transparency, 
+making symbolic execution and logical reasoning over programs more straightforward in deductive verification.
+
+\textbf{First-Class and Higher-Order Functions}
+
+OCaml treats functions as first-class values: they can be passed as arguments, returned from other functions, 
+and stored in data structures. Combined with lexical scoping and immutable data, this makes OCaml particularly 
+well-suited for working with higher-order abstractions, a feature that aligns naturally with formal systems based on 
+higher-order logic.
+
+\begin{ocamlenv}
+  let apply_twice f x = f (f x)
+
+  let square x = x * x
+
+  let result = apply_twice square 2  (* returns 16 *)
+\end{ocamlenv}
+
+In the context of deductive verification, such functional abstractions support elegant formulations of parametric specifications 
+and reasoning principles.
+
+\textbf{Modules and Functors}
+
+Module system supports parametric modularity via modules and functors enabling abstraction, separation of concerns, and 
+scalable specification. This system corresponds closely to abstract data types and interfaces in formal verification.
+
+\begin{ocamlenv}
+  module type StackSig = sig
+    type 'a t
+    val empty : 'a t
+    val push : 'a -> 'a t -> 'a t
+    val pop : 'a t -> 'a t
+  end
+
+  module Stack : StackSig = struct
+    type 'a t = 'a list
+    let empty = []
+    let push x s = x :: s
+    let pop = function [] -> [] | _ :: tl -> tl
+  end
+\end{ocamlenv}
+
+This modular architecture is especially valuable in the context of verification. It promotes separation of concerns by 
+allowing components to be reasoned about independently of their implementations.
+
+\textbf{Type Abstraction and Encapsulation}
+
+One of OCaml's strengths lies in its support for abstract types via module signatures. This allows developers to hide 
+implementation details and expose only essential operations, enabling verification at the level of observable behavior rather 
+than internal representation.
+
+\begin{ocamlenv}
+  module Counter : sig
+    type t
+    val create : unit -> t
+    val incr : t -> t
+    val get : t -> int
+  end = struct
+    type t = int
+    let create () = 0
+    let incr x = x + 1
+    let get x = x
+  end
+\end{ocamlenv}
+
+By hiding the concrete type \texttt{int}, this interface prevents misuse and allows formal specification to focus solely on 
+observable behavior. In verification tools, this maps cleanly to abstract state machines and promotes reasoning over 
+behavior instead of implementation details.
+
+%%https://arxiv.org/pdf/1011.1783 (native compiler JIT)
+%%https://inria.hal.science/inria-00070049v1/document
+%%https://usr.lmf.cnrs.fr/lpo/lpo.pdf
+%%https://hal.science/hal-01783851v1/file/main.pdf
+
 \section{Standard ML}
 \label{sec:Standard_ML}
+
+Standard ML is a functional programming language that fully embraces the expressiveness of mathematical functions. 
+However, it was also shaped by practical programming needs, leading to the inclusion of imperative features and a 
+robust exception handling system. The language supports modularity through an advanced system of parametric modules, 
+designed to facilitate the structured development of large-scale software systems. Moreover, Standard ML is strongly 
+and statically typed, and it was the first programming language to introduce a form of polymorphic type inference that 
+combines strong type safety with notable flexibility in programming style.
+
+%%https://courses.grainger.illinois.edu/cs422/sp2016/lectures/sml97-defn.pdf
 
 %% Falar de semanticas operacionais
 
