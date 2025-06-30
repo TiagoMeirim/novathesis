@@ -35,11 +35,29 @@ from mathematical axioms and formal proof techniques, he proposed a framework wh
 and verified using logical formulas. This laid the foundation for systematic program verification and emphasized the need 
 to model computational constraints, such as those arising from the limitations of machine arithmetic, within a formal system.
 
-"The purpose of this study is to provide a logical basis for proofs of the properties of a program"
+"The purpose of this study is to provide a logical basis for proofs of the properties of a program"~\cite{Hoare69}.
 
-\textbf{Assignment Axiom}
+\subsection{Hoare Triples}
 
-\[ \vdash\{P_0\} x := f \{P\} \]
+The main construction of Hoare logic is the \textit{Hoare triple}, where $P$ is a pre-condition, $C$ is a program (fragment) 
+and $Q$ is a post-condition:
+
+\[ 
+  \{P\}C\{Q\}
+\]
+
+A Hoare triple expresses a partial correctness guarantee: if the precondition $P$ holds before executing a program fragment 
+$C$, and if $C$ terminates, then the postcondition $Q$ will hold afterward. This is a partial correctness result since the 
+termination of $C$ is not assured by the triple. Total correctness is achieved when termination is also guaranteed.
+
+\subsection{Assignment Axiom}
+
+\[ 
+  \inferrule
+  { \ }
+  {\{P_0\} \ \textit{x} := \textit{f} \ \{P\}}
+  \quad (assign)
+\]
 
 where
 \begin{itemize}
@@ -52,9 +70,13 @@ The axiom expresses that to prove a postcondition $P$ holds after assigning the 
 it suffices to prove the precondition $P_0$ before the assignment, where $P_0$ is obtained by substituting every occurrence of
 $x$ in $P$ with the expression $f$.
 
-\textbf{Rule of Composition}
+\subsection{Rule of Composition}
 
-\[ \vdash P\{Q_1\}R_1 \quad \text{and} \quad \vdash R_1\{Q_2\}R \quad \text{then} \quad \vdash P\{(Q_1 ; Q_2)\}R \]
+\[ 
+  \inferrule
+  {P \{ Q_1 \} R_1 \quad \quad  R_1 \{ Q_2 \} R}
+  {P \{ (Q_1 ; Q_2) \} R} 
+\]
 
 The inference rule for composition states that if the postcondition of the first program segment matches the precondition 
 of the second, then the entire program will produce the intended result—assuming the initial precondition of the first 
@@ -63,22 +85,22 @@ segment holds.
 Hoare Logic was significantly strengthened by Cook's seminal work on the soundness and completeness of an axiom system 
 for program verification. In his paper, Cook presented a Hoare-style axiom system tailored to a simple programming language 
 and rigorously established both its soundness and adequacy. He concluded that, under reasonable assumptions, Hoare Logic is 
-not only intuitively effective but also formally complete as a system for reasoning about program correctness.
+not only intuitively effective but also formally complete as a system for reasoning about program correctness~\cite{0207005}.
 
 After setting an elegant axiomatic framework for reasoning about program correctness through the use of Hoare triples 
 $\{P\}C\{Q\}$, its practical application in large-scale or automated verification tasks presents significant challenges. 
 Chief among these is the burden of manually identifying appropriate preconditions and invariants. To address this, 
 Edsger W. Dijkstra introduced the weakest precondition calculus, which reformulates program correctness into a computational 
 problem: given a command $C$ and a desired postcondition $Q$, the function $wp(C,Q)$ computes the weakest precondition $P$ 
-such that $\{P\}C\{Q\}$ holds.
+such that $\{P\}C\{Q\}$ holds~\cite{Dijkstra76}.
 
 This transformation from proof obligations to a calculable precondition function represents a critical step toward automating 
 program verification. Unlike Hoare's original formulation, which requires deductive reasoning to derive correctness properties, 
 weakest precondition semantics allow for algorithmic generation of verification conditions, thereby enabling integration 
 with automated theorem provers and SMT solvers.
 
-The influence of weakest preconditions is particularly evident in modern deductive verification tools such as Why3, Boogie, 
-Frama-C, and Dafny.
+The influence of weakest preconditions is particularly evident in modern deductive verification tools such as \textsf{Why3}, 
+and \textsf{Dafny}~\cite{boogie11why3, Leino10}.
 
 %%https://dl.acm.org/doi/pdf/10.1145/363235.363259
 %%https://scispace.com/pdf/soundness-and-completeness-of-an-axiom-system-for-program-3g7csch545.pdf
@@ -114,9 +136,9 @@ backend, while the bytecode compiler offers portability and rapid development. B
 system that supports automatic memory management via a garbage collector and provides facilities for exception handling, 
 concurrency, and system interaction.
 
-\textbf{Verification-Oriented Language Features}
 
-\textbf{ADTs} (Algebraic Data Types)
+
+\subsection{ADTs(Algebraic Data Types)}
 
 In OCaml, data types fall into three broad categories: atomic predefined types (e.g., \texttt{int}, \texttt{bool}), type 
 constructors provided by the language (e.g., \texttt{list}, \texttt{array}, \texttt{option}), and user-defined types, which 
@@ -133,7 +155,7 @@ ADTs support exhaustive pattern matching, which is particularly useful for enabl
 From a verification perspective, this ensures all possible cases are covered, making formal reasoning both precise and complete. 
 Such properties are essential for theorem proving and are readily leveraged by formal tools like GOSPEL, Coq, and Why3.
 
-\textbf{Immutability by default}
+\subsection{Immutability by default}
 
 Immutability is promotted as a default design principle in this language. Rather than modifying existing values, new ones 
 are created through expression evaluation. This absence of mutable shared state simplifies reasoning about program behavior 
@@ -147,7 +169,7 @@ and eliminates many common sources of verification complexity, such as aliasing 
 Since values are not modified in place, program semantics are preserved under substitution, facilitating referential transparency, 
 making symbolic execution and logical reasoning over programs more straightforward in deductive verification.
 
-\textbf{First-Class and Higher-Order Functions}
+\subsection{First-Class and Higher-Order Functions}
 
 OCaml treats functions as first-class values: they can be passed as arguments, returned from other functions, 
 and stored in data structures. Combined with lexical scoping and immutable data, this makes OCaml particularly 
@@ -165,7 +187,7 @@ higher-order logic.
 In the context of deductive verification, such functional abstractions support elegant formulations of parametric specifications 
 and reasoning principles.
 
-\textbf{Modules and Functors}
+\subsection{Modules and Functors}
 
 Module system supports parametric modularity via modules and functors enabling abstraction, separation of concerns, and 
 scalable specification. This system corresponds closely to abstract data types and interfaces in formal verification.
@@ -189,7 +211,7 @@ scalable specification. This system corresponds closely to abstract data types a
 This modular architecture is especially valuable in the context of verification. It promotes separation of concerns by 
 allowing components to be reasoned about independently of their implementations.
 
-\textbf{Type Abstraction and Encapsulation}
+\subsection{Type Abstraction and Encapsulation}
 
 One of OCaml's strengths lies in its support for abstract types via module signatures. This allows developers to hide 
 implementation details and expose only essential operations, enabling verification at the level of observable behavior rather 
@@ -222,21 +244,55 @@ behavior instead of implementation details.
 \label{sec:Standard_ML}
 
 Standard ML is a functional programming language that fully embraces the expressiveness of mathematical functions. 
-However, it was also shaped by practical programming needs, leading to the inclusion of imperative features and a 
+However, it was also shaped by practical programming needs, leading to the inclusion of imperative constructs and a 
 robust exception handling system. The language supports modularity through an advanced system of parametric modules, 
 designed to facilitate the structured development of large-scale software systems. Moreover, Standard ML is strongly 
 and statically typed, and it was the first programming language to introduce a form of polymorphic type inference that 
-combines strong type safety with notable flexibility in programming style.
+combines strong type safety with considerable flexibility in programming style ~\cite{milner1997definition}.
 
-%%https://courses.grainger.illinois.edu/cs422/sp2016/lectures/sml97-defn.pdf
+One of the most distinguishing features of Standard ML is its formal definition, which precisely specifies the language's 
+static and dynamic semantics using structural operational semantics (SOS). This operational style makes the semantics 
+especially suitable for mechanization in proof assistants like HOL, bridging the gap between theoretical definitions 
+and executable verification. This made it one of the first programming languages to be fully defined in a mathematical 
+sense, laying a strong foundation for formal verification frameworks and verified compilers such as 
+CakeML~\cite{milner1997definition, SewellMTKMAO23}. 
 
-%% Falar de semanticas operacionais
+Even though the foundational formal definition of Standard ML had already been established, the ability to embed and 
+reason about its semantics within a proof assistant like HOL marked a significant advance. This transformation from a 
+descriptive, paper based semantics to one that is executable and machine-verifiable played a key role in laying the 
+groundwork for end-to-end verified compilers~\cite{Syme93}.
 
 \section{Why3}
 \label{sec:Why3}
 
+Why3 is the successor to the Why verification platform, offering a rich first-order language and a highly configurable 
+toolchain for generating proof obligations in multiple formats. Its development is driven by the need to model both purely 
+functional and imperative program behaviors and to formally verify their properties. Since verifying non-trivial programs 
+typically requires abstracting them into pure logical models, Why3 is designed to bridge the gap between practical programming 
+constructs and formal reasoning frameworks.
+
+Why3 introduces \textsf{WhyML}, a specification and programming language that serves both as an expressive front-end and as 
+an intermediate language for verifying programs written in other languages such as C, Java, and Ada.~\cite{FilliatreP13} 
+It supports rich language features including pattern matching, recursive definitions, algebraic data types, and inductive or 
+coinductive predicates. Moreover, it comes with a standard library of logical theories covering arithmetic, sets, maps, 
+and more.
+
+Why3 sets itself apart from other approaches that also provide rich specification languages like \textsf{Coq} and 
+\textsf{Isabelle} by aiming to maximize automation. Rather than functioning as a standalone theorem prover, it serves 
+as a front-end that generates proof obligations to be discharged by external automated provers such as Z3, Alt-Ergo, 
+Vampire, and CVC4, as well as interactive systems like Coq and PVS.
+
+In the context of automated program verification, Why3 simplifies the process by automatically generating verification 
+conditions from annotated source code and delegating their resolution to a variety of powerful external theorem provers. 
+When certain features (e.g., polymorphic types or pattern matching) are not supported by a backend prover, Why3 automatically 
+applies transformations to encode them into a compatible form. This architecture allows developers to focus on writing 
+correct specifications while benefiting from automation in proving correctness properties.~\cite{boogie11why3}
+
+
 \section{Cameleer}
 \label{sec:Cameleer}
+
+With the evolution of proof assistants becoming pivotal for industrial-size projects the need for 
 
 Cameleer ~\cite{PereiraR20}
 
