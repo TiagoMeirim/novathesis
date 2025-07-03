@@ -72,15 +72,16 @@ $x$ in $P$ with the expression $f$.
 
 \subsection{Rule of Composition}
 
+The inference rule for composition states that if the postcondition of the first program segment matches the precondition 
+of the second, then the entire program will produce the intended result—assuming the initial precondition of the first 
+segment holds.
+
 \[ 
   \inferrule
   {P \{ Q_1 \} R_1 \quad \quad  R_1 \{ Q_2 \} R}
   {P \{ (Q_1 ; Q_2) \} R} 
+  \quad (composition)
 \]
-
-The inference rule for composition states that if the postcondition of the first program segment matches the precondition 
-of the second, then the entire program will produce the intended result—assuming the initial precondition of the first 
-segment holds.
 
 Hoare Logic was significantly strengthened by Cook's seminal work on the soundness and completeness of an axiom system 
 for program verification. In his paper, Cook presented a Hoare-style axiom system tailored to a simple programming language 
@@ -99,8 +100,8 @@ program verification. Unlike Hoare's original formulation, which requires deduct
 weakest precondition semantics allow for algorithmic generation of verification conditions, thereby enabling integration 
 with automated theorem provers and SMT solvers.
 
-The influence of weakest preconditions is particularly evident in modern deductive verification tools such as \textsf{Why3}, 
-and \textsf{Dafny}~\cite{boogie11why3, Leino10}.
+The influence of weakest preconditions is particularly evident in modern deductive verification tools such as \whythree
+~\cite{boogie11why3}, and \textsf{Dafny}~\cite{Leino10}.
 
 %%https://dl.acm.org/doi/pdf/10.1145/363235.363259
 %%https://scispace.com/pdf/soundness-and-completeness-of-an-axiom-system-for-program-3g7csch545.pdf
@@ -131,27 +132,11 @@ execution efficiency while preserving strong safety guarantees at runtime. Excep
 specific low-level scenarios, such as when array bounds checking is explicitly disabled or when employing type-unsafe features 
 like runtime serialization.
 
-For the standard compiler toolchain features, OCaml has both a high-performance native-code compiler (\textbf{ocamlopt}) and a 
-bytecode compiler (\textbf{ocamlc}). The native-code compiler produces efficient machine code via a sophisticated optimizing 
+For the standard compiler toolchain features, \ocaml has both a high-performance native-code compiler (\textsf{ocamlopt}) and a 
+bytecode compiler (\textsf{ocamlc}). The native-code compiler produces efficient machine code via a sophisticated optimizing 
 backend, while the bytecode compiler offers portability and rapid development. Both compilers are integrated with a runtime 
 system that supports automatic memory management via a garbage collector and provides facilities for exception handling, 
 concurrency, and system interaction.
-
-\subsection{ADTs(Algebraic Data Types)}
-
-In OCaml, data types fall into three broad categories: atomic predefined types (e.g., \texttt{int}, \texttt{bool}), type 
-constructors provided by the language (e.g., \texttt{list}, \texttt{array}, \texttt{option}), and user-defined types, which 
-are declared through the general mechanism of algebraic data types, for instance:
-
-\begin{ocamlenv}
-  type 'a tree =
-    | Leaf
-    | Node of 'a tree * 'a * 'a tree
-\end{ocamlenv}
-
-ADTs support exhaustive pattern matching, which is particularly useful for enabling structural recursion and inductive reasoning.
-From a verification perspective, this ensures all possible cases are covered, making formal reasoning both precise and complete. 
-Such properties are essential for theorem proving and are readily leveraged by formal tools like GOSPEL, Coq, and Why3.
 
 \subsection{Immutability by default}
 
@@ -167,10 +152,26 @@ and eliminates many common sources of verification complexity, such as aliasing 
 Since values are not modified in place, program semantics are preserved under substitution, facilitating referential transparency, 
 making symbolic execution and logical reasoning over programs more straightforward in deductive verification.
 
+\subsection{ADTs (Algebraic Data Types)}
+
+In \ocaml, data types fall into three broad categories: atomic predefined types (e.g., \texttt{int}, \texttt{bool}), type 
+constructors provided by the language (e.g., \texttt{list}, \texttt{array}, \texttt{option}), and user-defined types, which 
+are declared through the general mechanism of algebraic data types, for instance:
+
+\begin{ocamlenv}
+  type 'a tree =
+    | Leaf
+    | Node of 'a tree * 'a * 'a tree
+\end{ocamlenv}
+
+ADTs support exhaustive pattern matching, which is particularly useful for enabling structural recursion and inductive reasoning.
+From a verification perspective, this ensures all possible cases are covered, making formal reasoning both precise and complete. 
+Such properties are essential for theorem proving and are readily leveraged by formal tools like \gospel, Coq, and \whythree.
+
 \subsection{First-Class and Higher-Order Functions}
 
-OCaml treats functions as first-class values: they can be passed as arguments, returned from other functions, 
-and stored in data structures. Combined with lexical scoping and immutable data, this makes OCaml particularly 
+\ocaml treats functions as first-class values: they can be passed as arguments, returned from other functions, 
+and stored in data structures. Combined with lexical scoping and immutable data, this makes \ocaml particularly 
 well-suited for working with higher-order abstractions, a feature that aligns naturally with formal systems based on 
 higher-order logic.
 
@@ -218,7 +219,7 @@ maintainability and correctness.
 
 \subsection{Type Abstraction and Encapsulation}
 
-One of OCaml's strengths lies in its support for abstract types via module signatures. This allows developers to hide 
+One of \ocaml's strengths lies in its support for abstract types via module signatures. This allows developers to hide 
 implementation details and expose only essential operations, enabling verification at the level of observable behavior rather 
 than internal representation.
 
@@ -272,26 +273,26 @@ groundwork for end-to-end verified compilers~\cite{Syme93}.
 \section{Why3}
 \label{sec:Why3}
 
-Why3 is the successor to the Why verification platform, offering a rich first-order language and a highly configurable 
+\whythree is the successor to the Why verification platform, offering a rich first-order language and a highly configurable 
 toolchain for generating proof obligations in multiple formats. Its development is driven by the need to model both purely 
 functional and imperative program behaviors and to formally verify their properties. Since verifying non-trivial programs 
-typically requires abstracting them into pure logical models, Why3 is designed to bridge the gap between practical programming 
+typically requires abstracting them into pure logical models, \whythree is designed to bridge the gap between practical programming 
 constructs and formal reasoning frameworks.
 
-Why3 introduces \textsf{WhyML}, a specification and programming language that serves both as an expressive front-end and as 
+\whythree introduces \whyml, a specification and programming language that serves both as an expressive front-end and as 
 an intermediate language for verifying programs written in other languages such as C, Java, and Ada.~\cite{FilliatreP13} 
 It supports rich language features including pattern matching, recursive definitions, algebraic data types, and inductive or 
 coinductive predicates. Moreover, it comes with a standard library of logical theories covering arithmetic, sets, maps, 
 and more.
 
-Why3 sets itself apart from other approaches that also provide rich specification languages like \textsf{Coq} and 
+\whythree sets itself apart from other approaches that also provide rich specification languages like \textsf{Coq} and 
 \textsf{Isabelle} by aiming to maximize automation. Rather than functioning as a standalone theorem prover, it serves 
 as a front-end that generates proof obligations to be discharged by external automated provers such as Z3, Alt-Ergo, 
 Vampire, and CVC4, as well as interactive systems like Coq and PVS.
 
-In the context of automated program verification, Why3 simplifies the process by automatically generating verification 
+In the context of automated program verification, \whythree simplifies the process by automatically generating verification 
 conditions from annotated source code and delegating their resolution to a variety of powerful external theorem provers. 
-When certain features (e.g., polymorphic types or pattern matching) are not supported by a backend prover, Why3 automatically 
+When certain features (e.g., polymorphic types or pattern matching) are not supported by a backend prover, \whythree automatically 
 applies transformations to encode them into a compatible form. This architecture allows developers to focus on writing 
 correct specifications while benefiting from automation in proving correctness properties.~\cite{boogie11why3}
 

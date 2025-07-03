@@ -34,47 +34,38 @@
 \label{sec:Pipeline}
 
 Some parts of the verification pipeline have already been implemented or require only minor adjustments to meet their 
-objectives. As we know, Cameleer provides translation of OCaml code annotated with GOSPEL specifications into WhyML. 
-This extraction process succeeds when the OCaml code and its accompanying specifications are correctly written. However, 
-it is not designed to prevent users from extracting code even if the GOSPEL specifications are incomplete or insufficient 
-to guarantee correctness. Below is a draft overview of the pipeline.
+objectives. As we know, \cameleer provides translation of \ocaml code annotated with \gospel specifications into \whyml :
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{images/Cameleer_OCaml_WhyML.png}
-    \caption{OCaml to WhyML pipeline with cameleer}
-
+    \includegraphics[width=\linewidth]{images/Cameleer.png}
+    \caption{\ocaml to \whyml pipeline with \cameleer}
 \end{figure}
 
-By modifying the extraction process in Cameleer, we could potentially generate CakeML code directly from OCaml. 
-However, the current extraction is not designed for this purpose and would produce incorrect CakeML code. This is not 
-only due to differences in syntax but also because some OCaml features have no direct equivalents in CakeML, making a 
-straightforward translation impossible without further adaptation.
+The extraction process does not require the correctness of the code to be proven. This may lead to potentially incorrect \ocaml 
+programs to be extracted to \cml. Additionally, it is not designed to prevent users from extracting code even if the \gospel 
+specifications can not guarantee correctness.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{images/Cameleer_OCaml_CakeML.png}
-    \caption{OCaml to CakeML pipeline with cameleer change}
+%%Processo de extracao nao esta ligado ao facto de um exemplo ja ter sido provado ou nao, pode potencialmente 
+%%levar a gerar codigo cakeml nao correto
 
-\end{figure}
+By modifying the extraction process in \whythree to check if the proof has been discharged we can provide better correctness 
+guarantees because the generated \cml code will comply to the specification. Due to differences in syntax and features that 
+have no direct equivalents in \cml, we must also include some kind of error message for failures in extraction, for instance 
+the lack of support for while and for loops.
 
-The goal pipeline for this paper is to translate code from OCaml and GOSPEL specifications into WhyML, where it can 
-be verified using the various automated provers available in Why3. Once the code is proven correct in WhyML, it can 
-then be translated into CakeML, applying the necessary syntax adjustments and providing error feedback for any constructs 
-that cannot be translated.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{images/Cameleer_OCaml_WhyML_CakeML.png}
-    \caption{Goal pipeline}
-
-\end{figure}
+The goal of this work is to expand the currently available pipeline of translating code from \ocaml with \gospel specifications 
+into \whyml, where it can be verified using the various automated provers available in Why3. One of our goals is to achieve 
+a more robust extraction mechanism with the ideas as previously discussed. Moreover, we ought to provide a new tool that 
+translates compilable \cml programs into \ocaml equivalents that can be specified afterwards with \gospel so that one may prove 
+their correctness in \cameleer.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{images/Goal_Pipeline.png}
     \caption{Goal pipeline}
-
 \end{figure}
+
+
 
 %%existe extracao cameleer para whyml, de whyml para cakeml, whyml para ocaml64

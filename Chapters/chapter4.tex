@@ -16,46 +16,58 @@
 %%explicar o pedaco de codigo, condicoes do GOSPEL
 %%explicar o que alteramos
 
-\subsection{High-order}
-
-High-order logic code verified through cameleer.
+\subsection{Recursive Factorial}
 
 \begin{gospell}
-    (*@ function rec map (f: int -> int) (l: int list) : int list = 
-            match l with
-            | [] -> []
-            | h::t -> (f h) :: map f t *)
-    (*@ variant l
-            ensures List.length result = List.length l *)
+(*@ 
+  function rec factorial (n:int) :int = 
+    if n=0 then 1 else n * factorial (n-1)
+*)
+(*@ 
+  requires n >= 0
+  variant n
+*)
+let rec fact_aux n c t =
+  if c <= n then fact_aux n (c+1) (t*c) else t
+(*@
+  r = fact_aux n c t
+  requires n >= 0
+  requires 0 < c <= n+1
+  requires t = factorial (c-1)
+  ensures r = factorial n
+  variant n-c+1
+*)
 
-    let rec mult_list l n =
-        match l with
-        | [] -> []
-        | h :: t -> n * h :: mult_list t n
-    (*@ r = mult_list l n
-            ensures r = map (fun x -> x * n) l
-            variant l *)
+
+let fact n = fact_aux n 1 1
+(*@ 
+  r = fact n
+  requires n >= 0 
+  ensures r = factorial n
+*)
 \end{gospell}
 
 Generated code from cameleer to CakeML.
 
 \begin{cakeml}
-    fun mult_list l n = let val l1 = l in
-        let val n1 = n in
-        (case l1 of
-            [] => []
-        | h :: t => (n1 * h) :: (mult_list t n1))
+fun fact_aux n c t = let val n1 = n in
+  let val c1 = c in
+  let val t1 = t in
+  if c1 <= n1 then (fact_aux n1 (c1 + (1)) (t1 * c1))  else (t1)
+
+fun fact n = let val n1 = n in fact_aux n1 (1) (1)
 \end{cakeml}
 
 Correct code that CakeML can compile
 
 \begin{cakeml}
-    fun mult_list l n = let val l1 = l in
-        let val n1 = n in
-        (case l1 of
-            [] => []
-        | h :: t => (n1 * h) :: (mult_list t n1))
-        end end
+fun fact_aux n c t = let val n1 = n in
+  let val c1 = c in
+  let val t1 = t in
+  if c1 <= n1 then (fact_aux n1 (c1 + (1)) (t1 * c1))  else (t1)
+  end end end
+
+fun fact n = let val n1 = n in fact_aux n1 (1) (1) end
 \end{cakeml}
 
 \subsection{Exception recursive search}
@@ -63,7 +75,8 @@ Correct code that CakeML can compile
 \begin{gospell}
 let rec search_aux a c n =
     let exception Break of int in try
-        if c = Array.length a then raise Not_found else if a.(c) = n then raise (Break n) else search_aux a (c+1) n
+        if c = Array.length a then raise Not_found else if a.(c) = n 
+        then raise (Break n) else search_aux a (c+1) n
     with Break i -> i
 (*@
     r = search_aux a c n
@@ -120,6 +133,48 @@ fun linear_search a n =
 
 \end{cakeml}
 
+\subsection{High-order}
+
+High-order logic code verified through cameleer.
+
+\begin{gospell}
+    (*@ function rec map (f: int -> int) (l: int list) : int list = 
+            match l with
+            | [] -> []
+            | h::t -> (f h) :: map f t *)
+    (*@ variant l
+            ensures List.length result = List.length l *)
+
+    let rec mult_list l n =
+        match l with
+        | [] -> []
+        | h :: t -> n * h :: mult_list t n
+    (*@ r = mult_list l n
+            ensures r = map (fun x -> x * n) l
+            variant l *)
+\end{gospell}
+
+Generated code from cameleer to CakeML.
+
+\begin{cakeml}
+    fun mult_list l n = let val l1 = l in
+        let val n1 = n in
+        (case l1 of
+            [] => []
+        | h :: t => (n1 * h) :: (mult_list t n1))
+\end{cakeml}
+
+Correct code that CakeML can compile
+
+\begin{cakeml}
+    fun mult_list l n = let val l1 = l in
+        let val n1 = n in
+        (case l1 of
+            [] => []
+        | h :: t => (n1 * h) :: (mult_list t n1))
+        end end
+\end{cakeml}
+
 \subsection{Depth-search tree}
 
 \begin{gospell}
@@ -172,60 +227,6 @@ fun depth_search t n = let val t1 = t in
   | Node l x r =>
     (x = n1) orelse ((depth_search l n1) orelse (depth_search r n1)))
     end end
-\end{cakeml}
-
-\subsection{Recursive Factorial}
-
-\begin{gospell}
-(*@ 
-  function rec factorial (n:int) :int = 
-    if n=0 then 1 else n * factorial (n-1)
-*)
-(*@ 
-  requires n >= 0
-  variant n
-*)
-let rec fact_aux n c t =
-  if c <= n then fact_aux n (c+1) (t*c) else t
-(*@
-  r = fact_aux n c t
-  requires n >= 0
-  requires 0 < c <= n+1
-  requires t = factorial (c-1)
-  ensures r = factorial n
-  variant n-c+1
-*)
-
-
-let fact n = fact_aux n 1 1
-(*@ 
-  r = fact n
-  requires n >= 0 
-  ensures r = factorial n
-*)
-\end{gospell}
-
-Generated code from cameleer to CakeML.
-
-\begin{cakeml}
-fun fact_aux n c t = let val n1 = n in
-  let val c1 = c in
-  let val t1 = t in
-  if c1 <= n1 then (fact_aux n1 (c1 + (1)) (t1 * c1))  else (t1)
-
-fun fact n = let val n1 = n in fact_aux n1 (1) (1)
-\end{cakeml}
-
-Correct code that CakeML can compile
-
-\begin{cakeml}
-fun fact_aux n c t = let val n1 = n in
-  let val c1 = c in
-  let val t1 = t in
-  if c1 <= n1 then (fact_aux n1 (c1 + (1)) (t1 * c1))  else (t1)
-  end end end
-
-fun fact n = let val n1 = n in fact_aux n1 (1) (1) end
 \end{cakeml}
 
 \subsection{Tree Comparison}
