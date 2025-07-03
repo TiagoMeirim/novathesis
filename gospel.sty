@@ -11,6 +11,27 @@
 \definecolor{dark-green}{RGB}{0,102,0}
 \definecolor{newtype}{RGB}{255, 30, 30}
 
+\lstdefinelanguage{cakeml}{
+  morekeywords={let, in, if, then, else, case, of, datatype, val,
+    fn, and, not, type, withtype, match, rec, handle},
+  morekeywords=[2]{Ref, Some, None, True, False, raise, exception, orelse},
+  morekeywords=[3]{int, bool, unit, Array, List, option, tree},
+  morekeywords=[4]{fun, end},
+  sensitive=true,
+  morecomment=[s]{(*}{*)},
+  morestring=[b]",
+  keywordstyle={\color{dark-green}\bfseries},
+  keywordstyle=[2]{\color{blue}},
+  keywordstyle=[3]{\color{steelblue}\bfseries},
+  keywordstyle=[4]{\color{crimson}},
+  commentstyle=\itshape\color{thegraygray},
+  stringstyle=\color{red},
+  basicstyle=\ttfamily\small,
+  columns=[l]fullflexible,
+  escapeinside={(*@}{@*)},
+  keepspaces=true,
+}
+
 \lstdefinelanguage{gospel}
 {
 mathescape=false,
@@ -47,6 +68,10 @@ keepspaces=true,% for nicer ->
 }
 
 \newcounter{lst}
+
+\lstnewenvironment{cakeml}[1][none]{
+  \lstset{language=cakeml,numbers=#1,caption={CakeML\vspace*{-2em}},aboveskip=-1em, basicstyle=\ttfamily\footnotesize}
+}{\addtocounter{lst}{1}}
 
 \lstnewenvironment{syntax}[1][none]{
   \lstset{language=gospel,numbers=#1,caption={Syntax\vspace*{-2em}},aboveskip=-1em,

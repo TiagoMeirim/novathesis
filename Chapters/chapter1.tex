@@ -27,14 +27,22 @@ foundations in logic, computation, and formal reasoning without relying on physi
 Our research draws on several key papers that directly influenced deductive software verification and the technologies 
 we will use. These include Robin Milner's foundational work on type polymorphism (shaped the ML language) Gordon and 
 Melham's Introduction to HOL (formalized higher-order logic for verification) and Xavier Leroy's CompCert (a landmark 
-in formally verified compilation). 
+in formally verified compilation)~\cite{Turing37, Turing38}. 
 %%https://turingarchive.kings.cam.ac.uk/publications-lectures-and-talks-amtb/amt-b-12
 %%https://www.dcc.fc.up.pt/~acm/turing-phd.pdf
 
-Developments in relation to verified code have 
-become increasingly crucial to achieve correctness and provide safety, the way we define correctness has more
-than one definition, it can be specified informally or written in formal language ~\cite{%Deductive software verification
-}. The weight of functional languages for deductive software verification has been quite low despite having
+Why are verified compilers such an important target for formal verification? If a verified program is compiled by a 
+faulty compiler, the resulting executable may not preserve its intended behavior, invalidating the higher-level correctness 
+so compilers like CompCert and CakeML address this issue by providing formally verified compilation pipelines
+~\cite{LoowKTMNAF19, GrossEPPC22, Leroy09}, thereby eliminating a major source of uncertainty and ensuring that correctness is 
+preserved from source code to machine code~\cite{LeroyCompilerMeaning}.
+%%https://cakeml.org/pldi19.pdf %%https://arxiv.org/pdf/2205.00862
+%%https://xavierleroy.org/publi/compcert-CACM.pdf
+%%https://xavierleroy.org/talks/ICALP2016.pdf
+
+Developments in relation to verified code have become increasingly crucial to achieve correctness and provide safety, 
+the way we define correctness has more than one definition, it can be specified informally or written in formal language 
+~\cite{Filliatre11}. The weight of functional languages for deductive software verification has been quite low despite having
 good candidates for verification, like OCaml. Ever since 2018 with the introduction of GOSPEL, with providing
 fomal language specification tightly integrated with OCaml, verification has become easier with a modular specification
 that doesn't need much changes to OCaml code. This wasn't the first time formal logic and proof has been merged with 
@@ -46,12 +54,6 @@ translation of verified code to other languages gave a new view onto how other f
 code verified while being written in a more expressive language just like OCaml. A clear applicant was CakeML, a
 language based on a substantial subset of Standard ML, having a core goal of creating an end-to-end verified compiler.
 
-Why are verified compilers such an important target for formal verification? If a verified program is compiled by a 
-faulty compiler, the resulting executable may not preserve its intended behavior, invalidating the higher-level correctness 
-so compilers like CompCert and CakeML address this issue by providing formally verified compilation pipelines, thereby 
-eliminating a major source of uncertainty and ensuring that correctness is preserved from source code to machine code.
-%%https://cakeml.org/pldi19.pdf %%https://arxiv.org/pdf/2205.00862
-%%https://xavierleroy.org/publi/compcert-CACM.pdf
 
 %% Standard menos famoso que OCaml entao ha interesse em construir programas corretos em algo mais mainstream, comparação ao SML
 %% Mais verificaçoes em papel, mais sobre compiladores verificados

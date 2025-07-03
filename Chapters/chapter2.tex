@@ -61,9 +61,9 @@ termination of $C$ is not assured by the triple. Total correctness is achieved w
 
 where
 \begin{itemize}
-  \item{$x$ is a variable identifier;}
-  \item{$f$ is an expression;}
-  \item{$P_0$ is obtained from $P$ by substituting $f$ for all occurrences of $x$}
+\item{$x$ is a variable identifier;}
+\item{$f$ is an expression;}
+\item{$P_0$ is obtained from $P$ by substituting $f$ for all occurrences of $x$}
 \end{itemize}
 
 The axiom expresses that to prove a postcondition $P$ holds after assigning the expression $f$ to the variable $x$,
@@ -112,6 +112,7 @@ and \textsf{Dafny}~\cite{boogie11why3, Leino10}.
 %% Exemplos das features do OCaml
 %% Falar de features concretas do OCaml
 %% Exemplo place holder
+%% Mencionar Ocaml64
 
 OCaml is a statically typed functional programming language rooted in the ML family, originally developed 
 to serve as the implementation language for theorem provers such as LCF. It inherits the foundational principles 
@@ -136,8 +137,6 @@ backend, while the bytecode compiler offers portability and rapid development. B
 system that supports automatic memory management via a garbage collector and provides facilities for exception handling, 
 concurrency, and system interaction.
 
-
-
 \subsection{ADTs(Algebraic Data Types)}
 
 In OCaml, data types fall into three broad categories: atomic predefined types (e.g., \texttt{int}, \texttt{bool}), type 
@@ -145,10 +144,9 @@ constructors provided by the language (e.g., \texttt{list}, \texttt{array}, \tex
 are declared through the general mechanism of algebraic data types, for instance:
 
 \begin{ocamlenv}
-  type envir = Empty
-    | Regular of int * string list * envir
-    | Special of int * string list * envir
-    | Weird of string list * envir ;;
+  type 'a tree =
+    | Leaf
+    | Node of 'a tree * 'a * 'a tree
 \end{ocamlenv}
 
 ADTs support exhaustive pattern matching, which is particularly useful for enabling structural recursion and inductive reasoning.
@@ -187,10 +185,12 @@ higher-order logic.
 In the context of deductive verification, such functional abstractions support elegant formulations of parametric specifications 
 and reasoning principles.
 
-\subsection{Modules and Functors}
+\subsection{Modules, Functors and Signatures}
 
-Module system supports parametric modularity via modules and functors enabling abstraction, separation of concerns, and 
-scalable specification. This system corresponds closely to abstract data types and interfaces in formal verification.
+The module system enables parametric modularity through modules and functors, supporting abstraction, separation of concerns, and 
+scalable design. At the heart of this system are signatures, which serve as formal interfaces specifying the types and values a 
+module must provide while hiding the implementation details. These signatures play a key role in formal verification by allowing 
+reasoning about components based solely on their interfaces, without depending on how they are implemented.
 
 \begin{ocamlenv}
   module type StackSig = sig
@@ -206,10 +206,15 @@ scalable specification. This system corresponds closely to abstract data types a
     let push x s = x :: s
     let pop = function [] -> [] | _ :: tl -> tl
   end
+
+  module type ElemSig = sig type t end
+
+  module MakeStack (_ : ElemSig) : StackSig = Stack
 \end{ocamlenv}
 
-This modular architecture is especially valuable in the context of verification. It promotes separation of concerns by 
-allowing components to be reasoned about independently of their implementations.
+This modular structure is especially useful in verification contexts because it clearly separates the interface from the 
+implementation. This separation makes it easier to reason about and verify each component independently, improving 
+maintainability and correctness.
 
 \subsection{Type Abstraction and Encapsulation}
 
@@ -234,6 +239,8 @@ than internal representation.
 By hiding the concrete type \texttt{int}, this interface prevents misuse and allows formal specification to focus solely on 
 observable behavior. In verification tools, this maps cleanly to abstract state machines and promotes reasoning over 
 behavior instead of implementation details.
+
+%%modulos assinaturas functors
 
 %%https://arxiv.org/pdf/1011.1783 (native compiler JIT)
 %%https://inria.hal.science/inria-00070049v1/document
@@ -288,11 +295,14 @@ When certain features (e.g., polymorphic types or pattern matching) are not supp
 applies transformations to encode them into a compatible form. This architecture allows developers to focus on writing 
 correct specifications while benefiting from automation in proving correctness properties.~\cite{boogie11why3}
 
-
 \section{Cameleer}
 \label{sec:Cameleer}
 
-With the evolution of proof assistants becoming pivotal for industrial-size projects the need for 
+With the evolution of proof assistants becoming pivotal for industrial-size projects the need for. Despite all the advances in 
+deductive verification and proof automation, little attention has been given to the family of functional languages. Let us
+consider, for instance, the OCaml language. It is well suited for verification, given its well-defined semantics, clear syntax, 
+and state-of-the-art type system. Yet, the community still lacks an easy to use framework for the specification and
+verification of OCaml code.
 
 Cameleer ~\cite{PereiraR20}
 
