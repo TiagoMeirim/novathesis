@@ -8,44 +8,32 @@
 
 \typeout{NT FILE abstract-pt.tex}%
 
-Independentemente da língua em que a dissertação está escrita, geralmente esta contém pelo menos dois resumos: um resumo na mesma língua do texto principal e outro resumo numa outra língua.
+A verificação formal de programas é uma área muito importante, especialmente em sistemas críticos que exigem 
+alto grau de confiança. Ferramentas como \whythree permitem a especificação e verificação automática de programas 
+através da geração de condições de verificação, que são posteriormente delegadas a provadores externos. Por outro lado, 
+\cml oferece uma cadeia de compilação completamente verificada, baseada numa semântica operacional formal de Standard ML,
+permitindo uma verificação de ponta a ponta, desde o código fonte com anotações formais até código executável com garantias 
+formais.
 
-A ordem dos resumos varia de acordo com a escola. Se a sua escola tiver regulamentos específicos sobre a ordem dos resumos, o template (\LaTeX) \gls{novathesis} irá respeitá-los. Caso contrário, a regra padrão no template \gls{novathesis} é ter em primeiro lugar o resumo \emph{no mesmo idioma do texto principal} e depois o resumo \emph{no outro idioma}. Por exemplo, se a dissertação for escrita em português, a ordem dos resumos será primeiro o português e depois o inglês, seguido do texto principal em português. Se a dissertação for escrita em inglês, a ordem dos resumos será primeiro em inglês e depois em português, seguida do texto principal em inglês.
-%
-No entanto, esse pedido pode ser personalizado adicionando um dos seguintes ao arquivo \verb+5_packages.tex+.
+O principal objetivo desta dissertação é explorar uma pipeline de verificação que parte de programas escritos em OCaml, 
+anotados com especificações em \gospel, passando pela tradução automática para \whyml, onde a verificação é efetuada, culminando 
+na geração de código equivalente em \cml. Pretende-se garantir que o código extraído preserva as propriedades verificadas, 
+promovendo uma verificação formal contínua ao longo de todo o processo. Adicionalmente, a pipeline vai suportar tradução 
+de códigoem  \cml para código em \ocaml.
 
-\begin{verbatim}
-    \abstractorder(<MAIN_LANG>):={<LANG_1>,...,<LANG_N>}
-\end{verbatim}
+O trabalho a realizar envolve a análise e adaptação da ferramneta de extração já existente no Cameleer, de forma a permitir 
+a conversão segura de \ocaml para \cml, respeitando as diferenças sintáticas e semânticas entre as linguagens. Serão também 
+implementados mecanismos de deteção e sinalização de casos em que a tradução não é possível devido a incompatibilidades entre 
+os modelos de execução.
 
-Por exemplo, para um documento escrito em Alemão com resumos em Alemão, Inglês e Italiano (por esta ordem), pode usar-se:
-\begin{verbatim}
-    \ntsetup{abstractorder={de={de,en,it}}}
-\end{verbatim}
+Na fase de preparação, foi realizado um estudo aprofundado sobre semânticas operacionais formais, na lógica de Hoare, 
+na utilização de pré-condições fracas e compiladores verificados. Suplementarmente, o estudo do funcionamento interno das 
+ferramentas \whythree, \cameleer e \cml serviu para identificar quais as etapas da pipeline que requerem alterações ou integração.
 
-Relativamente ao seu conteúdo, os resumos não devem ultrapassar uma página e frequentemente tentam responder às seguintes questões (é imprescindível a adaptação às práticas habituais da sua área científica):
 
-\begin{enumerate}
-  \item Qual é o problema?
-  \item Porque é que é um problema interessante/desafiante?
-  \item Qual é a proposta de abordagem/solução?
-  \item Quais são as consequências/resultados da solução proposta?
-\end{enumerate}
-
-% E agora vamos fazer um teste com uma quebra de linha no hífen a ver se a \LaTeX\ duplica o hífen na linha seguinte se usarmos \verb+"-+… em vez de \verb+-+.
-%
-% zzzz zzz zzzz zzz zzzz zzz zzzz zzz zzzz zzz zzzz zzz zzzz zzz zzzz zzz zzzz comentar"-lhe zzz zzzz zzz zzzz
-%
-% Sim!  Funciona! :)
-
-% Palavras-chave do resumo em Português
-% \begin{keywords}
-% Palavra-chave 1, Palavra-chave 2, Palavra-chave 3, Palavra-chave 4
-% \end{keywords}
 \keywords{
   Primeira palavra-chave \and
   Outra palavra-chave \and
   Mais uma palavra-chave \and
   A última palavra-chave
 }
-% to add an extra black line

@@ -8,25 +8,41 @@
 
 \typeout{NT FILE abstract-en.tex}%
 
-%%Abstract um resumo do tema, 1 pagina
-%%Paragrafo 
+The study of the Formal Verification field is very important for critical systems that
+involve high levels of trust. A significant advancement in recent research has been the
+development of certified compilers, such as CakeML, which ensure that the generated 
+machine code preserves the behaviour of the original program. The integration of these 
+properties in a pipeline with previously verified code can provide powerful correctness
+guarantees. 
 
-Verification as we know is a very important area specially for critical systems that envolve high levels of trust. Tools
-like \whythree allow specification and automated verification by delegating proof obligations to external proovers. On the other
-hand, \cml offers a fully verified compilation chain based on Standard ML operation semantics, providing a path from source code 
-with formal annotations to executable code with formal guarantees.
+The main objective of this work is to explore and develop a verification pipeline 
+that starts with programs written in OCaml with GOSPEL annotations with the end goal of
+producing correct-by-construction CakeML code. The first step involves translating the
+annotated OCaml code to WhyML using the Cameleer tool. This WhyML code should then be 
+verified on the Why3 platform and ultimately extracted to CakeML. Additionally, the 
+pipeline should also feature a translation scheme in the opposite direction.
 
-The main objective for this work is to explore, develope and expand a verification pipeline that starts from programs written
-on \ocaml with \gospel annotations, passing through the automatic translation to \whyml through \cameleer, where verification 
-is performed, and concludes on the generation of equivalent code in \cml. The goal is to ensure the extracted code preserves 
-the verified properties, promoting a continuous formal verification throughout the process. Additionally, the pipeline will 
-support translating the provided \cml code into \ocaml code.
+Currently, the extraction mechanism in Why3 to CakeML is outdated and only supports
+a subset of the language. As such, we intend to revisit and expand upon it in this 
+work, by updating the translation scheme, implement a mechanism to stop the extraction
+of non-verified code and to report cases where translation is not possible due to 
+incompatibilities between features.
 
-The work to be done inclueds analizing and adapting the extractor already provided by \cameleer in order to allow a better 
-conversion from \ocaml code into \cml code, respecting the syntactic and semantic differences between them. Mechanisms will be
-implemented to detect and report cases where translation is not possible because of incompatabilities between models.
+In this document, a thorough study was conducted concerning the state of Why3's
+extraction mechanism, alongside the selected tools, to identify which steps of the 
+pipeline require modifications. Moreover, we also present the theoretical 
+concepts concerning Operational Semantics, Deductive Verification and Verified 
+Compilers.
 
-In the preparation fase, a thorough study was conducted about formal operacional semantics through Hoare Logic,
-Weakest preconditions and certified compilers. Furthermore, the internal workings of tools such as \whythree, \cameleer 
-and \cakeml were analyzed, while identifying which of the steps from the pipeline require changes or integrations.
+
+\keywords{
+  Deductive Verification \and
+  Certified Compilers \and
+  Verification Pipeline \and
+  CakeML \and
+  Cameleer \and
+  GOSPEL \and
+  OCaml \and
+  Why3
+}
 

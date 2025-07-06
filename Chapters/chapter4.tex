@@ -18,15 +18,46 @@
 
 \section{Tool Modifications}
 
+As shown in Figure \ref{fig:Cameleer_pipeline}, which outlines the \cameleer pipeline, there is no explicit support for \cml. 
+However, a small modification to the file \texttt{/bin/cli.ml} allows extending the existing extraction process. By changing the 
+\inlinecode{execute\_extract} function to invoke \inlinecode{why3 extract -D cakeml {programa}.mlw -o {programa}.cml}, 
+the tool can target \cml as a backend. With this adjustment, running \inlinecode{cameleer program.ml $--$extract} will translate 
+the original \ocaml plus \gospel code into code in the \cml language. This enables extraction from \textsf{OCaml64} directly 
+into \cml, providing the basis for a verified compilation pipeline.
+
+The alternative to this process is to obtain the code translated \whyml from the flag \inlinecode{$--$debug} and then apply the 
+mechanism of extraction of \whythree directly. Not only this process more complex, the debug flag produces code that doesn't 
+let the launch of the provers from the \whythree ide because it contains proof goals directly in the code, which would imply 
+also altering the code manually or to substantially modify the behaviour of the debug flag which is not intended.
+
+%% Example to prove
+
 %%Mencionar a alteracao do mecanismo de extracao do cameleer de ocaml64 para cakeml, internamente o cameleer usa o comando 
 %%do why3 de extracao "why3 extract -D cakeml {programa}.mlw -o {programa}.cml"
 
-\inlinecode{why3 extract -D cakeml {programa}.mlw -o {programa}.cml}
-
 \section{Case Studies}
 
+For all of the case studies below mentioned, the \ocaml + \gospel code was compiled and verified through \whythree automatic
+provers before applying the extraction command to translate into \cml. This verification step is essential because the correctness 
+guarantees of the final \cml code depend entirely on the validity of the specifications and their successful discharge by the 
+provers. Without ensuring that the \whyml intermediate code satisfies the given specifications, the generated \cml code would 
+no longer carry the desired formal guarantees, thereby breaking the intended end-to-end verification pipeline.
 
-\subsection{Recursive Factorial}
+Since this step is intended only to demonstrate what already exists, the generated code may contain significant syntax errors 
+and will not be compilable. These issues reflect limitations in the current extraction process and highlight the need for 
+further refinement.
+
+\subsection{Tail Recursive Factorial}
+
+
+Initially an iterative version of the factorial function was also considered, however, since \cml does not support imperative loop 
+constructs such as \inlinecode{for} or \inlinecode{while}. Instead we opted to study the tail recursive variant to simulate 
+iteration.
+This example highlights \ocaml's support for recursion through an auxiliary function, \inlinecode{fact\_aux}, which incrementally 
+computes the factorial by accumulating the product of integers from 1 to n. The main function \inlinecode{fact} initializes the 
+auxiliary call with appropriate base values. The GOSPEL annotations formally specify the expected behavior, including 
+preconditions such as non-negativity of n, loop variants for termination, and the correctness of the returned result. This 
+annotated version allows the function to be verified in \whythree before attempting any extraction.
 
 \begin{gospell}
 (*@ 
@@ -57,7 +88,7 @@ let fact n = fact_aux n 1 1
 *)
 \end{gospell}
 
-Generated code from cameleer to CakeML.
+From the code above, the translated code was this:
 
 \begin{cakeml}
 fun fact_aux n c t = let val n1 = n in
@@ -68,7 +99,11 @@ fun fact_aux n c t = let val n1 = n in
 fun fact n = let val n1 = n in fact_aux n1 (1) (1)
 \end{cakeml}
 
-Correct code that CakeML can compile
+The generated \cml code failed to compile due to differences in \inlinecode{let} expression syntax between \ocaml and \cml. In \cml, every 
+\inlinecode{let} block must be explicitly closed with an \inlinecode{end} keyword, whereas in \ocaml, this is not required. 
+\inlinecode{let} bindings are not terminated explicitly, but in case of doubt it is possible to use the \inlinecode{begin...end} block. 
+So for the correct writing of the above code there is only the need to add three \inlinecode{end} in function \inlinecode{fact\_aux} and 
+one \inlinecode{end} in function \inlinecode{fact}.
 
 \begin{cakeml}
 fun fact_aux n c t = let val n1 = n in
@@ -81,6 +116,17 @@ fun fact n = let val n1 = n in fact_aux n1 (1) (1) end
 \end{cakeml}
 
 \subsection{Exception recursive search}
+
+The next implementation showcases a recursive linear search on an array, utilizing exceptions to indicate when the search value 
+is not found. This example allows us to examine the support provided by \ocaml for data structures like arrays, as well as its 
+mechanism for exception handling. The core function, \inlinecode{linear\_search}, delegates the search process to an auxiliary 
+function that recursively traverses the array.
+
+The \gospel annotations specify the behavior formally by defining preconditions to ensure the array bounds are respected
+and that elements before the current index c have been verified not to match the target value n, because the search has not terminated yet. 
+Postconditions guarantee that, if a value is returned, it is the searched value; and if an exception \inlinecode{Not\_found} is raised, 
+the value does not exist anywhere in the array. This makes the function verifiable by \whythree before attempting extraction to \cml, ensuring 
+that key correctness properties are formally validated.
 
 \begin{gospell}
 let rec search_aux a c n =
@@ -121,7 +167,21 @@ fun linear_search a n =
   let val a1 = a in let val n1 = n in search_aux a1 (0) n1
 \end{cakeml}
 
-Correct code that CakeML can compile
+The generated \cml code fails to compile due to several incompatibilities between \ocaml and \cml that must be addressed 
+to ensure a successful and semantically correct extraction. One of the primary issues concerns exception handling, as \cml 
+requires all exceptions to be declared globally, outside the scope of functions, whereas the extracted code attempts to define 
+the exception Break locally within a function using let exception, a construct that is not valid in \cml. This syntactic 
+difference results in a compilation error and reflects a broader incompatibility in exception scoping between the two languages.
+
+Additionally, array operations in \cml differ substantially from those in \ocaml. While \ocaml allows for concise access through 
+expressions like \inlinecode{a.(i)} and automatically handles operations like \inlinecode{Array.length}, \cml demands explicit 
+and fully qualified references such as \inlinecode{Array.sub a i} and \inlinecode{Array.length a}. The generated code fails 
+in this aspect by using invalid expressions such as \inlinecode{a1.length} and \inlinecode{get a1 c1}, neither of which are 
+supported by the \cml standard library or type system. This divergence in the array API further contributes to the failure of 
+the generated code to compile.
+
+Moreover, the syntax of let-bindings also contributes for another critical issue as mentioned above. These problems collectively 
+illustrate the importance of a properly configured and semantically aware translation mechanism.
 
 \begin{cakeml}
 
@@ -294,3 +354,9 @@ fun cmp t1 t2 = let val t11 = t1 in
     end
   end
 \end{cakeml}
+
+
+Without addressing exception scoping, array operation semantics, and let-binding syntax, the extracted code remains invalid 
+and cannot serve as a verified executable target. Therefore, improving the extraction pipeline from \ocaml and \gospel to 
+\cml necessitates careful handling of these language-specific constructs to ensure that the resulting code is not only 
+syntactically correct but also preserves the semantics of the original verified source.
