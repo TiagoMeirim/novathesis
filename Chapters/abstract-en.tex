@@ -8,39 +8,25 @@
 
 \typeout{NT FILE abstract-en.tex}%
 
-Regardless of the language in which the dissertation is written, usually there are at least two abstracts: one abstract in the same language as the main text, and another abstract in some other language.
+%%Abstract um resumo do tema, 1 pagina
+%%Paragrafo 
 
-The abstracts' order varies with the school.  If your school has specific regulations concerning the abstracts' order, the \gls{novathesis} (\LaTeX) template will respect them.  Otherwise, the default rule in the \gls{novathesis} template is to have in first place the abstract in \emph{the same language as main text}, and then the abstract in \emph{the other language}. For example, if the dissertation is written in Portuguese, the abstracts' order will be first Portuguese and then English, followed by the main text in Portuguese. If the dissertation is written in English, the abstracts' order will be first English and then Portuguese, followed by the main text in English.
-%
-However, this order can be customized by adding one of the following to the file \verb+5_packages.tex+.
+Verification as we know is a very important area specially for critical systems that envolve high levels of trust. Tools
+like \whythree allow specification and automated verification by delegating proof obligations to external proovers. On the other
+hand, \cml offers a fully verified compilation chain based on Standard ML operation semantics, providing a path from source code 
+with formal annotations to executable code with formal guarantees.
 
-\begin{verbatim}
-    \ntsetup{abstractorder={<LANG_1>,...,<LANG_N>}}
-    \ntsetup{abstractorder={<MAIN_LANG>={<LANG_1>,...,<LANG_N>}}}
-\end{verbatim}
+The main objective for this work is to explore, develope and expand a verification pipeline that starts from programs written
+on \ocaml with \gospel annotations, passing through the automatic translation to \whyml through \cameleer, where verification 
+is performed, and concludes on the generation of equivalent code in \cml. The goal is to ensure the extracted code preserves 
+the verified properties, promoting a continuous formal verification throughout the process. Additionally, the pipeline will 
+support translating the provided \cml code into \ocaml code.
 
-For example, for a main document written in German with abstracts written in German, English and Italian (by this order) use:
-\begin{verbatim}
-    \ntsetup{abstractorder={de={de,en,it}}}
-\end{verbatim}
+The work to be done inclueds analizing and adapting the extractor already provided by \cameleer in order to allow a better 
+conversion from \ocaml code into \cml code, respecting the syntactic and semantic differences between them. Mechanisms will be
+implemented to detect and report cases where translation is not possible because of incompatabilities between models.
 
-Concerning its contents, the abstracts should not exceed one page and may answer the following questions (it is essential to adapt to the usual practices of your scientific area):
+In the preparation fase, a thorough study was conducted about formal operacional semantics through Hoare Logic,
+Weakest preconditions and certified compilers. Furthermore, the internal workings of tools such as \whythree, \cameleer 
+and \cakeml were analyzed, while identifying which of the steps from the pipeline require changes or integrations.
 
-\begin{enumerate}
-  \item What is the problem?
-  \item Why is this problem interesting/challenging?
-  \item What is the proposed approach/solution/contribution?
-  \item What results (implications/consequences) from the solution?
-\end{enumerate}
-
-% Palavras-chave do resumo em Inglês
-% \begin{keywords}
-% Keyword 1, Keyword 2, Keyword 3, Keyword 4, Keyword 5, Keyword 6, Keyword 7, Keyword 8, Keyword 9
-% \end{keywords}
-\keywords{
-  One keyword \and
-  Another keyword \and
-  Yet another keyword \and
-  One keyword more \and
-  The last keyword
-}

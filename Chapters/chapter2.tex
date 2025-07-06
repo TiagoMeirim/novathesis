@@ -59,12 +59,8 @@ termination of $C$ is not assured by the triple. Total correctness is achieved w
   \quad (assign)
 \]
 
-where
-\begin{itemize}
-\item{$x$ is a variable identifier;}
-\item{$f$ is an expression;}
-\item{$P_0$ is obtained from $P$ by substituting $f$ for all occurrences of $x$}
-\end{itemize}
+where $x$ is a variable identifier; $f$ is an expression; $P_0$ is obtained from $P$ by substituting $f$ for all occurrences 
+of $x$.
 
 The axiom expresses that to prove a postcondition $P$ holds after assigning the expression $f$ to the variable $x$,
 it suffices to prove the precondition $P_0$ before the assignment, where $P_0$ is obtained by substituting every occurrence of
