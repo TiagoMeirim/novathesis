@@ -15,33 +15,63 @@
 
 \subsection{Correct Boolean Literals Syntax}
 
+Modifying boolean literals to match \cml syntax, capitalizing initial letters (e.g., \inlinecode{true} 
+$\rightarrow$ \inlinecode{True}).
+
 \subsection{Correct Reference Declaration Syntax}
+
+Adjusting reference declarations to follow \cml conventions, including capitalization and syntax structure.
 
 \subsection{Correct Let-Binding Syntax}
 
+Ensuring all \inlinecode{let} bindings are properly closed with \inlinecode{end} as required by \cml.
+
 \subsection{Correct Array Operations Syntax}
+
+Replacing \ocaml array operations with their \cml equivalents.
 
 \subsection{Correct Datatype Syntax}
 
+Fixing datatype definitions to respect \cml ordering and syntax, especially for constructors with multiple arguments.
+
 \subsection{Correct Exception Handling}
+
+Refactoring exception declarations and usage to comply with \cml, ensuring all exceptions are defined at the top level.
 
 \section{Translation from CakeML to OCaml}
 
 \subsection{Arithmetic and Boolean operations}
 
+Mapping \cml arithmetic and boolean operators to their \ocaml equivalents, adjusting casing and syntax as needed.
+
 \subsection{Let-Bindings}
+
+Converting \cml \inlinecode{let}... \inlinecode{end} structures into standard \ocaml let-bindings without explicit 
+termination.
 
 \subsection{References}
 
+Translating \cml reference operations into \ocaml.
+
 \subsection{Array Operations}
+
+Adapting \cml array access and manipulation to \ocaml syntax.
 
 \subsection{Datatypes}
 
+Reconstructing datatype definitions from \cml into idiomatic \ocaml type declarations, preserving constructors 
+and structure.
+
 \subsection{Correct Exception Handling}
+
+Transforming exception declarations and usage from \cml back into \ocaml style with inline definitions and raises.
 
 \section{Dissertation}
 
 \subsection{Writing}
+
+Finalizing the dissertation document by detailing the modifications made to the codebase, describing the implementation 
+steps, and analysing the results and limitations of the translation process.
 
 \begin{figure}[h]
 \tikzset{every picture/.style={xscale=0.65,yscale=0.65,transform shape}}
