@@ -16,6 +16,12 @@
 %%explicar o pedaco de codigo, condicoes do GOSPEL
 %%explicar o que alteramos
 
+%% Pequena introduçao sobre o problema, quais as features a espera de testar
+%% Depois Apresentar codigo verificado em ocaml
+%% Explica o codigo ainda por explicar e a especificaçao gospel
+%% Mostrar traducao e explicar onde esta errado 
+%% Mostrar o correto e por baixo explicar o que foi alterado para estar correto
+
 \section{Tool Modifications}
 
 As shown in Figure \ref{fig:Cameleer_pipeline}, which outlines the \cameleer pipeline, there is no explicit support for \cml. 
@@ -52,12 +58,8 @@ further refinement.
 
 Initially an iterative version of the factorial function was also considered, however, since \cml does not support imperative loop 
 constructs such as \inlinecode{for} or \inlinecode{while}. Instead we opted to study the tail recursive variant to simulate 
-iteration.
-This example highlights \ocaml's support for recursion through an auxiliary function, \inlinecode{fact\_aux}, which incrementally 
-computes the factorial by accumulating the product of integers from 1 to n. The main function \inlinecode{fact} initializes the 
-auxiliary call with appropriate base values. The GOSPEL annotations formally specify the expected behavior, including 
-preconditions such as non-negativity of n, loop variants for termination, and the correctness of the returned result. This 
-annotated version allows the function to be verified in \whythree before attempting any extraction.
+iteration. This example highlights \ocaml's support for recursion through an auxiliary function, \inlinecode{fact\_aux}, 
+which incrementally computes the factorial by accumulating the product of integers from 1 to n.
 
 \begin{gospell}
 (*@ 
@@ -78,8 +80,11 @@ let rec fact_aux n c t =
   ensures r = factorial n
   variant n-c+1
 *)
+\end{gospell}
 
 
+
+\begin{gospell}
 let fact n = fact_aux n 1 1
 (*@ 
   r = fact n
@@ -88,7 +93,10 @@ let fact n = fact_aux n 1 1
 *)
 \end{gospell}
 
-From the code above, the translated code was this:
+The main function \inlinecode{fact} initializes the auxiliary call with appropriate base values. The GOSPEL annotations 
+specify the expected behaviour, including preconditions such as non-negativity of n, loop variants for termination, and the 
+correctness of the returned result. This annotated version allows the function to be verified in \whythree before attempting any 
+extraction.
 
 \begin{cakeml}
 fun fact_aux n c t = let val n1 = n in
@@ -360,10 +368,3 @@ Without addressing exception scoping, array operation semantics, and let-binding
 and cannot serve as a verified executable target. Therefore, improving the extraction pipeline from \ocaml and \gospel to 
 \cml necessitates careful handling of these language-specific constructs to ensure that the resulting code is not only 
 syntactically correct but also preserves the semantics of the original verified source.
-
-
-%% Pequena introduçao sobre o problema, quais as features a espera de testar
-%% Depois Apresentar codigo verificado em ocaml
-%% Explica o codigo ainda por explicar e a especificaçao gospel
-%% Mostrar traducao e explicar onde esta errado 
-%% Mostrar o correto e por baixo explicar o que foi alterado para estar correto

@@ -15,63 +15,89 @@
 
 \subsection{Correct Boolean Literals Syntax}
 
-Modifying boolean literals to match \cml syntax, capitalizing initial letters (e.g., \inlinecode{true} 
-$\rightarrow$ \inlinecode{True}).
+In \cml, the boolean literals start with uppercase contrary to \ocaml. In this task we ought to revise the \whythree's extraction scheme,
+which currently define these literals with all lowercase letters. So, in order to match boolean literals with \cml syntax, we must
+capitalize the initial letters (e.g., \inlinecode{true} $\rightarrow$ \inlinecode{True}).
 
 \subsection{Correct Reference Declaration Syntax}
 
-Adjusting reference declarations to follow \cml conventions, including capitalization and syntax structure.
+Just as the boolean literals, references also start with uppercase which is also not the same as \ocaml. The same capitalization solution 
+will be applied for reference declarations in order to follow \cml conventions (e.g., \inlinecode{ref} $\rightarrow$ \inlinecode{Ref}).
 
 \subsection{Correct Let-Binding Syntax}
 
-Ensuring all \inlinecode{let} bindings are properly closed with \inlinecode{end} as required by \cml.
+Regarding the let-binding structure in \cml, this alwasy terminates with the \inlinecode{end} keyword. During translation sometimes there 
+are some missing \inlinecode{end} tokens. This may be due to \ocaml not having an explicit termination token for let-bindings. Additionally, 
+the parameters of the functions are duplicated with let-binding, this is redundant, and it is our objective to simplify the resulting 
+translations.
 
-\subsection{Correct Array Operations Syntax}
+\subsection{Correct Data Structures Operations Syntax}
 
-Replacing \ocaml array operations with their \cml equivalents.
+Two of the most commonly used libraries for data structures, List and Array, have displayed errors when translating their operations into 
+\cml. Some of the errors include the omitted prefix for the library name and different operation names. 
+Even if the operations are quite similar from \ocaml and \cml, the translation doesn't generate the same operation calling, therefore, to 
+have a fully correct and compilable code in \cml arises the necessity to replace the data structures operations with the corresponding 
+ones.
 
-\subsection{Correct Datatype Syntax}
+\subsection{Correct Data Type Syntax}
 
-Fixing datatype definitions to respect \cml ordering and syntax, especially for constructors with multiple arguments.
+When defining the data types, the syntax from \ocaml and \cml have some differences when it comes to tuple declarations, in particular, 
+the \inlinecode{of} keyword and the separator \inlinecode{*} found in \ocaml are not used in \cml. However, the translation mechanism 
+misplaces the generic type before the \inlinecode{datatype} keyword in which the data type is written. The solution comes through fixing 
+data type definitions to respect \cml ordering and syntax.
 
 \subsection{Correct Exception Handling}
 
-Refactoring exception declarations and usage to comply with \cml, ensuring all exceptions are defined at the top level.
+In \ocaml we can declare exceptions within functions, which is not possible in \cml. All exceptions need to be declared at the global 
+level. Furthermore, \ocaml supports a few predefined exceptions found in the standard library which have no direct translation in
+\cml, so they also need to be declared. For this task it is essential to refactor the exception declarations and usage to comply with 
+\cml, ensuring all exceptions are defined properly.
 
 \section{Translation from CakeML to OCaml}
 
 \subsection{Arithmetic and Boolean operations}
 
-Mapping \cml arithmetic and boolean operators to their \ocaml equivalents, adjusting casing and syntax as needed.
+The first step in any basic translation tool is to define the integer and boolean data types as well as their respective operations.
+This includes defining the literals correctly, as previously mentioned the boolean tokens are not equally written, and operations
+such as addition, subtraction, multiplication, equality and inequality. Whenever necessary adjusting casing and syntax will be performed.
 
 \subsection{Let-Bindings}
 
-Converting \cml \inlinecode{let}... \inlinecode{end} structures into standard \ocaml let-bindings without explicit 
-termination.
+The next for the translation tool is to support let-bindings. The correct syntax for this construct in \cml includes explicit 
+termination with the \inlinecode{end} keyword, meanwhile in \ocaml there is no explicit termination. This construct requires 
+special attention when multiple lets are nested due to the environments of the bindings.
 
 \subsection{References}
 
-Translating \cml reference operations into \ocaml.
+To support references it is important to define three operations, these being creation, assignment and access. The correct translation
+from \cml to \ocaml must take into consideration the main syntax difference which is casing: \inlinecode{ref} in \ocaml
+and \inlinecode{Ref} in \cml.
 
-\subsection{Array Operations}
+\subsection{Data Structure Operations}
 
-Adapting \cml array access and manipulation to \ocaml syntax.
+Most real programs make use of built-in complex data structures such as Arrays and Lists. This urges for the translation of their 
+basic operations already present in the standard library, besides the additional operations featured in the respective dedicated 
+library for that data structure.
 
-\subsection{Datatypes}
+\subsection{Data Types}
 
-Reconstructing datatype definitions from \cml into idiomatic \ocaml type declarations, preserving constructors 
-and structure.
+For many programs the built-in data structures does not suffice, so user defined data types are a must for these programming languages.
+Such it is natural to provide translation scheme for the definition of data types in \cml into idiomatic \ocaml type declarations, 
+preserving constructors and structure.
 
 \subsection{Correct Exception Handling}
 
-Transforming exception declarations and usage from \cml back into \ocaml style with inline definitions and raises.
+Robust programs are built with the expectation to fail occasionally, so there should be mechanisms to handle and recover from these 
+situations. One of these mechanisms are exceptions, which offer a clean and concise flagging for these non-natural cases.
+When transforming exception declarations and usage from \cml back into \ocaml style with inline definitions and raises, we must also take
+into consideration that \cml only allows global declaration of exceptions.
 
 \section{Dissertation}
 
 \subsection{Writing}
 
-Finalizing the dissertation document by detailing the modifications made to the codebase, describing the implementation 
-steps, and analysing the results and limitations of the translation process.
+In the last month, we will finalize the dissertation document by detailing the modifications made to the codebase, describing the 
+implementation steps, and analysing the results and limitations of the pipeline and the translation tool.
 
 \begin{figure}[h]
 \tikzset{every picture/.style={xscale=0.65,yscale=0.65,transform shape}}
@@ -103,22 +129,23 @@ steps, and analysing the results and limitations of the translation process.
 
 \ganttbar{Correct Let-Binding Syntax}{3}{4} \\
 
-\ganttbar{Correct Array Operations Syntax}{5}{6} \\
+\ganttbar{Correct Data Structures Operations Syntax}{5}{6} \\
 
-\ganttbar{Correct Datatype Syntax}{7}{9} \\
+\ganttbar{Correct Data Type Syntax}{7}{9} \\
 
 \ganttbar{Correct Exception Handling}{10}{12} \\
 
 \ganttgroup{Translation from CakeML to OCaml}{13}{26} \\
+
 \ganttbar{Arithmetic and Boolean operations}{13}{14} \\
 
 \ganttbar{Let-Bindings}{15}{16} \\
 
 \ganttbar{References}{17}{19} \\
 
-\ganttbar{Array Operations}{20}{21} \\
+\ganttbar{Data Structure Operations}{20}{21} \\
 
-\ganttbar{Datatypes}{22}{23} \\
+\ganttbar{Data Types}{22}{23} \\
 
 \ganttbar{Correct Exception Handling}{24}{26} \\
 
