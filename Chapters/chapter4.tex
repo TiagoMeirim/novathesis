@@ -27,7 +27,7 @@
 As shown in Figure \ref{fig:Cameleer_pipeline}, which outlines the \cameleer pipeline, there is no explicit support for \cml. 
 However, a small modification to the file \texttt{/bin/cli.ml} allows extending the existing extraction process. By changing the 
 \inlinecode{execute\_extract} function to invoke \inlinecode{why3 extract -D cakeml {programa}.mlw -o {programa}.cml}, 
-the tool can target \cml as a backend. With this adjustment, running \inlinecode{cameleer program.ml $--$extract} will translate 
+the tool can target \cml as a backend. With this adjustment, running \inlinecode{cameleer program.ml $--$extract} translates
 the original \ocaml plus \gospel code into code in the \cml language. This enables extraction from \textsf{OCaml64} directly 
 into \cml, providing the basis for a verified compilation pipeline.
 
@@ -43,23 +43,47 @@ also altering the code manually or to substantially modify the behaviour of the 
 
 \section{Case Studies}
 
-For all of the case studies below mentioned, the \ocaml + \gospel code was compiled and verified through \whythree automatic
+For all the case studies below-mentioned, the \ocaml + \gospel code was compiled and verified through \whythree automatic
 provers before applying the extraction command to translate into \cml. This verification step is essential because the correctness 
 guarantees of the final \cml code depend entirely on the validity of the specifications and their successful discharge by the 
 provers. Without ensuring that the \whyml intermediate code satisfies the given specifications, the generated \cml code would 
 no longer carry the desired formal guarantees, thereby breaking the intended end-to-end verification pipeline.
 
 Since this step is intended only to demonstrate what already exists, the generated code may contain significant syntax errors 
-and will not be compilable. These issues reflect limitations in the current extraction process and highlight the need for 
+and may not be compilable. These issues reflect limitations in the current extraction process and highlight the need for 
 further refinement.
 
 \subsection{Tail Recursive Factorial}
 
-
 Initially an iterative version of the factorial function was also considered, however, since \cml does not support imperative loop 
-constructs such as \inlinecode{for} or \inlinecode{while}. Instead we opted to study the tail recursive variant to simulate 
-iteration. This example highlights \ocaml's support for recursion through an auxiliary function, \inlinecode{fact\_aux}, 
-which incrementally computes the factorial by accumulating the product of integers from 1 to n.
+constructs such as \inlinecode{for} or \inlinecode{while} we had to look for alternative versions of this example. Instead, we opted 
+to study the tail recursive variant to simulate iteration. This example highlights \ocaml's support for recursion through an auxiliary 
+function, \inlinecode{fact\_aux}, which incrementally computes the factorial by accumulating the product of integers from 1 to n.
+
+\begin{gospell}
+let rec fact_aux n c t =
+  if c <= n then fact_aux n (c+1) (t*c) else t
+(*@
+  r = fact_aux n c t
+  requires n >= 0
+  requires 0 < c <= n+1
+  requires t = factorial (c-1)
+  ensures r = factorial n
+  variant n+1-c
+*)
+\end{gospell}
+
+The auxiliary function \inlinecode{fact\_aux} receives as arguments the \inlinecode{n} value, that represents the factorial we want to 
+compute, the \inlinecode{c} value, that represents the current index of the iteration, and \inlinecode{t} value, that is accumulating 
+the result from previous iterations in order to display the solution.
+
+The specifications have some pre-conditions, from those, the factorial to compute is higher or equal to 0, because the factorial as 
+default is only calculated for non-negative values, the index of the iteration is between 0 and factorial to compute, because from the
+code written when the index achieves the same value as the factorial to compute the function should terminate. For the post-conditions
+we only need to make sure the result of the auxiliary function is indeed the factorial of n, which is calculated logically with the 
+definition below. The variant serves to prove the termination of the recursive function with an expression that decreases every iteration
+and is limited by 0. In this case since the counter is approaching n+1 every iteration, for the last iteration t holds the factorial of n,
+which was the previous value of c and terminates successfully.
 
 \begin{gospell}
 (*@ 
@@ -70,19 +94,11 @@ which incrementally computes the factorial by accumulating the product of intege
   requires n >= 0
   variant n
 *)
-let rec fact_aux n c t =
-  if c <= n then fact_aux n (c+1) (t*c) else t
-(*@
-  r = fact_aux n c t
-  requires n >= 0
-  requires 0 < c <= n+1
-  requires t = factorial (c-1)
-  ensures r = factorial n
-  variant n-c+1
-*)
 \end{gospell}
 
-
+The definition of this function in \gospel represents the logical concept of a factorial, this can be used for later specifications 
+to compare results. The implementation of this function is in a recursive way, since \gospel only supports the functional paradigm 
+additionally logical definitions are meant to be simple rather than complex but optimized, since we want to simplify the proof.
 
 \begin{gospell}
 let fact n = fact_aux n 1 1
@@ -93,10 +109,14 @@ let fact n = fact_aux n 1 1
 *)
 \end{gospell}
 
-The main function \inlinecode{fact} initializes the auxiliary call with appropriate base values. The GOSPEL annotations 
-specify the expected behaviour, including preconditions such as non-negativity of n, loop variants for termination, and the 
-correctness of the returned result. This annotated version allows the function to be verified in \whythree before attempting any 
-extraction.
+The main function \inlinecode{fact} initializes the auxiliary call with appropriate base values, the first one is the counter
+so it needs to start at 1 because for the multiplication with the accumulator starting at 0 would not take into consideration the 
+first iteration. For the 1 in the accumulator, the third argument, represents the neutral element for multiplication. The \gospel 
+annotations specify the expected behaviour, including preconditions such as non-negativity of n and the correctness of the returned 
+result. 
+
+This annotated version allows the function to be verified in \whythree before attempting any extraction. The extracted code can be
+seen below:
 
 \begin{cakeml}
 fun fact_aux n c t = let val n1 = n in
@@ -108,10 +128,10 @@ fun fact n = let val n1 = n in fact_aux n1 (1) (1)
 \end{cakeml}
 
 The generated \cml code failed to compile due to differences in \inlinecode{let} expression syntax between \ocaml and \cml. In \cml, every 
-\inlinecode{let} block must be explicitly closed with an \inlinecode{end} keyword, whereas in \ocaml, this is not required. 
-\inlinecode{let} bindings are not terminated explicitly, but in case of doubt it is possible to use the \inlinecode{begin...end} block. 
-So for the correct writing of the above code there is only the need to add three \inlinecode{end} in function \inlinecode{fact\_aux} and 
-one \inlinecode{end} in function \inlinecode{fact}.
+\inlinecode{let} block must be explicitly closed with an \inlinecode{end} keyword, whereas in \ocaml, this is not required. It should
+also be mentioned that the generated let-bindings generated are not necessary and only duplicate the variables in the arguments.
+
+Initially we want to correct the let-binding termination as demonstrated in the following code:
 
 \begin{cakeml}
 fun fact_aux n c t = let val n1 = n in
@@ -123,43 +143,74 @@ fun fact_aux n c t = let val n1 = n in
 fun fact n = let val n1 = n in fact_aux n1 (1) (1) end
 \end{cakeml}
 
+However, our final goal is to eliminate as much unnecessary code as possible, in this case the expendable let-bindings, while 
+maintaining the desired behaviour:
+
+\begin{cakeml}
+fun fact_aux n c t = 
+  if c <= n then (fact_aux n (c + (1)) (t * c))  else (t)
+
+fun fact n = fact_aux n (1) (1)
+\end{cakeml}
+
+Both versions of this example are compilable and function correctly. This first example is simple and quite clearly demonstrates that
+our pipeline can function if small changes are applied to the extraction mechanism.
+
 \subsection{Exception recursive search}
 
-The next implementation showcases a recursive linear search on an array, utilizing exceptions to indicate when the search value 
-is not found. This example allows us to examine the support provided by \ocaml for data structures like arrays, as well as its 
-mechanism for exception handling. The core function, \inlinecode{linear\_search}, delegates the search process to an auxiliary 
-function that recursively traverses the array.
-
-The \gospel annotations specify the behavior formally by defining preconditions to ensure the array bounds are respected
-and that elements before the current index c have been verified not to match the target value n, because the search has not terminated yet. 
-Postconditions guarantee that, if a value is returned, it is the searched value; and if an exception \inlinecode{Not\_found} is raised, 
-the value does not exist anywhere in the array. This makes the function verifiable by \whythree before attempting extraction to \cml, ensuring 
-that key correctness properties are formally validated.
+One possible use of exceptions, although it may seem natural at first, can be to stop iteration early in \ocaml for instance in the 
+context of linear search when the desired element is found. Once again since for and while loops are not available in \cml to simulate 
+iteration we use recursion with a counter:
 
 \begin{gospell}
 let rec search_aux a c n =
-    let exception Break of int in try
-        if c = Array.length a then raise Not_found else if a.(c) = n 
-        then raise (Break n) else search_aux a (c+1) n
-    with Break i -> i
+  let exception Break of int in try
+    if c = Array.length a then raise Not_found else if a.(c) = n then raise (Break c) else search_aux a (c+1) n
+  with Break i -> i
 (*@
-    r = search_aux a c n
-    requires 0 <= c <= Array.length a
-    requires forall k. 0 <= k < c -> a.(k) <> n
-    raises Not_found -> forall k. 0 <= k < Array.length a -> a.(k) <> n
-    ensures r = n
-    variant Array.length a - c
-*)
-
-let linear_search a n = search_aux a 0 n
-(*@
-    r = linear_search a n
-    raises Not_found -> forall k. 0 <= k < Array.length a -> a.(k) <> n
-    ensures r = n
+  r = search_aux a c n
+  requires 0 <= c <= Array.length a
+  requires forall k. 0 <= k < c -> a.(k) <> n
+  raises Not_found -> forall k. 0 <= k < Array.length a -> a.(k) <> n
+  ensures 0 <= r < Array.length a
+  ensures a.(r) = n
+  variant Array.length a - c
 *)
 \end{gospell}
 
-Generated code from cameleer to CakeML.
+The auxiliary function \inlinecode{search\_aux} receives as arguments an array, the current index and a value that is going to be 
+compared on each iteration of the array's length. The program returns the index of the array in case it was found early by raising
+the exception \inlinecode{Break}. By contrast, if the value is not in the array the exception \inlinecode{Not\_found} is raised at the end.
+
+Inside the \gospel specifications, we must guarantee that index \inlinecode{c} is between values of 0 and the length of the array 
+\inlinecode{a}, which in turn gives us the assurance that the array is never accessed for values out of its range expect for the case 
+where \inlinecode{c} is equal to the length in which case the function terminates without accessing the array. To further strengthen the
+precondition above there is the need to state that all the values previously seen can not be the desired value, otherwise the function
+should have terminated earlier. Since the exception \inlinecode{Not\_Found} was not caught this means the function only returns a value
+if this exception was not raised, therefore we only need to express two ensure clauses, one that states the resulting index is a value 
+between 0 and the length of the array a minus one and that the element of the array in the index returned is effectively the value 
+searching for. As the index is increasing in each iteration at some point it becomes equal to the length of the array thereby proving 
+termination and the variant clause.
+
+The core function, \inlinecode{linear\_search}, delegates the search process to the auxiliary function that recursively traverses 
+the array:
+
+\begin{gospell}
+let linear_search a n = search_aux a 0 n
+(*@
+  r = linear_search a n
+  raises Not_found -> forall k. 0 <= k < Array.length a -> a.(k) <> n
+  ensures 0 <= r < Array.length a
+  ensures a.(r) = n
+*)
+\end{gospell}
+
+Following the same train of thought, we must express the two possible outcomes. The first is when the \inlinecode{Not\_found} exception
+is raised and the element was not found within the boundaries of the array. The second case is when the result is in fact an integer
+inside the boundaries and the value inside the array in the index provided is the same value being searched.
+
+This makes the function verifiable by \whythree before attempting extraction to \cml, ensuring that key correctness properties are 
+formally validated. The extracted code is:
 
 \begin{cakeml}
 fun search_aux a c n = let val a1 = a in
@@ -178,18 +229,17 @@ fun linear_search a n =
 The generated \cml code fails to compile due to several incompatibilities between \ocaml and \cml that must be addressed 
 to ensure a successful and semantically correct extraction. One of the primary issues concerns exception handling, as \cml 
 requires all exceptions to be declared globally, outside the scope of functions, whereas the extracted code attempts to define 
-the exception Break locally within a function using let exception, a construct that is not valid in \cml. This syntactic 
+the exception Break locally within a function using let-bound exception, a construct that is not valid in \cml. This syntactic 
 difference results in a compilation error and reflects a broader incompatibility in exception scoping between the two languages.
 
 Additionally, array operations in \cml differ substantially from those in \ocaml. While \ocaml allows for concise access through 
-expressions like \inlinecode{a.(i)} and automatically handles operations like \inlinecode{Array.length}, \cml demands explicit 
-and fully qualified references such as \inlinecode{Array.sub a i} and \inlinecode{Array.length a}. The generated code fails 
-in this aspect by using invalid expressions such as \inlinecode{a1.length} and \inlinecode{get a1 c1}, neither of which are 
-supported by the \cml standard library or type system. This divergence in the array API further contributes to the failure of 
-the generated code to compile.
+expressions like \inlinecode{a.(i)} while \cml demands the usage of a function from the array library \inlinecode{Array.sub a i}. 
+The generated code fails in this aspect by using invalid expressions such as \inlinecode{a1.length} and \inlinecode{get a1 c1}, 
+neither are supported by the \cml standard library nor array library. This divergence in the array library further contributes 
+to the failure of the generated code to compile.
 
-Moreover, the syntax of let-bindings also contributes for another critical issue as mentioned above. These problems collectively 
-illustrate the importance of a properly configured and semantically aware translation mechanism.
+Moreover, the problems with let-bindings discussed earlier also contribute to another critical issue. These problems collectively 
+illustrate the importance of a properly configured and semantically aware translation mechanism. The corrected code is presented below:
 
 \begin{cakeml}
 
@@ -211,64 +261,93 @@ fun linear_search a n =
 
 \end{cakeml}
 
+With this example we wanted to showcase how the extraction mechanism translates array definitions, access and other operations 
+as well as handling exceptions.
+
 \subsection{High-order}
 
-High-order logic code verified through cameleer.
+In the documentation for \cml it was not possible to find any mention of higher-order functions as such we devised an example that
+combines higher order with pattern matching and lists. The function in this example multiplies all the values of a list by a certain
+integer:
 
 \begin{gospell}
-    (*@ function rec map (f: int -> int) (l: int list) : int list = 
-            match l with
-            | [] -> []
-            | h::t -> (f h) :: map f t *)
-    (*@ variant l
-            ensures List.length result = List.length l *)
-
-    let rec mult_list l n =
-        match l with
-        | [] -> []
-        | h :: t -> n * h :: mult_list t n
-    (*@ r = mult_list l n
-            ensures r = map (fun x -> x * n) l
-            variant l *)
+let rec mult_list l n =
+    match l with
+    | [] -> []
+    | h :: t -> n * h :: mult_list t n
+(*@ r = mult_list l n
+        ensures r = map (fun x -> x * n) l
+        variant l *)
 \end{gospell}
 
-Generated code from cameleer to CakeML.
+This recursive function \inlinecode{mult\_list} receives as arguments a list and a value that will be used to multiply on each of the
+lists values. While using a pattern matching the function will continue until the original list is empty.
+
+The original list will have its values extracted one by one until the list is empty, signalling the function termination, which in turn
+represents the variant clause. The function \inlinecode{map} is classical example of function programming that applies another function 
+to all elements of a list. One can observe that the \inlinecode{mult\_list} function is a particular case of the \inlinecode{map} 
+function, where the function is the multiplication by a given integer n and is expressed by an anonymous function. 
+
+The logical implementation of the \inlinecode{map} function is presented below:
+
+\begin{gospell}
+(*@ function rec map (f: int -> int) (l: int list) : int list = 
+        match l with
+        | [] -> []
+        | h::t -> (f h) :: map f t *)
+(*@ variant l
+        ensures List.length result = List.length l *)
+\end{gospell}
+
+The logical function \inlinecode{map} represents the application of a certain function to the values of the list provided. As the same
+reason that variant clause is represented by the list, since the termination for this logical function is also determined by when the
+list is empty. The is also the need to ensure that the length of the list resulting from applying the function to the original list
+is the same since the number of values do not change with this transformation.
+
+The corresponding generated code is:
 
 \begin{cakeml}
-    fun mult_list l n = let val l1 = l in
-        let val n1 = n in
-        (case l1 of
-            [] => []
-        | h :: t => (n1 * h) :: (mult_list t n1))
+fun mult_list l n = let val l1 = l in
+    let val n1 = n in
+    (case l1 of
+        [] => []
+    | h :: t => (n1 * h) :: (mult_list t n1))
 \end{cakeml}
 
-Correct code that CakeML can compile
+We can observe that pattern matching and basic list handling seems to be working well after the translation, however the extraction 
+still generates clones of the arguments, the code can not be compilable. 
+
+By solving the issues found, we tested the code and effectively, high-order functions are allowed by the compiler in \cml. The corrected 
+code is displayed below:
 
 \begin{cakeml}
-    fun mult_list l n = let val l1 = l in
-        let val n1 = n in
-        (case l1 of
-            [] => []
-        | h :: t => (n1 * h) :: (mult_list t n1))
-        end end
+fun mult_list l n = let val l1 = l in
+    let val n1 = n in
+    (case l1 of
+        [] => []
+    | h :: t => (n1 * h) :: (mult_list t n1))
+    end end
 \end{cakeml}
+
+Since the issue continues to stem from the let-bindings, the solution to add the termination token or eliminating the unnecessary 
+let-bindings still seems to solve the problem at hand.
 
 \subsection{Depth-search tree}
+
+User defined data types such as trees are very important for real world examples in functional programming, since traversing them
+can easily be achieved recursively. 
 
 \begin{gospell}
 type 'a tree =
     | Leaf
     | Node of 'a tree * 'a * 'a tree
+\end{gospell}
 
-(*@ function rec to_list (t: 'a tree) : 'a list = 
-  match t with
-  | Leaf -> []
-  | Node l x r -> x :: to_list l @ to_list r
-*)
-(*@
-  variant t
-*)
+A tree can either be a \inlinecode{Leaf}, which represents the empty tree, or a \inlinecode{Node}, which is a tuple with three elements, 
+the subtree to the left, the value for the node and the subtree to the right, respectively. The recursive depth-first search algorithm 
+for trees can be implemented as:
 
+\begin{gospell}
 let rec depth_search t n = 
   match t with
   | Leaf -> false
@@ -277,6 +356,27 @@ let rec depth_search t n =
   r = depth_search t n
   variant t
   ensures List.mem n (to_list t) <-> r
+*)
+\end{gospell}
+
+The following recursive function \inlinecode{depth\_search} shows how a tree is traversed through its depth firstly when trying to find
+a node that has the same value as the value given in the arguments.
+
+Since the algorithm searches the subtree to the left and subtree to the right it is known that each of those trees is smaller than their
+parent. In the worst case, where the element is not found in the tree, we know that recursion terminates with the leaves, so the variant 
+clause will be the tree that was searched. One way to guarantee the result is correct is to transform the tree into a list and checking if
+the desired element is found in the resulting list with the \inlinecode{List.mem} operation.
+
+To transform the tree into a list we formed an auxiliary logical funtion:
+
+\begin{gospell}
+(*@ function rec to_list (t: 'a tree) : 'a list = 
+  match t with
+  | Leaf -> []
+  | Node l x r -> x :: to_list l @ to_list r
+*)
+(*@
+  variant t
 *)
 \end{gospell}
 
