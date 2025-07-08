@@ -287,14 +287,13 @@ is to apply a filter for the original list \inlinecode{l}, where inside the filt
 Theoretically the operation is already done, but for research purposes we added more operations to see how the translation would generate
 for different operations, those where the inversion of the list and the length of a list.
 
-The specification passes through ensuring some crucial information. As the function is organized it will return a tuple with the 
+The specification passes through ensuring some crucial information. As the function is organized it returns a tuple with the 
 length of the list created and the list created, so we start by comparing the first element of the tuple, which should be the length of 
-the reversed and filtered list, and therefore equal to the length of the second argument.
-
- with the length of the list in the 
-tuple. Then the need to ensure all the values inside the created list are positive and even. After that ensuring every element inside
-the list created is also inside the original list and finally to ensure every value that is not inside the original list is not inside
-the created list.
+the reversed and filtered list, and therefore equal to the length of the second argument, the same list. Then there is a need to 
+guarantee all the values inside the created list are effectively positive and even. Additionally, every element belonging inside
+the list created is also inside the original list and every value that is not inside the original list is not inside the created 
+list. For simplicity, we do not guarantee that the number of occurrences for each number that belong to the resulting list is also 
+the same as the original list. This condition would guarantee of this function however its proof would be complex to display here.
 
 The extracted code can be seen below:
 
@@ -317,7 +316,7 @@ fun count_even l =
   let val l2 = List.rev l1 in (List.length l2, l2) end end
 \end{cakeml}
 
-Using the correct syntax calling for every list operation and int operation while deleting all the unnecessary let-bindings makes the
+Using the correct syntax calling for every list operation and integer operation while deleting all the unnecessary let-bindings makes the
 code compilable and correct.
 
 \subsection{High-order}
@@ -336,10 +335,10 @@ let rec mult_list l n =
         variant l *)
 \end{gospell}
 
-This recursive function \inlinecode{mult\_list} receives as arguments a list and a value that will be used to multiply on each of the
-lists values. While using a pattern matching the function will continue until the original list is empty.
+This recursive function \inlinecode{mult\_list} receives as arguments a list and a value that is used to multiply on each of the
+lists values. While using a pattern matching the function must continue until the original list is empty.
 
-The original list will have its values extracted one by one until the list is empty, signalling the function termination, which in turn
+The original list has its values extracted one by one until the list is empty, signalling the function termination, which in turn
 represents the variant clause. The function \inlinecode{map} is classical example of function programming that applies another function 
 to all elements of a list. One can observe that the \inlinecode{mult\_list} function is a particular case of the \inlinecode{map} 
 function, where the function is the multiplication by a given integer n and is expressed by an anonymous function. 
@@ -420,7 +419,7 @@ a node that has the same value as the value given in the arguments.
 
 Since the algorithm searches the subtree to the left and subtree to the right it is known that each of those trees is smaller than their
 parent. In the worst case, where the element is not found in the tree, we know that recursion terminates with the leaves, so the variant 
-clause will be the tree that was searched. One way to guarantee the result is correct is to transform the tree into a list and checking if
+clause is the tree that was searched. One way to guarantee the result is correct is to transform the tree into a list and checking if
 the desired element is found in the resulting list with the \inlinecode{List.mem} operation.
 
 To transform the tree into a list we formed an auxiliary logical function:
@@ -551,6 +550,10 @@ the translated code.
 
 \subsection{References}
 
+To demonstrate support for references, a program was implemented to perform Euclidean division, also known as division with remainder. 
+This operation involves dividing one non-negative integer by another positive integer, resulting in two values: a positive integer 
+quotient and a non-negative remainder that is strictly less than the absolute value of the divisor. This program is implemented below:
+
 \begin{gospell}
 let rec eudiv_aux (x: int) (y: int) (r: int ref) (q: int ref) =
   if !r >= y then (r := !r - y; q := !q + 1; eudiv_aux x y r q)
@@ -566,6 +569,20 @@ let rec eudiv_aux (x: int) (y: int) (r: int ref) (q: int ref) =
     ensures 0 <= !r < y *)
 \end{gospell}
 
+This example has the need for an auxiliary function in \inlinecode{eudiv\_aux} which receives as arguments the values the dividend 
+\inlinecode{x}, the divisor \inlinecode{y}, the remainder \inlinecode{r}, and the quotient \inlinecode{q}. What the recursive auxiliary 
+function is doing for every iteration is to increment the quotient by 1 and subtract the remainder by the divisor, until the remainder 
+is a value that is strictly smaller than the divisor. The values for the remainder and quotient are saved inside references and 
+reassigned after every operation or iteration.
+
+To specify this function, we used \gospel annotations to define pre-conditions and post-conditions that ensure the correctness of 
+the Euclidean division. The pre-conditions enforce that the dividend must be a non-negative integer, the divisor must be strictly 
+positive, and the remainder (held in a reference) must initially lie between 0 and the dividend. Additionally, we specify that the 
+dividend equals the product of the divisor and quotient plus the remainder at each recursive call. For the post-conditions, we ensure 
+that this equation is preserved through execution. Furthermore, the remainder must always remain non-negative and strictly less 
+than the divisor, which aligns with the definition of Euclidean division. In every iteration we subtract \inlinecode{y} from the
+remainder \inlinecode{\!r} so a natural way to guarantee termination is to use this exact expression as a variant condition.
+
 \begin{gospell}
 let euclidean_div x y =
     let r = ref x and q = ref 0 in 
@@ -577,6 +594,17 @@ let euclidean_div x y =
     ensures x = y * q + r
     ensures 0 <= r < y *)
 \end{gospell}
+
+The main function \inlinecode{euclidean\_div} receives the two arguments \inlinecode{x} and \inlinecode{y}, which represent respectively
+the dividend and divisor. This function initializes the remainder \inlinecode{r} as a reference with the value of the dividend 
+\inlinecode{x} and the quotient \inlinecode{q} as a reference of value 0. After acquiring the necessary variables the auxiliary function 
+is called.
+
+The \gospel specifications require the dividend to be a non-negative integer and the divisor to be strictly positive. The function 
+ensures that the dividend always equals the product of the divisor and the quotient plus the remainder. Additionally, it guarantees 
+that the remainder remains non-negative and strictly less than the divisor, as defined by the Euclidean division properties.
+
+The translated code to \cml is represented below:
 
 \begin{cakeml}
 fun eudiv_aux x y r q = let val x1 = x in
@@ -593,6 +621,12 @@ fun euclidean_div x y =
   let val q = ref (0) in (eudiv_aux x1 y1 r q; (!q, !r))
 \end{cakeml}
 
+The operations concerning references, creation, assignment and access, all seem to be well translated syntactically, the problem with
+let-bindings is recurring, however a new issue arises as the \inlinecode{else} branch with a single unit value was not generated for the 
+function \inlinecode{eudiv\_aux}.
+
+The following code for \cml is the corrected version:
+
 \begin{cakeml}
 fun eudiv_aux x y r q =
   if (!r) >= y
@@ -604,6 +638,9 @@ fun euclidean_div x y =
   let val q = Ref (0) in (eudiv_aux x y r q; (!q, !r)) 
 end end
 \end{cakeml}
+
+Removing the unnecessary let-bindings and correctly handling of the \inlinecode{else} branch, which was absent, the functions became 
+both syntactically correct and successfully compilable.
 
 \section{Analyses For The Case Studies}
 
