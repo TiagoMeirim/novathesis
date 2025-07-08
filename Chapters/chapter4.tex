@@ -367,7 +367,7 @@ parent. In the worst case, where the element is not found in the tree, we know t
 clause will be the tree that was searched. One way to guarantee the result is correct is to transform the tree into a list and checking if
 the desired element is found in the resulting list with the \inlinecode{List.mem} operation.
 
-To transform the tree into a list we formed an auxiliary logical funtion:
+To transform the tree into a list we formed an auxiliary logical function:
 
 \begin{gospell}
 (*@ function rec to_list (t: 'a tree) : 'a list = 
@@ -380,7 +380,13 @@ To transform the tree into a list we formed an auxiliary logical funtion:
 *)
 \end{gospell}
 
-Generated code from cameleer to CakeML.
+The recursive function \inlinecode{to\_list} transforms a tree firstly from the own element of the root, following the left side and 
+ending with the right side. Since, for this example, we are only concerned with the inclusion of an element in the list, the order 
+in which it is constructed doesn't have effect on the outcome of the solution, our decision was arbitrary.
+
+Similarly to the function \inlinecode{depth\_search} the termination can be proven by the tree itself.
+
+The generated \cml code was:
 
 \begin{cakeml}
 'a datatype tree = Leaf | Node of 'a tree * 'a * 'a tree
@@ -393,7 +399,12 @@ fun depth_search t n = let val t1 = t in
     (x = n1) orelse ((depth_search l n1) orelse (depth_search r n1)))
 \end{cakeml}
 
-Correct code that CakeML can compile
+The definition of the tree data type is incorrect for three reason, number one the ordering of the syntax for the left side declaration of
+a data type starts with the token \inlinecode{datatype} and only after the generic type \inlinecode{'a}. The second reason is the
+unnecessary token \inlinecode{of} that is not used when declaring a tuple in \cml syntax. Thirdly the tokens \inlinecode{*} are also
+unnecessary when declaring tuples. Finally, the let-bindings displayed the same errors as previous examples.
+
+The corrected code below:
 
 \begin{cakeml}
 datatype 'a tree = Leaf | Node ('a tree) 'a ('a tree)
@@ -407,7 +418,14 @@ fun depth_search t n = let val t1 = t in
     end end
 \end{cakeml}
 
+Correcting the order and removing the unnecessary tokens in data type definition, achieves a more robust extraction mechanism that 
+produces compilable \cml code.
+
 \subsection{Tree Comparison}
+
+With this example we only want to understand if the module system is working as intended in \cml. The module system in \cml is very 
+limited since it does not support signatures and functors. We present a simple tree module in \ocaml that contains the comparison between
+trees.
 
 \begin{gospell}
 module Tree = struct
@@ -431,7 +449,13 @@ module Tree = struct
 end
 \end{gospell}
 
-Generated code from cameleer to CakeML.
+The function \inlinecode{cmp} uses pattern matching to compare the trees, in case both are leaves it is true, if one is a leaf, but 
+the other is not they are different, finally if both are nodes then it depends on the respective root and subtrees.
+
+Logically the result should be equal to comparing \inlinecode{t1} and \inlinecode{t2} and the variant clause could be either one of 
+the trees since it only matters when the result is correct therefore the trees have the same structure.
+
+Generated code to \cml was:
 
 \begin{cakeml}
 'a datatype tree = Leaf | Node of 'a tree * 'a * 'a tree
@@ -446,7 +470,8 @@ fun cmp t1 t2 = let val t11 = t1 in
     (cmp l1 l2) andalso ((x1 = x2) andalso (cmp r1 r2)))
 \end{cakeml}
 
-Correct code that CakeML can compile
+Once more the data types and let-bindings expressions failed to extract correctly, but more notably the module is not present.
+The corrected version is demonstrated below:
 
 \begin{cakeml}
 datatype 'a tree = Leaf | Node ('a tree) 'a ('a tree)
@@ -463,8 +488,12 @@ fun cmp t1 t2 = let val t11 = t1 in
   end
 \end{cakeml}
 
+For the same problems, the same solutions were implemented, unfortunately modules could not be tested for the \cml code, but now
+it is evident they were not supported for this translation tool.
+
+\section{Analyses For The Case Studies}
 
 Without addressing exception scoping, array operation semantics, and let-binding syntax, the extracted code remains invalid 
 and cannot serve as a verified executable target. Therefore, improving the extraction pipeline from \ocaml and \gospel to 
 \cml necessitates careful handling of these language-specific constructs to ensure that the resulting code is not only 
-syntactically correct but also preserves the semantics of the original verified source.
+syntactically correct but also preserves the behaviour of the original verified source.
