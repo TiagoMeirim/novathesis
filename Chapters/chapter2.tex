@@ -292,17 +292,82 @@ When certain features (e.g., polymorphic types or pattern matching) are not supp
 applies transformations to encode them into a compatible form. This architecture allows developers to focus on writing 
 correct specifications while benefiting from automation in proving correctness properties.~\cite{boogie11why3}
 
-\section{Cameleer}
+\section{GOSPEL and Cameleer}
 \label{sec:Cameleer}
 
-With the evolution of proof assistants becoming pivotal for industrial-size projects the need for. Despite all the advances in 
-deductive verification and proof automation, little attention has been given to the family of functional languages. Let us
-consider, for instance, the OCaml language. It is well suited for verification, given its well-defined semantics, clear syntax, 
-and state-of-the-art type system. Yet, the community still lacks an easy to use framework for the specification and
-verification of OCaml code.
+The evolution of deductive verification and proof automation has progressed significantly over the years. Recently, a 
+combination of tools has been developed to apply these technologies to \ocaml, a language that has not been widely explored in 
+this context~\cite{PereiraR20}. The need for a verification framework was addressed with the introduction of \cameleer, a tool 
+for the deductive verification of programs written in \ocaml, whose main objective is the automatic proof of functional code. 
+However, \cameleer alone, using only standard \ocaml, cannot perform these proofs. To enable verification, \gospel specifications 
+must be added to the \ocaml code.
 
-Cameleer ~\cite{PereiraR20}
+\gospel terms are defined using the semantics of Separation Logic and are applied to \ocaml interfaces. The acronym \gospel stands 
+for “Generic OCaml Specification Language,” indicating that the specification logic is not limited to a single tool but is intended 
+for a variety of uses, such as verification, testing, and informal documentation~\cite{ChargueraudFLP19}. Unlike other behavioural 
+specification languages such as \textsf{SPARK} and \textsf{JML}, \gospel supports Separation Logic, a significant extension of Hoare 
+Logic and a powerful framework for reasoning about real-world programs~\cite{Reynolds02, OHearnRY01}. While \gospel is not the first 
+tool to use Separation Logic, it uniquely introduces implicit permission association in data types, a feature not found in tools 
+like \textsf{VeriFast} or \textsf{Viper}~\cite{ChargueraudFLP19}.
+
+\cameleer takes as input an \ocaml program annotated with \gospel specifications and translates it into \whyml, the intermediate 
+language used by the \whythree platform. Once translated, the code can be processed by \whythree, which leverages a range of automated 
+theorem provers, such as Alt-Ergo, Z3, and CVC5, to discharge verification conditions. This seamless integration between \cameleer, 
+\gospel, and \whythree significantly enhances the level of proof automation, allowing developers to verify functional correctness 
+properties of \ocaml programs with minimal manual intervention.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/Cameleer_From_Paper.png}
+    \caption{The Original Cameleer Pipeline~\cite{PereiraR20}}
+    \label{fig:CameleerPipeline}
+\end{figure}
+
+The pipeline demonstrates how the translation mechanism integrates with surrounding frameworks to produce deductively verified 
+\ocaml code annotated with \gospel specifications. If an error is detected in the original \ocaml code during translation, the 
+process reverts to the source, requiring corrections to ensure that the generated \whyml code is syntactically and semantically 
+valid. Within the \whythree tool, if the generated verification goals cannot be discharged by the automated provers, it indicates 
+that the specifications may be imprecise or incomplete and require refinement. These issues are highlighted by the tool, guiding the 
+user to improve the annotations. Once all verification conditions are successfully proven, the resulting program is guaranteed to 
+be free from compiler-introduced bugs or errors, ensuring a high level of formal correctness~\cite{Filliatre11}.
+
+Lets take this simple example for an iterative factorial in \ocaml + \gospel after applying the \cameleer tool:
 
 \begin{gospell}
-  let f x = x + 1 (*@ res = f x ensures res = x + 1)
+(*@ 
+  function rec factorial (n:int) :int = 
+    if n=0 then 1 else n * factorial (n-1)
+*)
+(*@ 
+  requires n >= 0
+  variant n
+*)
+let fact n = 
+  let r = ref 1 in 
+    for i=1 to n do 
+      (*@invariant !r = factorial (i-1)*)
+      r := !r*i 
+    done; 
+    !r
+(*@ 
+  r = fact n
+  requires n >= 0 
+  ensures r = factorial n
+*)
 \end{gospell}
+
+The translated code to \whyml creates 2 goals, one for the function \inlinecode{fact} and another for the logical function
+\inlinecode{factorial}. After splitting the goals we get for \inlinecode{fact} the variant and pre-condition, and for
+\inlinecode{factorial} the invariant initialization, the invariant preservation, the post-condition and the VC:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\linewidth]{images/Why3Goals.png}
+    \caption{The Goals Proved in \whythree}
+    \label{fig:Why3Goals}
+\end{figure}
+
+All verification goals were successfully discharged by the automated provers, resulting in the original \ocaml code, annotated 
+with \gospel specifications, being fully verified. This outcome demonstrates the effectiveness of the verification pipeline, 
+where the combination of \cameleer and \whythree enables high levels of automation in proving the functional correctness of 
+\ocaml programs.
