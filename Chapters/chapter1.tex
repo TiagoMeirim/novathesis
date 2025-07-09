@@ -11,77 +11,97 @@
 \chapter{Introduction}
 \label{cha:introduction}
 
-%\subsection{Motivation}
-%\label{sub:Motivation}
+This work is motivated by the importance of ensuring correctness in critical systems and the recent developments 
+in formal verification with certified compilers. Which, we present, in detail, below:
 
 \section{Motivation}
 \label{sec:Motivation}
 
 
-Progress in deductive software verification has been steadily advancing, particularly for formal languages. 
-However, the foundational groundwork was laid as early as 1936 by Alan Turing in his seminal paper "On Computable Numbers," 
-which introduced key concepts of computation and formal proof. Other notable papers where mathematical propositions were 
-established purely through theoretical reasoning include Alan Turing's Systems of Logic Based on Ordinals, Alonzo Church's 
-An Unsolvable Problem of Elementary Number Theory and Kurt Gödel's Incompleteness Theorems. These works laid important 
-foundations in logic, computation, and formal reasoning without relying on physical implementation or empirical methods.
-Our research draws on several key papers that directly influenced deductive software verification and the technologies 
-we will use. These include Robin Milner's foundational work on type polymorphism (shaped the ML language) Gordon and 
-Melham's Introduction to HOL (formalized higher-order logic for verification) and Xavier Leroy's CompCert (a landmark 
-in formally verified compilation)~\cite{Turing37, Turing38}. 
-%%https://turingarchive.kings.cam.ac.uk/publications-lectures-and-talks-amtb/amt-b-12
-%%https://www.dcc.fc.up.pt/~acm/turing-phd.pdf
+Progress in Formal Verification has been steadily made over the years. 
+The foundational ideas emerged as early as 1937 by Alan Turing~\cite{Turing37} and by 1949 a program
+represented as a flowchart was formally verified~\cite{early-proof}. Other notable papers where mathematical propositions 
+established purely through theoretical reasoning include works by Alan Turing~\cite{Turing38}, Church
+~\cite{church-unsolvableproblemof-1936} and Gödel~\cite{ZACH2005917}. These results laid important 
+groundwork in logic, computation, and formal reasoning without relying on physical implementation or empirical methods.
+Significant progress was made in the 1960s with the introduction of formal systems to reason about program correctness. 
+Floyd's work on flowcharts~\cite{Floyd93} and Hoare's in programs~\cite{Hoare69} marked a shift toward systematic verification of 
+program behaviour using logical assertions.
+In recent years, two major developments have transformed the landscape of formal verification. The first is the so-called SMT~\cite{abs-1711-10641} 
+(Satisfiability Modulo Theories) revolution, which has enabled powerful automated verification tools capable of discharging 
+logical obligations without human intervention~\cite{Barrett2018}. The second is the emergence of certified compilers, such as 
+CompCert~\cite{Leroy09-back-end}, which provably ensures that the generated machine code faithfully preserves the semantics of the source 
+program.
 
-%%Revolucao SMT mencionar
 
 Why are verified compilers such an important target for formal verification? If a verified program is compiled by a 
-faulty compiler, the resulting executable may not preserve its intended behavior, invalidating the higher-level correctness 
-so compilers like CompCert and CakeML address this issue by providing formally verified compilation pipelines
+faulty compiler, the resulting executable may not preserve its intended behaviour, invalidating any higher-level correctness
+obtained previously. Compilers like CompCert and \cml~\cite{POPL14} address this issue by providing formally verified compilation pipelines
 ~\cite{LoowKTMNAF19, GrossEPPC22, Leroy09}, thereby eliminating a major source of uncertainty and ensuring that correctness is 
 preserved from source code to machine code~\cite{LeroyCompilerMeaning}.
-%%https://cakeml.org/pldi19.pdf %%https://arxiv.org/pdf/2205.00862
-%%https://xavierleroy.org/publi/compcert-CACM.pdf
-%%https://xavierleroy.org/talks/ICALP2016.pdf
+
 
 Developments in relation to verified code have become increasingly crucial to achieve correctness and provide safety, 
 the way we define correctness has more than one definition, it can be specified informally or written in formal language 
 ~\cite{Filliatre11}. The weight of functional languages for deductive software verification has been quite low despite having
-good candidates for verification, like OCaml. Ever since 2018 with the introduction of GOSPEL, with providing
-fomal language specification tightly integrated with OCaml, verification has become easier with a modular specification
-that doesn't need much changes to OCaml code. This wasn't the first time formal logic and proof has been merged with 
-functional programming, previous and more foundational systems like COQ, Agda, F*(F star), Liquid Haskell and WhyML have
-paved the way. Now that we have a behavioural specification language for OCaml we can expand this verification for other
-funtional languages, that was already done in 2021 with the addition of Cameleer, an automated deductive verification
-tool that translates a formally-specified program, like GOSPEL, into the corresping code in WhyML. This innovation in
-translation of verified code to other languages gave a new view onto how other functional languages could have their
-code verified while being written in a more expressive language just like OCaml. A clear applicant was CakeML, a
-language based on a substantial subset of Standard ML, having a core goal of creating an end-to-end verified compiler.
+good candidates for verification, like \ocaml. Ever since 2018 with the introduction of \gospel~\cite{ChargueraudFLP19}, with providing
+formal language specification tightly integrated with \ocaml, verification has become easier with a modular specification
+that doesn't need many changes to \ocaml code. This wasn't the first time formal logic and proof has been merged with 
+functional programming, previous and more foundational systems like Coq~\cite{75277.75285} and \whyml~\cite{FilliatreP13} have
+paved the way. With the development of a behavioural specification language for \ocaml, soon after a deductive verification tool
+was created for this language, that being \cameleer~\cite{PereiraR20}, a tool that translates a formally-specified program into 
+corresponding code in \whyml.
 
-
-%% Standard menos famoso que OCaml entao ha interesse em construir programas corretos em algo mais mainstream, comparação ao SML
-%% Mais verificaçoes em papel, mais sobre compiladores verificados
+With the introduction of certified compilers and state-of-the-art automated verification tools, it is possible to merge them in
+a pipeline to create correct high-level programs that when compiled that are not faulty.
+This is a highly trustworthy deductive verification system, that benefits from the features and correctness guarantees from each 
+component of the pipeline throughout all the steps. Our motivation stems from the insurance that such a pipeline could provide 
+to the verification of \ocaml programs with \gospel annotations that eventually compile to correct machine code, by using the \cml
+compiler.
 
 
 \section{Problem Definition}
 \label{sec:Problem_Definition}
 
-%% Retirar pontos 
+In order to create a pipeline from \ocaml to \cml and back, there is the need to understand the already existing translation tools.
+Firstly, \cameleer takes as input \ocaml programs with \gospel annotations and internally these are translated onto \whyml code, which
+can then be verified inside \whythree's ide or extracted to another language. The \whythree extraction mechanism currently allows the 
+translation from \whyml to three other languages, with one of them being \cml. By combining these two mechanisms we reach our goal
+of creating a pipeline to produce compiled code completely verified. However, we observed that the current extraction mechanism 
+concerning \cml is severely outdated and unreliable, after extensive tests using multiple \ocaml features since it failed to compile 
+on several instances. \cameleer also features an extraction mechanism that currently produces \ocaml code from its intermediary
+representation, \whyml, instead of producing \cml code. Another facet of this pipeline is to translate \cml programs into \ocaml
+code, and surprisingly, there is no such tool. This leads us to the following question: 
 
-Writing precise specifications can turn out to be very challenging, since having an incomplete specification will eventually
-make the verification meaningless. PUT SOME RESEARCHES ABOUT SOFTWARE VERIFICATION AND TALK ABOUT HOW THERE ARE NO AUTOMATED VERIFICATION PAPERS.
-Despite all the papers above mentioned there are not much papers that go deep inside automated deductive verification.
-And then we have CakeML, a research-driven compiler with the main goal of providing a fully proof-producing code generation tool 
-that given ML-like functions in higher-order logic (HOL) automatically produces equivalent executable machine code. Analyzing
-syntactic and semantic foundations with OCaml we see that both share very similar features most notably, functional core, 
-strong static typing, pattern matching and higher-order functions.
-Now we are presented with some questions:
+\vspace{5mm}
+\centerline{\textit{How do we bridge these tools to create a pipeline that ensures correctness throughout all steps?}}
 
-- Now that automated deductive verification has a tool that eases translation, could we expand it for even more languages?
-- Can CakeML's verified compilation pipeline be generalized to other ML-family languages like WhyML?
-- What minimal syntactic and semantic guarantees must a language offer to be compatible with CakeML's verified compiler?
-- Could an OCaml-to-HOL4 transpiler (guided by GOSPEL specs) be created to automate CakeML target generation?
+\section{Goals and Expected Contributions}
+\label{sec:Goals_and_Expected_Contributions}
 
-\section{Goals and Expected Contribution}
-\label{sec:Goals_and_Expected_Contribution}
+The first goal in this work is to have a detailed look into the features of both \ocaml and \cml languages, find the notable 
+differences and absences, to know which features to test using the extraction mechanism. The next goal should be to change 
+internally the source code of the \cameleer tool to support the extraction of \cml code. With this, we should be able to identify
+in detail the issues with the translation, what are the necessary changes to compile correctly, which may include new features
+or fixing syntactic issues for the features already supported by the extraction mechanism, directly in \whythree source code.
+For the features that are not supported by one of the languages, providing a comprehensive error message rather than allowing 
+the extraction to take place. To make the pipeline more robust we should confirm if the program is verified beforehand when performing 
+an extraction. Since, there is no translation mechanism from \cml to \ocaml, it creates the need to develop a new tool that respects all 
+the syntactic and semantic differences, meanwhile flagging with an error message any unsupported features.
 
 \section{Report Structure}
 \label{sec:Report_Structure}
+
+The document is divided by 5 chapters. 
+
+In chapter \ref{cha:Background} it is possible to find the foundational theoretical concepts for Hoare Logic and an introduction to 
+the languages and tools used for verification and extraction mechanism.
+
+Chapter \ref{cha:State_Of_The_Art} describes the relevant pieces of work already available on the context of certified compilers, 
+while also mentioning the current verification pipeline available using \cameleer, \whythree and \cml. 
+
+Chapter \ref{cha:Preliminary_Results} displays thoroughly what the current tools do for various examples while also pointing out the 
+places where they need improvement. 
+
+Finally, chapter \ref{cha:Work_Plan} divides, in detail, what are the formal steps for our work and how they will be scheduled in 
+the calendar.
