@@ -11,30 +11,25 @@
 \chapter{Preliminary Results}
 \label{cha:Preliminary_Results}
 
-%%mencionar que alterei a ferramenta do cameleer(adicionei a extracao direta de cameleer para cakeml)
-%%Seccao para cada exemplo, apresentar codigo ocaml verificado, codigo traduzido e codigo corrigido se necessario
-%%explicar o pedaco de codigo, condicoes do GOSPEL
-%%explicar o que alteramos
-
-%% Pequena introduçao sobre o problema, quais as features a espera de testar
-%% Depois Apresentar codigo verificado em ocaml
-%% Explica o codigo ainda por explicar e a especificaçao gospel
-%% Mostrar traducao e explicar onde esta errado 
-%% Mostrar o correto e por baixo explicar o que foi alterado para estar correto
+This chapter presents a set of manually derived examples that illustrate how \ocaml + \gospel code can be correctly translated into 
+semantically equivalent \cml representations. These examples serve as a reference for the expected behaviour and structure of verified 
+translations. The goal is to demonstrate the existing tools for translation into \cml and identifying what the corresponding \cml code 
+should look like in order to compile successfully and preserve the intended behaviour.
 
 \section{Tool Modifications}
 
-As shown in Figure \ref{fig:Cameleer_pipeline}, which outlines the \cameleer pipeline, there is no explicit support for \cml. 
-However, a small modification to the file \texttt{/bin/cli.ml} allows extending the existing extraction process. By changing the 
-\inlinecode{execute\_extract} function to invoke \inlinecode{why3 extract -D cakeml {programa}.mlw -o {programa}.cml}, 
+As shown in Figure \ref{fig:Cameleer_pipeline}, which outlines the \cameleer pipeline, there is no explicit support for \cml extraction. 
+However, a small modification to the file \texttt{/bin/cli.ml} of \cameleer 's source code, which allows extending the existing extraction 
+process. By changing the \inlinecode{execute\_extract} function to invoke 
+\inlinecode{why3 extract -D cakeml \%s}, 
 the tool can target \cml as a backend. With this adjustment, running \inlinecode{cameleer program.ml $--$extract} translates
 the original \ocaml plus \gospel code into code in the \cml language. This enables extraction from \textsf{OCaml64} directly 
 into \cml, providing the basis for a verified compilation pipeline.
 
-The alternative to this process is to obtain the code translated \whyml from the flag \inlinecode{$--$debug} and then apply the 
-mechanism of extraction of \whythree directly. Not only this process more complex, the debug flag produces code that doesn't 
-let the launch of the provers from the \whythree ide because it contains proof goals directly in the code, which would imply 
-also altering the code manually or to substantially modify the behaviour of the debug flag which is not intended.
+The alternative to this process is to obtain the code translated \whyml from running \cameleer with the flag \inlinecode{$--$debug} 
+and then apply the mechanism of extraction of \whythree directly. Not only is this process more complex, but also the debug flag 
+produces code that can not be opened by the \whythree platform because it contains proof goals directly in the code. This also implies
+altering the code manually or to substantially modify the behaviour of the debug flag which is not intended.
 
 %% Example to prove
 
@@ -43,7 +38,7 @@ also altering the code manually or to substantially modify the behaviour of the 
 
 \section{Case Studies}
 
-For all the case studies below-mentioned, the \ocaml + \gospel code was compiled and verified through \whythree automatic
+For all the case studies below mentioned, the \ocaml + \gospel code was verified through \whythree automatic
 provers before applying the extraction command to translate into \cml. This verification step is essential because the correctness 
 guarantees of the final \cml code depend entirely on the validity of the specifications and their successful discharge by the 
 provers. Without ensuring that the \whyml intermediate code satisfies the given specifications, the generated \cml code would 
@@ -77,7 +72,7 @@ The auxiliary function \inlinecode{fact\_aux} receives as arguments the \inlinec
 compute, the \inlinecode{c} value, that represents the current index of the iteration, and \inlinecode{t} value, that is accumulating 
 the result from previous iterations in order to display the solution.
 
-The specifications have some pre-conditions, from those, the factorial to compute is higher or equal to 0, because the factorial as 
+The specifications include a few pre-conditions, from those, the factorial to compute is higher or equal to 0, because the factorial as 
 default is only calculated for non-negative values, the index of the iteration is between 0 and factorial to compute, because from the
 code written when the index achieves the same value as the factorial to compute the function should terminate. For the post-conditions
 we only need to make sure the result of the auxiliary function is indeed the factorial of n, which is calculated logically with the 
@@ -97,8 +92,9 @@ which was the previous value of c and terminates successfully.
 \end{gospell}
 
 The definition of this function in \gospel represents the logical concept of a factorial, this can be used for later specifications 
-to compare results. The implementation of this function is in a recursive way, since \gospel only supports the functional paradigm 
+to compare results. The implementation of this function is in a recursive way, since \gospel only supports the functional paradigm, 
 additionally logical definitions are meant to be simple rather than complex but optimized, since we want to simplify the proof.
+The main function fact:
 
 \begin{gospell}
 let fact n = fact_aux n 1 1
@@ -109,11 +105,10 @@ let fact n = fact_aux n 1 1
 *)
 \end{gospell}
 
-The main function \inlinecode{fact} initializes the auxiliary call with appropriate base values, the first one is the counter
-so it needs to start at 1 because for the multiplication with the accumulator starting at 0 would not take into consideration the 
-first iteration. For the 1 in the accumulator, the third argument, represents the neutral element for multiplication. The \gospel 
-annotations specify the expected behaviour, including preconditions such as non-negativity of n and the correctness of the returned 
-result. 
+Initializes the auxiliary call with appropriate base values, the first one is the counter so it needs to start at 1 because for the 
+multiplication with the accumulator starting at 0 would not take into consideration the first iteration. For the 1 in the accumulator, 
+the third argument, represents the neutral element for multiplication. The \gospel annotations specify the expected behaviour, including 
+preconditions such as non-negativity of \inlinecode{n} and the correctness of the returned result. 
 
 This annotated version allows the function to be verified in \whythree before attempting any extraction. The extracted code can be
 seen below:
@@ -143,7 +138,7 @@ fun fact_aux n c t = let val n1 = n in
 fun fact n = let val n1 = n in fact_aux n1 (1) (1) end
 \end{cakeml}
 
-However, our final goal is to eliminate as much unnecessary code as possible, in this case the expendable let-bindings, while 
+However, our final goal is to eliminate as much unnecessary code as possible, in this case, the expendable let-bindings, while 
 maintaining the desired behaviour:
 
 \begin{cakeml}
@@ -158,14 +153,16 @@ our pipeline can function if small changes are applied to the extraction mechani
 
 \subsection{Exception recursive search}
 
-One possible use of exceptions, although it may seem natural at first, can be to stop iteration early in \ocaml for instance in the 
-context of linear search when the desired element is found. Once again since for and while loops are not available in \cml to simulate 
+One possible use of exceptions, although it may seem natural at first, can be to stop iteration early in \ocaml, for instance, in the 
+context of linear search when the desired element is found. Once again, since, for and while loops are not available in \cml to simulate 
 iteration we use recursion with a counter:
 
 \begin{gospell}
 let rec search_aux a c n =
   let exception Break of int in try
-    if c = Array.length a then raise Not_found else if a.(c) = n then raise (Break c) else search_aux a (c+1) n
+    if c = Array.length a then raise Not_found 
+    else if a.(c) = n then raise (Break c) 
+    else search_aux a (c+1) n
   with Break i -> i
 (*@
   r = search_aux a c n
@@ -179,18 +176,20 @@ let rec search_aux a c n =
 \end{gospell}
 
 The auxiliary function \inlinecode{search\_aux} receives as arguments an array, the current index and a value that is going to be 
-compared on each iteration of the array's length. The program returns the index of the array in case it was found early by raising
+compared to each element of the array. The program returns the index of the array in case it was found early by raising
 the exception \inlinecode{Break}. By contrast, if the value is not in the array the exception \inlinecode{Not\_found} is raised at the end.
 
 Inside the \gospel specifications, we must guarantee that index \inlinecode{c} is between values of 0 and the length of the array 
 \inlinecode{a}, which in turn gives us the assurance that the array is never accessed for values out of its range expect for the case 
 where \inlinecode{c} is equal to the length in which case the function terminates without accessing the array. To further strengthen the
-precondition above there is the need to state that all the values previously seen can not be the desired value, otherwise the function
-should have terminated earlier. Since the exception \inlinecode{Not\_Found} was not caught this means the function only returns a value
-if this exception was not raised, therefore we only need to express two ensure clauses, one that states the resulting index is a value 
-between 0 and the length of the array a minus one and that the element of the array in the index returned is effectively the value 
-searching for. As the index is increasing in each iteration at some point it becomes equal to the length of the array thereby proving 
-termination and the variant clause.
+precondition above there is the need to state that all the values previously seen are not the desired value, otherwise the function
+should have terminated earlier.
+
+Since the exception \inlinecode{Not\_Found} was not handled this means that the function does not return a value in case it is raised,
+therefore only when a value is found it terminates successfully. In that case we need to express two ensure clauses, one that states 
+the resulting index is a value between 0 and the length of the array a minus one and that the element of the array in the index returned 
+is effectively the value searching for. As the index is increasing in each iteration, at some point it becomes equal to the length of the 
+array, thereby proving termination and the variant clause.
 
 The core function, \inlinecode{linear\_search}, delegates the search process to the auxiliary function that recursively traverses 
 the array:
@@ -267,7 +266,7 @@ as well as handling exceptions.
 \subsection{Count Even For A List}
 
 Since operations for arrays have already been explored in the previous case study, we also want to explore if the same happens with
-other types of operations for lists. We also utilize the mod operator from the standard library, when trying to count every even number 
+operations for lists. We also utilize the mod operator from the standard library, when trying to count every even number 
 inside a given list:
 
 \begin{gospell}
@@ -284,14 +283,14 @@ let count_even l =
 
 The function \inlinecode{count\_even} receives as the sole argument the list to be searched. The following code for the \inlinecode{l1}
 is to apply a filter for the original list \inlinecode{l}, where inside the filter we only want values that are positive and even.
-Theoretically the operation is already done, but for research purposes we added more operations to see how the translation would generate
+Theoretically, the operation is already done, but for research purposes we added more operations to see how the translation would undergo
 for different operations, those where the inversion of the list and the length of a list.
 
-The specification passes through ensuring some crucial information. As the function is organized it returns a tuple with the 
-length of the list created and the list created, so we start by comparing the first element of the tuple, which should be the length of 
-the reversed and filtered list, and therefore equal to the length of the second argument, the same list. Then there is a need to 
-guarantee all the values inside the created list are effectively positive and even. Additionally, every element belonging inside
-the list created is also inside the original list and every value that is not inside the original list is not inside the created 
+The specification passes through ensuring some crucial information. As the function is organized, it returns a tuple with both the 
+corresponding length of the list created and the list created, so, we start by comparing the first element of the tuple, which should 
+be the length of the reversed and filtered list, and therefore equal to the length of the second argument, the same list. Then there is 
+a need to guarantee all the values inside the created list are effectively positive and even. Additionally, every element belonging 
+inside the list created is also inside the original list and every value that is not inside the original list is not inside the created 
 list. For simplicity, we do not guarantee that the number of occurrences for each number that belong to the resulting list is also 
 the same as the original list. This condition would guarantee of this function however its proof would be complex to display here.
 
@@ -304,9 +303,9 @@ fun count_even l =
   let val l2 = rev l11 in (List.length l2, l2)
 \end{cakeml}
 
-The list operations are not correctly declared, it seems only the length operation is written with the correct syntax. The mod operation
-is used as if it is an operation from the standard library, however \cml doesn't have that library with that syntax. The let-bindings 
-continue to generate for every argument with no termination clause.
+The list operations are not correctly declared, it seems only the length operation is written with the correct syntax. The mod operator
+is used as if it is a function from the standard library, however in \cml it is part of the \inlinecode{Int} library. The duplicate 
+let-bindings were also generated for every argument.
 
 Correcting the code, becomes the block below:
 
@@ -316,12 +315,12 @@ fun count_even l =
   let val l2 = List.rev l1 in (List.length l2, l2) end end
 \end{cakeml}
 
-Using the correct syntax calling for every list operation and integer operation while deleting all the unnecessary let-bindings makes the
+Using the correct syntax for calling every list operation and integer operation while deleting all the unnecessary let-bindings makes the
 code compilable and correct.
 
 \subsection{High-order}
 
-In the documentation for \cml it was not possible to find any mention of higher-order functions as such we devised an example that
+In the documentation for \cml it was not possible to find any mention of higher-order functions. As such, we devised an example that
 combines higher order with pattern matching and lists. The function in this example multiplies all the values of a list by a certain
 integer:
 
@@ -336,11 +335,11 @@ let rec mult_list l n =
 \end{gospell}
 
 This recursive function \inlinecode{mult\_list} receives as arguments a list and a value that is used to multiply on each of the
-lists values. While using a pattern matching the function must continue until the original list is empty.
+lists values, one by one, using the pattern matching and a recursive call on the tail.
 
-The original list has its values extracted one by one until the list is empty, signalling the function termination, which in turn
-represents the variant clause. The function \inlinecode{map} is classical example of function programming that applies another function 
-to all elements of a list. One can observe that the \inlinecode{mult\_list} function is a particular case of the \inlinecode{map} 
+The original list has its values extracted one by one until the list is empty, signalling the function termination, which in turn is 
+represented by the variant clause. The function \inlinecode{map} is classical example of function programming that applies another 
+function to all elements of a list. One can observe that the \inlinecode{mult\_list} function is a particular case of the \inlinecode{map} 
 function, where the function is the multiplication by a given integer n and is expressed by an anonymous function. 
 
 The logical implementation of the \inlinecode{map} function is presented below:
@@ -354,8 +353,8 @@ The logical implementation of the \inlinecode{map} function is presented below:
         ensures List.length result = List.length l *)
 \end{gospell}
 
-The logical function \inlinecode{map} represents the application of a certain function to the values of the list provided. As the same
-reason that variant clause is represented by the list, since the termination for this logical function is also determined by when the
+The logical function \inlinecode{map} represents the application of a certain function to the values of the list provided. For the same
+reason, the variant clause is represented by the list, since the termination for this logical function is also determined by when the
 list is empty. The is also the need to ensure that the length of the list resulting from applying the function to the original list
 is the same since the number of values do not change with this transformation.
 
@@ -376,12 +375,10 @@ By solving the issues found, we tested the code and effectively, high-order func
 code is displayed below:
 
 \begin{cakeml}
-fun mult_list l n = let val l1 = l in
-    let val n1 = n in
-    (case l1 of
+fun mult_list l n =
+    (case l of
         [] => []
-    | h :: t => (n1 * h) :: (mult_list t n1))
-    end end
+    | h :: t => (n * h) :: (mult_list t n))
 \end{cakeml}
 
 Since the issue continues to stem from the let-bindings, the solution to add the termination token or eliminating the unnecessary 
@@ -389,7 +386,7 @@ let-bindings still seems to solve the problem at hand.
 
 \subsection{Depth-search tree}
 
-User defined data types such as trees are very important for real world examples in functional programming, since traversing them
+User defined data types, such as trees, are very important for real world examples in functional programming, since traversing them
 can easily be achieved recursively. 
 
 \begin{gospell}
@@ -439,7 +436,7 @@ The recursive function \inlinecode{to\_list} transforms a tree firstly from the 
 ending with the right side. Since, for this example, we are only concerned with the inclusion of an element in the list, the order 
 in which it is constructed doesn't have effect on the outcome of the solution, our decision was arbitrary.
 
-Similarly to the function \inlinecode{depth\_search} the termination can be proven by the tree itself.
+Similarly to the function \inlinecode{depth\_search}, the termination can be proven by the tree itself.
 
 The generated \cml code was:
 
@@ -454,9 +451,9 @@ fun depth_search t n = let val t1 = t in
     (x = n1) orelse ((depth_search l n1) orelse (depth_search r n1)))
 \end{cakeml}
 
-The definition of the tree data type is incorrect for three reason, number one the ordering of the syntax for the left side declaration of
-a data type starts with the token \inlinecode{datatype} and only after the generic type \inlinecode{'a}. The second reason is the
-unnecessary token \inlinecode{of} that is not used when declaring a tuple in \cml syntax. Thirdly the tokens \inlinecode{*} are also
+The definition of the tree data type is incorrect for three reasons. Number one the ordering of the syntax for the left side declaration 
+of a data type starts with the token \inlinecode{datatype} and only after the generic type \inlinecode{'a}. The second reason is the
+unnecessary token \inlinecode{of} that is not used when declaring a tuple in \cml syntax. Thirdly, the tokens \inlinecode{*} are also
 unnecessary when declaring tuples. Finally, the let-bindings displayed the same errors as previous examples.
 
 The corrected code below:
@@ -505,10 +502,11 @@ end
 \end{gospell}
 
 The function \inlinecode{cmp} uses pattern matching to compare the trees, in case both are leaves it is true, if one is a leaf, but 
-the other is not they are different, finally if both are nodes then it depends on the respective root and subtrees.
+the other is not, then they are different, finally if both are nodes then it depends on the respective root and subtrees.
 
-Logically the result should be equal to comparing \inlinecode{t1} and \inlinecode{t2} and the variant clause could be either one of 
-the trees since it only matters when the result is correct therefore the trees have the same structure.
+Logically, the result should be equal to comparing \inlinecode{t1} and \inlinecode{t2} and the variant clause could be either one of 
+the trees since it only matters when the result is correct therefore the trees have the same structure, and in each recursive call we
+are considering fewer elements until, eventually, there are no more elements.
 
 Generated code to \cml was:
 
@@ -525,7 +523,7 @@ fun cmp t1 t2 = let val t11 = t1 in
     (cmp l1 l2) andalso ((x1 = x2) andalso (cmp r1 r2)))
 \end{cakeml}
 
-Once more the data types and let-bindings expressions failed to extract correctly, but more notably the module is not present.
+Once more, the data types and let-bindings expressions failed to extract correctly, but more notably the module is not present.
 The corrected version is demonstrated below:
 
 \begin{cakeml}
@@ -544,9 +542,9 @@ structure Tree = struct
 end
 \end{cakeml}
 
-For the same problems, the same solutions were implemented, searching on the how-to document from \cml we could find how
-modules were constructed and used that to create the structure \inlinecode{Tree} with the correct syntax, which was not present in 
-the translated code.
+For the same problems, the same solutions were implemented, While modules are not explicitly shown
+in \cml's documentation, by having a look at SML's module syntax, it was possible to reach the 
+\inlinecode{structure Tree = struct ... end} construct, which was not presented in the translated code.
 
 \subsection{References}
 
@@ -572,15 +570,15 @@ let rec eudiv_aux (x: int) (y: int) (r: int ref) (q: int ref) =
 This example has the need for an auxiliary function in \inlinecode{eudiv\_aux} which receives as arguments the values the dividend 
 \inlinecode{x}, the divisor \inlinecode{y}, the remainder \inlinecode{r}, and the quotient \inlinecode{q}. What the recursive auxiliary 
 function is doing for every iteration is to increment the quotient by 1 and subtract the remainder by the divisor, until the remainder 
-is a value that is strictly smaller than the divisor. The values for the remainder and quotient are saved inside references and 
-reassigned after every operation or iteration.
+is a non-negative value that is strictly smaller than the divisor. The values for the remainder and quotient are saved inside references 
+and reassigned after every operation or iteration.
 
 To specify this function, we used \gospel annotations to define pre-conditions and post-conditions that ensure the correctness of 
 the Euclidean division. The pre-conditions enforce that the dividend must be a non-negative integer, the divisor must be strictly 
 positive, and the remainder (held in a reference) must initially lie between 0 and the dividend. Additionally, we specify that the 
-dividend equals the product of the divisor and quotient plus the remainder at each recursive call. For the post-conditions, we ensure 
-that this equation is preserved through execution. Furthermore, the remainder must always remain non-negative and strictly less 
-than the divisor, which aligns with the definition of Euclidean division. In every iteration we subtract \inlinecode{y} from the
+dividend is equal to the product of the divisor and quotient plus the remainder at each recursive call. For the post-conditions, we 
+ensure that this equation is preserved after execution. Furthermore, the remainder must always remain non-negative and strictly less 
+than the divisor, which aligns with the definition of Euclidean division. In every iteration, we subtract \inlinecode{y} from the
 remainder \inlinecode{\!r} so a natural way to guarantee termination is to use this exact expression as a variant condition.
 
 \begin{gospell}
@@ -644,7 +642,7 @@ both syntactically correct and successfully compilable.
 
 \section{Analyses For The Case Studies}
 
-Without addressing exception scoping, array operation semantics, and let-binding syntax, the extracted code remains invalid 
-and cannot serve as a verified executable target. Therefore, improving the extraction pipeline from \ocaml and \gospel to 
-\cml necessitates careful handling of these language-specific constructs to ensure that the resulting code is not only 
+During our studies we found various issues, such as exception scoping, array operation semantics, and let-binding syntax, the extracted 
+code remains invalid and cannot serve as a verified executable target. Therefore, improving the extraction pipeline from \ocaml and 
+\gospel to \cml necessitates careful handling of these language specific constructs to ensure that the resulting code is not only 
 syntactically correct but also preserves the behaviour of the original verified source.
