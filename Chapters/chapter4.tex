@@ -68,66 +68,7 @@ further refinement.
 
 Initially an iterative version of the factorial function was also considered, however, since \cml does not support imperative loop 
 constructs such as \inlinecode{for} or \inlinecode{while} we had to look for alternative versions of this example. Instead, we opted 
-to study the tail recursive variant to simulate iteration. This example highlights \ocaml's support for recursion through an auxiliary 
-function, \inlinecode{fact\_aux}, which incrementally computes the factorial by accumulating the product of integers from 1 to n.
-
-\begin{gospell}
-let rec fact_aux n c t =
-  if c <= n then fact_aux n (c+1) (t*c) else t
-(*@
-  r = fact_aux n c t
-  requires n >= 0
-  requires 0 < c <= n+1
-  requires t = factorial (c-1)
-  ensures r = factorial n
-  variant n+1-c
-*)
-\end{gospell}
-
-The auxiliary function \inlinecode{fact\_aux} receives as arguments the \inlinecode{n} value, that represents the factorial we want to 
-compute, the \inlinecode{c} value, that represents the current index of the iteration, and \inlinecode{t} value, that is accumulating 
-the result from previous iterations in order to display the solution.
-
-The specifications include a few pre-conditions, from those, the factorial to compute is higher or equal to 0, because the factorial as 
-default is only calculated for non-negative values, the index of the iteration is between 0 and factorial to compute, because from the
-code written when the index achieves the same value as the factorial to compute the function should terminate. For the post-conditions
-we only need to make sure the result of the auxiliary function is indeed the factorial of n, which is calculated logically with the 
-definition below. The variant serves to prove the termination of the recursive function with an expression that decreases every iteration
-and is limited by 0. In this case since the counter is approaching n+1 every iteration, for the last iteration t holds the factorial of n,
-which was the previous value of c and terminates successfully.
-
-\begin{gospell}
-(*@ 
-  function rec factorial (n:int) :int = 
-    if n=0 then 1 else n * factorial (n-1)
-*)
-(*@ 
-  requires n >= 0
-  variant n
-*)
-\end{gospell}
-
-The definition of this function in \gospel represents the logical concept of a factorial, this can be used for later specifications 
-to compare results. The implementation of this function is in a recursive way, since \gospel only supports the functional paradigm, 
-additionally logical definitions are meant to be simple rather than complex but optimized, since we want to simplify the proof.
-The main function fact:
-
-\begin{gospell}
-let fact n = fact_aux n 1 1
-(*@ 
-  r = fact n
-  requires n >= 0 
-  ensures r = factorial n
-*)
-\end{gospell}
-
-Initializes the auxiliary call with appropriate base values, the first one is the counter so it needs to start at 1 because for the 
-multiplication with the accumulator starting at 0 would not take into consideration the first iteration. For the 1 in the accumulator, 
-the third argument, represents the neutral element for multiplication. The \gospel annotations specify the expected behaviour, including 
-preconditions such as non-negativity of \inlinecode{n} and the correctness of the returned result. 
-
-This annotated version allows the function to be verified in \whythree before attempting any extraction. The extracted code can be
-seen below:
+to study the tail recursive variant to simulate iteration, found in section \ref{sec:Cameleer}. The extracted code can be seen below:
 
 \begin{cakeml}
 fun fact_aux n c t = let val n1 = n in
@@ -170,16 +111,12 @@ our pipeline can function if small changes are applied to the extraction mechani
 \subsection{Exception recursive search}
 
 One possible use of exceptions, although it may seem natural at first, can be to stop iteration early in \ocaml, for instance, in the 
-context of linear search when the desired element is found. Once again, since, for and while loops are not available in \cml to simulate 
-iteration we use recursion with a counter:
+context of linear search when the desired element is found, for more information regarding the implementation see section 
+\ref{subsec:SideEffects}. Once again, since, for and while loops are not available in \cml to simulate iteration we use recursion 
+with a counter:
 
 \begin{gospell}
-let rec search_aux a c n =
-  let exception Break of int in try
-    if c = Array.length a then raise Not_found 
-    else if a.(c) = n then raise (Break c) 
-    else search_aux a (c+1) n
-  with Break i -> i
+let rec search_aux a c n = (* ... *)
 (*@
   r = search_aux a c n
   requires 0 <= c <= Array.length a
@@ -190,10 +127,6 @@ let rec search_aux a c n =
   variant Array.length a - c
 *)
 \end{gospell}
-
-The auxiliary function \inlinecode{search\_aux} receives as arguments an array, the current index and a value that is going to be 
-compared to each element of the array. The program returns the index of the array in case it was found early by raising
-the exception \inlinecode{Break}. By contrast, if the value is not in the array the exception \inlinecode{Not\_found} is raised at the end.
 
 Inside the \gospel specifications, we must guarantee that index \inlinecode{c} is between values of 0 and the length of the array 
 \inlinecode{a}, which in turn gives us the assurance that the array is never accessed for values out of its range expect for the case 
@@ -261,18 +194,13 @@ illustrate the importance of a properly configured and semantically aware transl
 exception Not_found
 exception Break int
 
-fun search_aux a c n = let val a1 = a in
-  let val c1 = c in
-  let val n1 = n in
-  ((if c1 = (Array.length a1) then (raise Not_found) 
-    else (if (Array.sub  a1 c1) = n1 then (raise (Break n1)) 
-          else (search_aux a1 (c1 + (1)) n1)))
+fun search_aux a c n =
+  ((if c = (Array.length a) then (raise Not_found) 
+    else (if (Array.sub  a c) = n then (raise (Break n)) 
+          else (search_aux a (c + (1)) n)))
   handle Break i => i)
-  end end end
 
-fun linear_search a n =
-  let val a1 = a in let val n1 = n in search_aux a1 (0) n1 
-  end end
+fun linear_search a n = search_aux a (0) n
 
 \end{cakeml}
 
@@ -403,17 +331,8 @@ code compilable and correct.
 \subsection{Depth-search tree}
 
 User defined data types, such as trees, are very important for real world examples in functional programming, since traversing them
-can easily be achieved recursively. 
-
-\begin{gospell}
-type 'a tree =
-    | Leaf
-    | Node of 'a tree * 'a * 'a tree
-\end{gospell}
-
-A tree can either be a \inlinecode{Leaf}, which represents the empty tree, or a \inlinecode{Node}, which is a tuple with three elements, 
-the subtree to the left, the value for the node and the subtree to the right, respectively. The recursive depth-first search algorithm 
-for trees can be implemented as:
+can easily be achieved recursively. For the tree data structure definition can be found in section \ref{subsec:ADT}. The recursive 
+depth-first search algorithm for trees can be implemented as:
 
 \begin{gospell}
 let rec depth_search t n = 
@@ -477,13 +396,11 @@ The corrected code below:
 \begin{cakeml}
 datatype 'a tree = Leaf | Node ('a tree) 'a ('a tree)
 
-fun depth_search t n = let val t1 = t in
-  let val n1 = n in
-  (case t1 of
+fun depth_search t n =
+  (case t of
     Leaf => False
   | Node l x r =>
-    (x = n1) orelse ((depth_search l n1) orelse (depth_search r n1)))
-    end end
+    (x = n) orelse ((depth_search l n) orelse (depth_search r n)))
 \end{cakeml}
 
 Correcting the order and removing the unnecessary tokens in data type definition, achieves a more robust extraction mechanism that 
@@ -492,23 +409,14 @@ produces compilable \cml code.
 \subsection{Tree Comparison}
 
 With this example we only want to understand if the module system is working as intended in \cml. The module system in \cml is very 
-limited since it does not support signatures and functors. We present a simple tree module in \ocaml that contains the comparison between
-trees.
+limited since it does not support signatures and functors. In section \ref{subsec:ADT} we present a simple tree module in \ocaml that 
+contains the comparison between trees. Below it is shown the necessary \gospel annotations:
 
 \begin{gospell}
 module Tree = struct
+  type 'a tree = (* ... *)
 
-  type 'a tree =
-    | Leaf
-    | Node of 'a tree * 'a * 'a tree
-
-  let rec cmp t1 t2 =
-    match t1, t2 with
-    | Leaf, Leaf -> true
-    | Leaf, _ -> false
-    | _, Leaf -> false
-    | Node (l1,x1,r1), Node (l2,x2,r2) -> cmp l1 l2 && x1 = x2 && cmp r1 r2
-    
+  let rec cmp t1 t2 = (* ... *)
   (*@
   r = cmp t1 t2
   variant t1
@@ -541,17 +449,15 @@ The corrected version is demonstrated below:
 
 \begin{cakeml}
 structure Tree = struct
+  datatype 'a tree = Leaf | Node ('a tree) 'a ('a tree)
 
-    datatype 'a tree = Leaf | Node ('a tree) 'a ('a tree)
-
-    fun cmp t1 t2 =
-    (case (t1, t2) of
-        (Leaf, Leaf) => True
-    | (Leaf, _) => False
-    | (_, Leaf) => False
-    | (Node l1 x1 r1, Node l2 x2 r2) =>
-        (cmp l1 l2) andalso ((x1 = x2) andalso (cmp r1 r2)))
-
+  fun cmp t1 t2 =
+  (case (t1, t2) of
+    (Leaf, Leaf) => True
+  | (Leaf, _) => False
+  | (_, Leaf) => False
+  | (Node l1 x1 r1, Node l2 x2 r2) =>
+      (cmp l1 l2) andalso ((x1 = x2) andalso (cmp r1 r2)))
 end
 \end{cakeml}
 
@@ -563,12 +469,11 @@ in \cml's documentation, by having a look at SML's module syntax, it was possibl
 
 To demonstrate support for references, a program was implemented to perform Euclidean division, also known as division with remainder. 
 This operation involves dividing one non-negative integer by another positive integer, resulting in two values: a positive integer 
-quotient and a non-negative remainder that is strictly less than the absolute value of the divisor. This program is implemented below:
+quotient and a non-negative remainder that is strictly less than the absolute value of the divisor. This program is demonstrated 
+in the section \ref{subsec:SideEffects} and its specification is presented below:
 
 \begin{gospell}
-let rec eudiv_aux (x: int) (y: int) (r: int ref) (q: int ref) =
-  if !r >= y then (r := !r - y; q := !q + 1; eudiv_aux x y r q)
-  else ()
+let rec eudiv_aux (x: int) (y: int) (r: int ref) (q: int ref) = (* ... *)
 (*@ res = eudiv_aux x y r q
     requires x >= 0
     requires y > 0
@@ -580,12 +485,6 @@ let rec eudiv_aux (x: int) (y: int) (r: int ref) (q: int ref) =
     ensures 0 <= !r < y *)
 \end{gospell}
 
-This example has the need for an auxiliary function in \inlinecode{eudiv\_aux} which receives as arguments the values the dividend 
-\inlinecode{x}, the divisor \inlinecode{y}, the remainder \inlinecode{r}, and the quotient \inlinecode{q}. What the recursive auxiliary 
-function is doing for every iteration is to increment the quotient by 1 and subtract the remainder by the divisor, until the remainder 
-is a non-negative value that is strictly smaller than the divisor. The values for the remainder and quotient are saved inside references 
-and reassigned after every operation or iteration.
-
 To specify this function, we used \gospel annotations to define pre-conditions and post-conditions that ensure the correctness of 
 the Euclidean division. The pre-conditions enforce that the dividend must be a non-negative integer, the divisor must be strictly 
 positive, and the remainder (held in a reference) must initially lie between 0 and the dividend. Additionally, we specify that the 
@@ -595,21 +494,13 @@ than the divisor, which aligns with the definition of Euclidean division. In eve
 remainder \inlinecode{\!r} so a natural way to guarantee termination is to use this exact expression as a variant condition.
 
 \begin{gospell}
-let euclidean_div x y =
-    let r = ref x and q = ref 0 in 
-  eudiv_aux x y r q;
-  (!q, !r)
+let euclidean_div x y = (* ... *)
 (*@ (q, r) = euclidean_div x y
     requires x >= 0
     requires y > 0
     ensures x = y * q + r
     ensures 0 <= r < y *)
 \end{gospell}
-
-The main function \inlinecode{euclidean\_div} receives the two arguments \inlinecode{x} and \inlinecode{y}, which represent respectively
-the dividend and divisor. This function initializes the remainder \inlinecode{r} as a reference with the value of the dividend 
-\inlinecode{x} and the quotient \inlinecode{q} as a reference of value 0. After acquiring the necessary variables the auxiliary function 
-is called.
 
 The \gospel specifications require the dividend to be a non-negative integer and the divisor to be strictly positive. The function 
 ensures that the dividend always equals the product of the divisor and the quotient plus the remainder. Additionally, it guarantees 
@@ -647,7 +538,7 @@ fun eudiv_aux x y r q =
 fun euclidean_div x y =
   let val r = Ref x in
   let val q = Ref (0) in (eudiv_aux x y r q; (!q, !r)) 
-end end
+    end end
 \end{cakeml}
 
 Removing the unnecessary let-bindings and correctly handling of the \inlinecode{else} branch, which was absent, the functions became 

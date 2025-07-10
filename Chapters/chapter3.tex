@@ -82,6 +82,18 @@ programming and end-to-end verification, \cml complements \compcert, which prima
 performance oriented optimizations. Together, these approaches address different but complementary aspects of verified software 
 development~\cite{POPL14}.
 
+The programming language used in \cml is a subset of Standard ML, which is
+a functional programming language that fully embraces the expressiveness of mathematical functions. 
+However, it was also shaped by practical programming needs, leading to the inclusion of imperative constructs and a 
+robust exception handling system. The language supports modularity through an advanced system of parametric modules, 
+designed to facilitate the structured development of large-scale software systems. Moreover, Standard ML is strongly 
+and statically typed, and it was the first programming language to introduce a form of polymorphic type inference that 
+combines strong type safety with considerable flexibility in programming style ~\cite{milner1997definition}.
+
+One of the most distinguishing features of Standard ML is its formal definition, which precisely specifies the language's 
+static and dynamic semantics using structural operational semantics~\cite{milner1997definition}, which played a key role in laying the 
+groundwork for end-to-end verified compilers~\cite{Syme93}.
+
 In \cml it is possible to find a verified type system, which is also an important achievement in the context of a certified compiler.
 It provides a sound and complete implementation of a system with type inference making use of the type soundness theorem and using HOL4
 proof assistant. These results ensure that any \cml program accepted by the type inferencer is guaranteed to be 

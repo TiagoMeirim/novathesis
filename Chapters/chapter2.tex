@@ -14,6 +14,11 @@
 
 In this chapter we present the necessary background for the formal verification field and the elected tools.
 
+\section{Operational Semantics}
+\label{sec:Operational_Semantics}
+
+
+
 \section{Hoare logic}
 \label{sec:Hoare_logic}
 
@@ -141,6 +146,9 @@ are declared through the general mechanism of algebraic data types, for instance
     | Node of 'a tree * 'a * 'a tree
 \end{ocamlenv}
 
+A tree can either be a \inlinecode{Leaf}, which represents the empty tree, or a \inlinecode{Node}, which is a tuple with three elements, 
+the subtree to the left, the value for the node and the subtree to the right, respectively.
+
 ADTs support exhaustive pattern matching, which is particularly useful for enabling structural recursion and inductive reasoning.
 From a verification perspective, this ensures all possible cases are covered, making formal reasoning both precise and complete.
 One example of pattern matching combined with ADTs is:
@@ -176,6 +184,7 @@ In the context of deductive verification, such functional abstractions support e
 and reasoning principles.
 
 \subsection{Side Effects in OCaml}
+\label{subsec:SideEffects}
 
 \ocaml is not a purely functional language since it allows the use of imperative constructs with side effects, like references,
 exceptions, built-in arrays, for and while loops. References allow the manipulation of memory, a feature not common for functional

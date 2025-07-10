@@ -16,7 +16,7 @@
     fn, and, not, type, withtype, match, rec, handle},
   morekeywords=[2]{Ref, Some, None, True, False, raise, exception, orelse},
   morekeywords=[3]{int, bool, unit, Array, List, option, tree},
-  morekeywords=[4]{fun, end, let, in},
+  morekeywords=[4]{fun, end, let, in, structure, struct},
   sensitive=true,
   morecomment=[s]{(*}{*)},
   morestring=[b]",
@@ -70,7 +70,7 @@ keepspaces=true,% for nicer ->
 \newcounter{lst}
 
 \lstnewenvironment{cakeml}[1][none]{
-  \lstset{language=cakeml,numbers=#1,caption={CakeML\vspace*{-2em}},aboveskip=-1em, basicstyle=\ttfamily\footnotesize}
+  \lstset{language=cakeml,numbers=#1,caption={\cml\vspace*{-2em}},aboveskip=-1em, basicstyle=\ttfamily\footnotesize}
 }{\addtocounter{lst}{1}}
 
 \lstnewenvironment{syntax}[1][none]{
@@ -80,11 +80,7 @@ keepspaces=true,% for nicer ->
  } {\addtocounter{lst}{1}}
 
 \lstnewenvironment{ocamlenv}[1][none]{
-  \lstset{language=gospel,numbers=#1,caption={\ocaml\vspace*{-2em}},aboveskip=-1em}
- } {\addtocounter{lst}{1}}
-
- \lstnewenvironment{ocamlsmall}[1][none]{
-   \lstset{language=gospel,numbers=#1,caption={\ocaml\vspace*{-2em}},aboveskip=-1em, basicstyle=\ttfamily\footnotesize}
+  \lstset{language=gospel,numbers=#1,caption={\ocaml\vspace*{-2em}},aboveskip=-1em, basicstyle=\ttfamily\footnotesize}
  } {\addtocounter{lst}{1}}
 
 \lstnewenvironment{gospell}[1][none]{
