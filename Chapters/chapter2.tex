@@ -12,17 +12,7 @@
 \chapter{Background}
 \label{cha:Background}
 
-% Syntax & semantics
-% Interpretation of PLs
-% Compilation of PLs
-% Type Systems
-% Parsing
-% Compiler otimizations (?)
-% Hoare logic
-% OCaml
-% Standard ML
-% Why3
-% Cameleer
+In this chapter we present the necessary background for the formal verification field and the elected tools.
 
 \section{Hoare logic}
 \label{sec:Hoare_logic}
@@ -99,39 +89,31 @@ with automated theorem provers and SMT solvers.
 The influence of weakest preconditions is particularly evident in modern deductive verification tools such as \whythree
 ~\cite{boogie11why3}, and \textsf{Dafny}~\cite{Leino10}.
 
-%%https://dl.acm.org/doi/pdf/10.1145/363235.363259
-%%https://scispace.com/pdf/soundness-and-completeness-of-an-axiom-system-for-program-3g7csch545.pdf
-%%https://cdn.bookey.app/files/pdf/book/en/a-discipline-of-programming.pdf
-
 \section{OCaml}
 \label{sec:OCaml}
-
-%% Exemplos das features do OCaml
-%% Falar de features concretas do OCaml
-%% Exemplo place holder
-%% Mencionar Ocaml64
 
 OCaml is a statically typed functional programming language rooted in the ML family, originally developed 
 to serve as the implementation language for theorem provers such as LCF. It inherits the foundational principles 
 of typed $\lambda$-calculus, formal logic, and abstract interpretation, and extends them through practical language design 
-aimed at enabling both expressiveness and efficiency.
+aimed at enabling both expressiveness and efficiency~\cite{FilliatrePereiraSousa2018}.
 
 First released in the mid-1990s, OCaml is the principal evolution of the Caml dialect of the ML family. The name OCaml, 
 originally short for Objective Caml, reflects the addition of object-oriented features to the Caml language. While Caml 
-stood for Categorical Abstract Machine Language, OCaml moved away from its dependence on the original abstract machine model. 
-The language is primarily developed and maintained by INRIA, which continues to guide its implementation and evolution.
+stood for Categorical Abstract Machine Language, OCaml moved away from its dependence on the original abstract machine 
+model~\cite{leroy:inria-00070049}. The language is primarily developed and maintained by INRIA, which continues to guide 
+its implementation and evolution.
 
 OCaml distinguishes itself from many academically inspired languages through its strong emphasis on performance. Its static 
 type system eliminates the need for runtime type checking by ensuring type correctness at compile time, thereby avoiding the 
 performance overhead commonly associated with dynamically typed languages. This design enables OCaml to maintain high 
 execution efficiency while preserving strong safety guarantees at runtime. Exceptions to this safety model arise only in 
 specific low-level scenarios, such as when array bounds checking is explicitly disabled or when employing type-unsafe features 
-like runtime serialization.
+like runtime serialization~\cite{FilliatrePereiraSousa2018}.
 
 For the standard compiler toolchain features, \ocaml has both a high-performance native-code compiler (\textsf{ocamlopt}) and a 
 bytecode compiler (\textsf{ocamlc}). The native-code compiler produces efficient machine code via a sophisticated optimizing 
-backend, while the bytecode compiler offers portability and rapid development. Both compilers are integrated with a runtime 
-system that supports automatic memory management via a garbage collector and provides facilities for exception handling, 
+backend~\cite{abs-1011-1783}, while the bytecode compiler offers portability and rapid development. Both compilers are integrated 
+with a runtime system that supports automatic memory management via a garbage collector and provides facilities for exception handling, 
 concurrency, and system interaction.
 
 \subsection{Immutability by default}

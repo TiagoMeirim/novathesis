@@ -50,7 +50,7 @@ Realistic refers to a compiler that can be effectively employed in the productio
 
 CompCert adopts a multi-pass compilation architecture, where each pass translates an intermediate representation into a lower-level 
 form, gradually transforming the high-level C source code into target assembly code. These intermediate languages are Clight, Cminor, 
-RTL, LTL, and others are themselves formally defined within Coq. CompCert's core is implemented in Gallina, the functional programming 
+RTL, LTL, and others which are formally defined within Coq. CompCert's core is implemented in Gallina, the functional programming 
 language of Coq, which is based on the Calculus of Inductive Constructions, a powerful higher-order logic and typed $\lambda$-calculus. 
 This implementation enables formal reasoning and machine-checked proofs of correctness for each compilation phase~\cite{MonniauxB22}.
 
@@ -62,9 +62,58 @@ Since the compiler must generate a large subset of the C language, the code need
 requirements of critical embedded systems. This implies a multi-pass compiler that features good register allocation and some basic 
 optimizations~\cite{Leroy09-back-end}.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/compcert_diagram.png}
+    \caption{CompCert pipeline diagram~\cite{hal-01643290, CompCertPipeline}}
+    \label{fig:CompCertPipeline}
+\end{figure}
 
 \subsection{CakeML}
 \label{sec:CakeML}
+
+The \cml compiler stands out as one of the most realistic verified compilers for functional programming. Inspired by both CompCert 
+and \ocaml compilers, it supports a rich set of language features commonly found in unverified compilers for functional languages. The 
+main goal of the \cml compiler is to combine end-to-end formal verification with practical performance, making it suitable 
+for high-assurance applications without compromising efficiency~\cite{TanMKFON19}. \cml is a formally verified functional programming 
+language and compiler toolchain, specifically designed to target practical, off-the-shelf hardware while achieving a high degree of 
+trustworthiness. It serves as a robust platform for software in domains where correctness is paramount. By focusing on functional 
+programming and end-to-end verification, \cml complements CompCert, which primarily target imperative languages and emphasize 
+performance oriented optimizations. Together, these approaches address different but complementary aspects of verified software 
+development~\cite{POPL14}.
+
+\cml can also bootstrap its compiler, meaning it can compile itself, in order to be used inside and outside the logic. This 
+bootstrapping is performed by generating verified machine code from a formally proven semantics of the compiler, effectively 
+closing the trusted computing base gap. This process ensures that the final executable compiler has been produced through a 
+chain of correctness preserving transformations, all verified in the HOL4 theorem prover~\cite{TanMKFON19, POPL14}.
+
+Complementing this, \cml adopts a multi-stage compilation pipeline, Each stage of the pipeline transforms an intermediate representation
+of the program into a successively lower-level form, progressing from functional language down to executable machine code. The latest 
+verified CakeML compiler and pipeline, as of writing this document, goes through 8 intermediate languages and targets machine code 
+for 6 architectures.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/CakeMLPipeline.png}
+    \caption{\cml multi-stage pipeline}
+    \label{fig:CakeMLPipeline}
+\end{figure}
+
+In the figure \ref{fig:CakeMLPipeline} the red boxes represent all the languages the compiler passes through until it reaches the
+encoding for each of the different types of machine code programs, represented as green.
+
+\subsection{PureCake}
+
+Another tool that compiles to \cml code with a verified compiler is PureCake, which is a HOL4-verified compiler for a lazy, 
+functional language with Haskell-like, indentation sensitive syntax. Since, the output code is \cml code it can be passed 
+through \cml trusted backend, ensuring end-to-end verification~\cite{KanabarVAMNPZ23}.
+
+Inspired by CompCert, it targets a Standard ML-style language and compiles down to \cml through a verified pipeline.
+This design not only makes it possible to compile lazy functional programs in a sound and verified way, but also showcases 
+how flexible \cml's verified infrastructure can be when adapting to different programming language styles. 
+By supporting features that are rarely seen in other verified compilers, PureCake expands the range of languages that can 
+benefit from verified compilation, showing that it's feasible to bring formal guarantees even to non-strict, high-level 
+functional languages~\cite{KanabarVAMNPZ23, KanabarKM24}.
 
 \section{Pipeline}
 \label{sec:Pipeline}

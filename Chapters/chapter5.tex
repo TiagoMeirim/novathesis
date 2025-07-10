@@ -19,96 +19,94 @@ schedule when needed.
 
 The first part for this work is focusing on improving the extraction mechanism, while fixing the issues aforementioned.
 
-\subsection{Correct Boolean Literals Syntax}
+\begin{itemize}
 
-In \cml, boolean literals start with uppercase contrary to \ocaml. In this task we ought to revise the \whythree's extraction scheme,
+\item \textbf{Correct Boolean Literals Syntax -} In \cml, boolean literals start with uppercase contrary to \ocaml. In this task we ought 
+to revise the \whythree's extraction scheme,
 which currently define these literals with all lowercase letters. So, in order to match boolean literals with \cml syntax, we must
 capitalize the initial letters (e.g., \inlinecode{true} $\rightarrow$ \inlinecode{True}).
 
-\subsection{Correct Reference Declaration Syntax}
-
-Similar to boolean literals, reference declarations also start with an uppercase letter, which contrasts with \ocaml. The same 
+\item \textbf{Correct Reference Declaration Syntax -} Similar to boolean literals, reference declarations also start with an uppercase 
+letter, which contrasts with \ocaml. The same 
 capitalization solution will be applied to the reference token in order to follow \cml conventions 
 (e.g., \inlinecode{ref} $\rightarrow$ \inlinecode{Ref}).
 
-\subsection{Correct Let-Binding Syntax}
-
-Regarding the let-binding structure in \cml, this always terminates with the \inlinecode{end} keyword. During translation sometimes there 
+\item \textbf{Correct Let-Binding Syntax -} Regarding the let-binding structure in \cml, this always terminates with the \inlinecode{end} 
+keyword. During translation sometimes there 
 are some missing \inlinecode{end} tokens. This may be due to \ocaml not having an explicit termination token for let-bindings. Additionally, 
 the parameters of the functions are duplicated with let-bindings, this is redundant, and it is our objective to simplify the resulting 
 translations.
 
-\subsection{Correct Data Structures Operations Syntax}
-
-Two of the most commonly used libraries for data structures, List and Array, have displayed errors when translating their operations into 
+\item \textbf{Correct Data Structures Operations Syntax -} Two of the most commonly used libraries for data structures, List and Array, 
+have displayed errors when translating their operations into 
 \cml. Some of the errors include the omitted prefix for the library name and different operation names. 
 Even if the operations are quite similar from \ocaml and \cml, the translation doesn't generate the same operation calling, therefore, to 
 have a fully correct and compilable code in \cml arises the necessity to replace the data structures operations with the corresponding 
 ones.
 
-\subsection{Correct Data Type Syntax}
-
-When defining the data types, \cml's syntax differs from \ocaml's when it comes to tuple declarations, in particular, 
+\item \textbf{Correct Data Type Syntax -} When defining the data types, \cml's syntax differs from \ocaml's when it comes to 
+tuple declarations, in particular, 
 the \inlinecode{of} keyword and the separator \inlinecode{*} found in \ocaml are not used in \cml. Another translation error consists in
 misplacement of the generic type, which is situated before the \inlinecode{datatype} keyword, rather than after. The solution comes 
 through fixing data type definitions to respect \cml ordering and syntax.
 
-\subsection{Correct Exception Handling}
-
-In \ocaml we can declare exceptions within functions through let-bindings, which is not possible in \cml. All exceptions need to be 
+\item \textbf{Correct Exception Handling -} In \ocaml we can declare exceptions within functions through let-bindings, which is not 
+possible in \cml. All exceptions need to be 
 declared at the global level. Furthermore, \ocaml supports a few predefined exceptions found in the standard library which have no 
 direct translation in \cml, so they also need to be declared. For this task it is essential to refactor the exception declarations 
 and usage to comply with \cml, ensuring all exceptions are defined properly.
+
+\end{itemize}
 
 \section{Translation from CakeML to OCaml}
 
 The next big task is to create a new tool that can do the inverse pipeline of the previous work. This new tool will respect
 the syntactic and semantic differences while translating, and the available features of \cml.
 
-\subsection{Arithmetic and Boolean operations}
+\begin{itemize}
 
-The first step in any basic translation tool is to define the integer and boolean data types as well as their respective operations.
+\item \textbf{Arithmetic and Boolean operations -} The first step in any basic translation tool is to define the integer and boolean 
+data types as well as their respective operations.
 This includes defining the literals correctly, as previously mentioned the boolean tokens are not equally written, and operations
 such as addition, subtraction, multiplication, equality and inequality. Whenever necessary, casing and syntax will be adjusted.
 
-\subsection{Let-Bindings}
-
-The next for the translation tool is to support let-bindings. The correct syntax for this construct in \cml includes explicit 
+\item \textbf{Let-Bindings -} The next for the translation tool is to support let-bindings. The correct syntax for this construct in 
+\cml includes explicit 
 termination with the \inlinecode{end} keyword, meanwhile in \ocaml there is no explicit termination. This construct requires 
 special attention when multiple let-bindings are nested due to the different environments.
 
-\subsection{References}
-
-To support references it is important to define three operations, these being creation, assignment and access. The correct translation
+\item \textbf{References -} To support references it is important to define three operations, these being creation, assignment and 
+access. The correct translation
 from \cml to \ocaml must take into consideration the main syntax difference which is casing: \inlinecode{ref} in \ocaml
 and \inlinecode{Ref} in \cml.
 
-\subsection{Data Structure Operations}
-
-Most real programs make use of built-in complex data structures such as Arrays and Lists. This urges for the translation of their 
+\item \textbf{Data Structure Operations -} Most real programs make use of built-in complex data structures such as Arrays and Lists. 
+This urges for the translation of their 
 basic operations already present in the standard library, besides the additional operations featured in the respective dedicated 
 library for that data structure.
 
-\subsection{Data Types}
-
-For many programs the built-in data structures do not suffice, so, user defined data types are a must for programming languages.
+\item \textbf{Data Types -} For many programs the built-in data structures do not suffice, so, user defined data types are a must 
+for programming languages.
 Such that, it is natural to provide a translation scheme for the definition of data types in \cml into idiomatic \ocaml type declarations, 
 preserving constructors and structure.
 
-\subsection{Correct Exception Handling}
-
-Robust programs are built with the expectation to fail occasionally, so there should be mechanisms to handle and recover from these 
+\item \textbf{Correct Exception Handling -} Robust programs are built with the expectation to fail occasionally, so there should 
+be mechanisms to handle and recover from these 
 situations. One of these mechanisms are exceptions, which offer clean and concise flagging for these non-natural cases.
 When transforming exception declarations and usage from \cml back into \ocaml style with inline definitions and raises, we must also take
 into consideration that \cml only allows global declaration of exceptions.
 
+\end{itemize}
+
 \section{Dissertation}
 
-%%\subsection{Writing}
+\begin{itemize}
 
-\paragraph{Writing -}
+\item \textbf{Writing -}
 In the last month, we will finalize the dissertation document by detailing the modifications made to the codebase, describing the 
 implementation steps, and analysing the results and limitations of the pipeline and the translation tool.
+
+\end{itemize}
 
 \newpage
 
