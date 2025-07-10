@@ -50,8 +50,8 @@ the \inlinecode{of} keyword and the separator \inlinecode{*} found in \ocaml are
 misplacement of the generic type, which is situated before the \inlinecode{datatype} keyword, rather than after. The solution comes 
 through fixing data type definitions to respect \cml ordering and syntax.
 
-\item \textbf{Correct Exception Handling -} In \ocaml we can declare exceptions within functions through let-bindings, which is not 
-possible in \cml. All exceptions need to be 
+\item \textbf{Correct Exception Handling -} In \ocaml we can declare exceptions within functions through let-bindings, contrary to
+\cml. All exceptions need to be 
 declared at the global level. Furthermore, \ocaml supports a few predefined exceptions found in the standard library which have no 
 direct translation in \cml, so they also need to be declared. For this task it is essential to refactor the exception declarations 
 and usage to comply with \cml, ensuring all exceptions are defined properly.
@@ -70,7 +70,7 @@ data types as well as their respective operations.
 This includes defining the literals correctly, as previously mentioned the boolean tokens are not equally written, and operations
 such as addition, subtraction, multiplication, equality and inequality. Whenever necessary, casing and syntax will be adjusted.
 
-\item \textbf{Let-Bindings -} The next for the translation tool is to support let-bindings. The correct syntax for this construct in 
+\item \textbf{Let-Bindings -} This construct is essential to functional languages. The correct syntax for this construct in 
 \cml includes explicit 
 termination with the \inlinecode{end} keyword, meanwhile in \ocaml there is no explicit termination. This construct requires 
 special attention when multiple let-bindings are nested due to the different environments.
@@ -90,7 +90,7 @@ for programming languages.
 Such that, it is natural to provide a translation scheme for the definition of data types in \cml into idiomatic \ocaml type declarations, 
 preserving constructors and structure.
 
-\item \textbf{Correct Exception Handling -} Robust programs are built with the expectation to fail occasionally, so there should 
+\item \textbf{Exception Handling -} Robust programs are built with the expectation to fail occasionally, so there should 
 be mechanisms to handle and recover from these 
 situations. One of these mechanisms are exceptions, which offer clean and concise flagging for these non-natural cases.
 When transforming exception declarations and usage from \cml back into \ocaml style with inline definitions and raises, we must also take
@@ -108,7 +108,7 @@ implementation steps, and analysing the results and limitations of the pipeline 
 
 \end{itemize}
 
-\newpage
+%% \newpage
 
 \section{Gantt Chart}
 

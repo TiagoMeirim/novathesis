@@ -11,14 +11,14 @@
 \chapter{Introduction}
 \label{cha:introduction}
 
-This work is motivated by the importance of ensuring correctness in critical systems and the recent developments 
-in formal verification with certified compilers. Which, we present, in detail, below:
+% This work is motivated by the importance of ensuring correctness in critical systems and the recent developments 
+% in formal verification with certified compilers. Which, we present, in detail, below:
 
 \section{Motivation}
 \label{sec:Motivation}
 
 
-Progress in Formal Verification has been steadily made over the years. 
+Progress in Formal Verification has steadily been made over the years. 
 The foundational ideas emerged as early as 1937 by Alan Turing~\cite{Turing37} and by 1949 a program
 represented as a flowchart was formally verified~\cite{early-proof}. Other notable papers where mathematical propositions 
 established purely through theoretical reasoning include works by Alan Turing~\cite{Turing38}, Church
@@ -82,7 +82,7 @@ code, and surprisingly, there is no such tool. This leads us to the following qu
 The first goal in this work is to have a detailed look into the features of both \ocaml and \cml languages, find the notable 
 differences and absences, to know which features to test using the extraction mechanism. The next goal should be to change 
 internally the source code of the \cameleer tool to support the extraction of \cml code. With this, we should be able to identify
-in detail the issues with the translation, what are the necessary changes to compile correctly, which may include new features
+in detail the issues with the translation, what are the necessary changes to compile correctly, which may include introducing new features
 or fixing syntactic issues for the features already supported by the extraction mechanism, directly in \whythree source code.
 For the features that are not supported by one of the languages, providing a comprehensive error message rather than allowing 
 the extraction to take place. To make the pipeline more robust we should confirm if the program is verified beforehand when performing 

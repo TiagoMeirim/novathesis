@@ -32,9 +32,25 @@ produces code that can not be opened by the \whythree platform because it contai
 altering the code manually or to substantially modify the behaviour of the debug flag which is not intended.
 
 %% Example to prove
+\section{Goal Pipeline}
 
-%%Mencionar a alteracao do mecanismo de extracao do cameleer de ocaml64 para cakeml, internamente o cameleer usa o comando 
-%%do why3 de extracao "why3 extract -D cakeml {programa}.mlw -o {programa}.cml"
+After analysing the verification pipeline in figure \ref{fig:Cameleer_pipeline} it is possible to observe that some parts have already been 
+implemented or require only minor adjustments to meet their objectives. By modifying the extraction process in \whythree to check if the 
+proof has been discharged we can provide better correctness guarantees because the generated \cml code will comply to the specification. 
+Due to differences in syntax and features that have no direct equivalents in \cml, we must also include some kind of error message for 
+failures in extraction, for instance the lack of support for \inlinecode{while} and \inlinecode{for} loops.
+
+The main goal of this work is to expand the currently available pipeline of translating code from \ocaml with \gospel specifications 
+into \whyml, where it can be verified using the various automated provers available in \whythree. We want to achieve 
+a more robust extraction mechanism with the ideas as previously discussed. Moreover, we ought to provide a new tool that 
+translates compilable \cml programs into \ocaml equivalents that can be specified afterwards with \gospel so that one may prove 
+their correctness in \cameleer. The figure below represents the goal pipeline:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/Goal_Pipeline.png}
+    \caption{Goal pipeline}
+\end{figure}
 
 \section{Case Studies}
 

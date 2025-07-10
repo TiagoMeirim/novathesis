@@ -296,7 +296,7 @@ like \textsf{VeriFast} or \textsf{Viper}~\cite{ChargueraudFLP19}.
 language used by the \whythree platform. Once translated, the code can be processed by \whythree, which leverages a range of automated 
 theorem provers, such as Alt-Ergo, Z3, and CVC5, to discharge verification conditions. This seamless integration between \cameleer, 
 \gospel, and \whythree significantly enhances the level of proof automation, allowing developers to verify functional correctness 
-properties of \ocaml programs with minimal manual intervention.
+properties of \ocaml programs with minimal manual intervention. This behaviour is captured by the following pipeline:
 
 \begin{figure}[H]
     \centering
@@ -305,10 +305,10 @@ properties of \ocaml programs with minimal manual intervention.
     \label{fig:CameleerPipeline}
 \end{figure}
 
-The pipeline demonstrates how the translation mechanism integrates with surrounding frameworks to produce deductively verified 
-\ocaml code annotated with \gospel specifications. If an error is detected in the original \ocaml code during translation, the 
-process reverts to the source, requiring corrections to ensure that the generated \whyml code is syntactically and semantically 
-valid. Within the \whythree tool, if the generated verification goals cannot be discharged by the automated provers, it indicates 
+In figure \ref{fig:CameleerPipeline} demonstrates how the translation mechanism integrates with surrounding frameworks to produce 
+deductively verified \ocaml code annotated with \gospel specifications. If an error is detected in the original \ocaml code during 
+translation, the process reverts to the source, requiring corrections to ensure that the generated \whyml code is syntactically and 
+semantically valid. Within the \whythree tool, if the generated verification goals cannot be discharged by the automated provers, it indicates 
 that the specifications may be imprecise or incomplete and require refinement. These issues are highlighted by the tool, guiding the 
 user to improve the annotations. Once all verification conditions are successfully proven, the resulting program is guaranteed to 
 be free from compiler-introduced bugs or errors, ensuring a high level of formal correctness~\cite{Filliatre11}.
@@ -349,7 +349,8 @@ The translated code to \whyml creates 2 goals, one for the function \inlinecode{
     \label{fig:Why3Goals}
 \end{figure}
 
-All verification goals were successfully discharged by the automated provers, resulting in the original \ocaml code, annotated 
+All verification goals were successfully discharged in figure \ref{fig:Why3Goals} through the automated provers, resulting in the 
+original \ocaml code, annotated 
 with \gospel specifications, being fully verified. This outcome demonstrates the effectiveness of the verification pipeline, 
 where the combination of \cameleer and \whythree enables high levels of automation in proving the functional correctness of 
 \ocaml programs.

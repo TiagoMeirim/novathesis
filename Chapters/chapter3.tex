@@ -44,28 +44,28 @@ guarantees of correctness, making them valuable in the development of high-assur
 \subsection{CompCert}
 \label{sec:CompCert}
 
-The development of a realistic and verified compiler began with CompCert. Here, verified denotes a compiler accompanied by
+The development of a realistic and verified compiler began with \compcert. Here, verified denotes a compiler accompanied by
 a machine-checked proof that the generated code behaves exactly as prescribed by the semantics of the source program.
 Realistic refers to a compiler that can be effectively employed in the production of critical software systems~\cite{Leroy09-back-end}.
 
-CompCert adopts a multi-pass compilation architecture, where each pass translates an intermediate representation into a lower-level 
+\compcert adopts a multi-pass compilation architecture, where each pass translates an intermediate representation into a lower-level 
 form, gradually transforming the high-level C source code into target assembly code. These intermediate languages are Clight, Cminor, 
-RTL, LTL, and others which are formally defined within Coq. CompCert's core is implemented in Gallina, the functional programming 
+RTL, LTL, and others which are formally defined within Coq. \compcert's core is implemented in Gallina, the functional programming 
 language of Coq, which is based on the Calculus of Inductive Constructions, a powerful higher-order logic and typed $\lambda$-calculus. 
 This implementation enables formal reasoning and machine-checked proofs of correctness for each compilation phase~\cite{MonniauxB22}.
 
-Although CompCert is developed in Coq, it is not executed within the proof assistant. Instead, the verified Gallina code is extracted 
+Although \compcert is developed in Coq, it is not executed within the proof assistant. Instead, the verified Gallina code is extracted 
 to \ocaml, where it is combined with a small portion of handwritten \ocaml code to produce an efficient and executable 
 compiler~\cite{MonniauxB22}.
 
-Since the compiler must generate a large subset of the C language, the code needs to be eﬃcient enough and compact enough to fit the 
+Since the compiler must generate a large subset of the C language, the code needs to be efficient enough and compact enough to fit the 
 requirements of critical embedded systems. This implies a multi-pass compiler that features good register allocation and some basic 
-optimizations~\cite{Leroy09-back-end}.
+optimizations~\cite{Leroy09-back-end}. The pipeline for the compiler is presented below:
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{images/compcert_diagram.png}
-    \caption{CompCert pipeline diagram~\cite{hal-01643290, CompCertPipeline}}
+    \caption{\compcert pipeline diagram~\cite{hal-01643290, CompCertPipeline}}
     \label{fig:CompCertPipeline}
 \end{figure}
 
@@ -76,11 +76,17 @@ The \cml compiler stands out as one of the most realistic verified compilers for
 and \ocaml compilers, it supports a rich set of language features commonly found in unverified compilers for functional languages. The 
 main goal of the \cml compiler is to combine end-to-end formal verification with practical performance, making it suitable 
 for high-assurance applications without compromising efficiency~\cite{TanMKFON19}. \cml is a formally verified functional programming 
-language and compiler toolchain, specifically designed to target practical, off-the-shelf hardware while achieving a high degree of 
+language and compiler tool chain, specifically designed to target practical, off-the-shelf hardware while achieving a high degree of 
 trustworthiness. It serves as a robust platform for software in domains where correctness is paramount. By focusing on functional 
-programming and end-to-end verification, \cml complements CompCert, which primarily target imperative languages and emphasize 
+programming and end-to-end verification, \cml complements \compcert, which primarily target imperative languages and emphasize 
 performance oriented optimizations. Together, these approaches address different but complementary aspects of verified software 
 development~\cite{POPL14}.
+
+In \cml it is possible to find a verified type system, which is also an important achievement in the context of a certified compiler.
+It provides a sound and complete implementation of a system with type inference making use of the type soundness theorem and using HOL4
+proof assistant. These results ensure that any \cml program accepted by the type inferencer is guaranteed to be 
+well-typed and thus have well-defined semantics. This contributes to \cml's overall goal of ensuring correctness by construction 
+throughout the pipeline~\cite{TanOK15}.
 
 \cml can also bootstrap its compiler, meaning it can compile itself, in order to be used inside and outside the logic. This 
 bootstrapping is performed by generating verified machine code from a formally proven semantics of the compiler, effectively 
@@ -89,8 +95,8 @@ chain of correctness preserving transformations, all verified in the HOL4 theore
 
 Complementing this, \cml adopts a multi-stage compilation pipeline, Each stage of the pipeline transforms an intermediate representation
 of the program into a successively lower-level form, progressing from functional language down to executable machine code. The latest 
-verified CakeML compiler and pipeline, as of writing this document, goes through 8 intermediate languages and targets machine code 
-for 6 architectures.
+verified \cml compiler and pipeline, as of writing this document, goes through 8 intermediate languages and targets machine code 
+for 6 architectures:
 
 \begin{figure}[H]
     \centering
@@ -108,7 +114,7 @@ Another tool that compiles to \cml code with a verified compiler is PureCake, wh
 functional language with Haskell-like, indentation sensitive syntax. Since, the output code is \cml code it can be passed 
 through \cml trusted backend, ensuring end-to-end verification~\cite{KanabarVAMNPZ23}.
 
-Inspired by CompCert, it targets a Standard ML-style language and compiles down to \cml through a verified pipeline.
+Inspired by \compcert, it targets a Standard ML-style language and compiles down to \cml through a verified pipeline.
 This design not only makes it possible to compile lazy functional programs in a sound and verified way, but also showcases 
 how flexible \cml's verified infrastructure can be when adapting to different programming language styles. 
 By supporting features that are rarely seen in other verified compilers, PureCake expands the range of languages that can 
@@ -118,8 +124,8 @@ functional languages~\cite{KanabarVAMNPZ23, KanabarKM24}.
 \section{Pipeline}
 \label{sec:Pipeline}
 
-Some parts of the verification pipeline have already been implemented or require only minor adjustments to meet their 
-objectives. \cameleer provides translation of \ocaml code annotated with \gospel specifications into \whyml :
+In this section we reintroduce the \cameleer pipeline found in figure \ref{fig:CameleerPipeline}, but now with some slight changes
+to accommodate the extraction mechanism from \whythree :
 
 \begin{figure}[H]
     \centering
@@ -128,30 +134,21 @@ objectives. \cameleer provides translation of \ocaml code annotated with \gospel
     \label{fig:Cameleer_pipeline}
 \end{figure}
 
-The extraction process does not require the correctness of the code to be proven. This may lead to potentially incorrect \ocaml 
-programs to be extracted to \cml. Additionally, it is not designed to prevent users from extracting code even if the \gospel 
-specifications can not guarantee correctness.
+A brief explanation for the pipeline, is that \cameleer translates \ocaml programs with \gospel annotations to \whyml language internally,
+on one hand if an error is caught relating to \ocaml or \whyml it will be handled accordingly, on the other hand if there is no syntax error
+the \whythree platform is initialized and the provers can be used to verify the proof goals.
 
-%%Processo de extracao nao esta ligado ao facto de um exemplo ja ter sido provado ou nao, pode potencialmente 
-%%levar a gerar codigo cakeml nao correto
+The extraction mechanism introduced in the figure \ref{fig:Cameleer_pipeline} is separate from the verification process.
+This means that a program may be extracted to another language without requiring the correctness of the code to be proven, 
+the only guarantee is that the program does have any \ocaml or \gospel compilation errors. 
+This may lead to extraction of potentially incorrect \ocaml programs, with the full responsibility of extracting after proving the
+code falling on the user's side. 
 
-By modifying the extraction process in \whythree to check if the proof has been discharged we can provide better correctness 
-guarantees because the generated \cml code will comply to the specification. Due to differences in syntax and features that 
-have no direct equivalents in \cml, we must also include some kind of error message for failures in extraction, for instance 
-the lack of support for while and for loops.
-
-The goal of this work is to expand the currently available pipeline of translating code from \ocaml with \gospel specifications 
-into \whyml, where it can be verified using the various automated provers available in Why3. One of our goals is to achieve 
-a more robust extraction mechanism with the ideas as previously discussed. Moreover, we ought to provide a new tool that 
-translates compilable \cml programs into \ocaml equivalents that can be specified afterwards with \gospel so that one may prove 
-their correctness in \cameleer.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{images/Goal_Pipeline.png}
-    \caption{Goal pipeline}
-\end{figure}
-
-
-
-%%existe extracao cameleer para whyml, de whyml para cakeml, whyml para ocaml64
+The initial objective of the extraction mechanism was to build correct by construction libraries with the help of \whythree. This lead
+to the creation of a mechanism that in itself does not jeopardize the behaviour of the original code when translating, this is due to its 
+mathematical formalization~\cite{Pereira18}. One of the main advantages is the dedicated phase for the removal of ghost code and logical
+annotations present in the original \whyml code, in addition to a few conservative optimizations. The resulting code does not contain 
+any logical elements which facilitates the translation to a new language, this means the only effort that needs to be done
+is similar to writing a printer from an intermediate representation of the language to be added~\cite{Pereira18}. Currently, four languages 
+are allowed to be extracted from \whyml while using the \whythree platform, these are C, Java, \ocaml (OCaml64) and 
+\cml~\cite{Why3Extract, Pereira18}.
