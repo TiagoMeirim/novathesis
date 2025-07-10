@@ -334,71 +334,71 @@ fun count_even l =
 Using the correct syntax for calling every list operation and integer operation while deleting all the unnecessary let-bindings makes the
 code compilable and correct.
 
-\subsection{High-order}
+% \subsection{High-order}
 
-In the documentation for \cml it was not possible to find any mention of higher-order functions. As such, we devised an example that
-combines higher order with pattern matching and lists. The function in this example multiplies all the values of a list by a certain
-integer:
+% In the documentation for \cml it was not possible to find any mention of higher-order functions. As such, we devised an example that
+% combines higher order with pattern matching and lists. The function in this example multiplies all the values of a list by a certain
+% integer:
 
-\begin{gospell}
-let rec mult_list l n =
-    match l with
-    | [] -> []
-    | h :: t -> n * h :: mult_list t n
-(*@ r = mult_list l n
-        ensures r = map (fun x -> x * n) l
-        variant l *)
-\end{gospell}
+% \begin{gospell}
+% let rec mult_list l n =
+%     match l with
+%     | [] -> []
+%     | h :: t -> n * h :: mult_list t n
+% (*@ r = mult_list l n
+%         ensures r = map (fun x -> x * n) l
+%         variant l *)
+% \end{gospell}
 
-This recursive function \inlinecode{mult\_list} receives as arguments a list and a value that is used to multiply on each of the
-lists values, one by one, using the pattern matching and a recursive call on the tail.
+% This recursive function \inlinecode{mult\_list} receives as arguments a list and a value that is used to multiply on each of the
+% lists values, one by one, using the pattern matching and a recursive call on the tail.
 
-The original list has its values extracted one by one until the list is empty, signalling the function termination, which in turn is 
-represented by the variant clause. The function \inlinecode{map} is classical example of function programming that applies another 
-function to all elements of a list. One can observe that the \inlinecode{mult\_list} function is a particular case of the \inlinecode{map} 
-function, where the function is the multiplication by a given integer n and is expressed by an anonymous function. 
+% The original list has its values extracted one by one until the list is empty, signalling the function termination, which in turn is 
+% represented by the variant clause. The function \inlinecode{map} is classical example of function programming that applies another 
+% function to all elements of a list. One can observe that the \inlinecode{mult\_list} function is a particular case of the \inlinecode{map} 
+% function, where the function is the multiplication by a given integer n and is expressed by an anonymous function. 
 
-The logical implementation of the \inlinecode{map} function is presented below:
+% The logical implementation of the \inlinecode{map} function is presented below:
 
-\begin{gospell}
-(*@ function rec map (f: int -> int) (l: int list) : int list = 
-        match l with
-        | [] -> []
-        | h::t -> (f h) :: map f t *)
-(*@ variant l
-        ensures List.length result = List.length l *)
-\end{gospell}
+% \begin{gospell}
+% (*@ function rec map (f: int -> int) (l: int list) : int list = 
+%         match l with
+%         | [] -> []
+%         | h::t -> (f h) :: map f t *)
+% (*@ variant l
+%         ensures List.length result = List.length l *)
+% \end{gospell}
 
-The logical function \inlinecode{map} represents the application of a certain function to the values of the list provided. For the same
-reason, the variant clause is represented by the list, since the termination for this logical function is also determined by when the
-list is empty. The is also the need to ensure that the length of the list resulting from applying the function to the original list
-is the same since the number of values do not change with this transformation.
+% The logical function \inlinecode{map} represents the application of a certain function to the values of the list provided. For the same
+% reason, the variant clause is represented by the list, since the termination for this logical function is also determined by when the
+% list is empty. The is also the need to ensure that the length of the list resulting from applying the function to the original list
+% is the same since the number of values do not change with this transformation.
 
-The corresponding generated code is:
+% The corresponding generated code is:
 
-\begin{cakeml}
-fun mult_list l n = let val l1 = l in
-    let val n1 = n in
-    (case l1 of
-        [] => []
-    | h :: t => (n1 * h) :: (mult_list t n1))
-\end{cakeml}
+% \begin{cakeml}
+% fun mult_list l n = let val l1 = l in
+%     let val n1 = n in
+%     (case l1 of
+%         [] => []
+%     | h :: t => (n1 * h) :: (mult_list t n1))
+% \end{cakeml}
 
-We can observe that pattern matching and basic list handling seems to be working well after the translation, however the extraction 
-still generates clones of the arguments, the code can not be compilable. 
+% We can observe that pattern matching and basic list handling seems to be working well after the translation, however the extraction 
+% still generates clones of the arguments, the code can not be compilable. 
 
-By solving the issues found, we tested the code and effectively, high-order functions are allowed by the compiler in \cml. The corrected 
-code is displayed below:
+% By solving the issues found, we tested the code and effectively, high-order functions are allowed by the compiler in \cml. The corrected 
+% code is displayed below:
 
-\begin{cakeml}
-fun mult_list l n =
-    (case l of
-        [] => []
-    | h :: t => (n * h) :: (mult_list t n))
-\end{cakeml}
+% \begin{cakeml}
+% fun mult_list l n =
+%     (case l of
+%         [] => []
+%     | h :: t => (n * h) :: (mult_list t n))
+% \end{cakeml}
 
-Since the issue continues to stem from the let-bindings, the solution to add the termination token or eliminating the unnecessary 
-let-bindings still seems to solve the problem at hand.
+% Since the issue continues to stem from the let-bindings, the solution to add the termination token or eliminating the unnecessary 
+% let-bindings still seems to solve the problem at hand.
 
 \subsection{Depth-search tree}
 
@@ -516,9 +516,6 @@ module Tree = struct
   *)
 end
 \end{gospell}
-
-The function \inlinecode{cmp} uses pattern matching to compare the trees, in case both are leaves it is true, if one is a leaf, but 
-the other is not, then they are different, finally if both are nodes then it depends on the respective root and subtrees.
 
 Logically, the result should be equal to comparing \inlinecode{t1} and \inlinecode{t2} and the variant clause could be either one of 
 the trees since it only matters when the result is correct therefore the trees have the same structure, and in each recursive call we
