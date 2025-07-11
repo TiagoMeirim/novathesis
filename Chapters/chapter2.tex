@@ -17,16 +17,33 @@ In this chapter we present the necessary background for the formal verification 
 \section{Operational Semantics}
 \label{sec:Operational_Semantics}
 
+Operational semantics provide a formal framework to define the behaviour of programming languages by describing 
+how programs execute step by step. Unlike denotational semantics, which maps programs to mathematical objects, or 
+axiomatic semantics, which focuses on logical reasoning about program correctness, operational semantics are particularly 
+well-suited for modelling concrete computation and the dynamics of program execution. A foundational style of 
+this approach is Structural Operational Semantics (SOS), introduced by Plotkin~\cite{plotkin_81_structural}, which defines program behaviour 
+through a set of syntactic transition rules that describe how individual program constructs evolve during execution.
 
+Operational semantics is often split into two main approaches: small-step (reduction-based) and big-step (natural) semantics. 
+The small-step approach breaks down computation into a sequence of individual steps, making it useful for analysing intermediate 
+program states, as well as properties like divergence or concurrency. In contrast, big-step semantics describes how entire expressions 
+evaluate to final values in one go, which is more straightforward for reasoning about the overall behaviour of a 
+program~\cite{abs-0808-0586}. However, big-step semantics had a challenge when it came to handling non-terminating behaviour, so 
+Leroy and Grall~\cite{abs-0808-0586} introduced coinductive definitions to model both termination and divergence within a single framework. 
+This innovation has played a key role in the development of verified compilers and proof systems like Coq.
+
+In the semantics of modern programming languages, particularly those that integrate both functional and imperative paradigms, such as 
+\ocaml and \cml, it becomes necessary to extend traditional operational semantics to accurately capture features like mutable state, 
+exceptions and references~\cite{0001MS0U22}.
 
 \section{Hoare logic}
 \label{sec:Hoare_logic}
 
 Hoare Logic is a formal system for reasoning about the correctness of computer programs. However, 
 computer arithmetic often differs from the standard arithmetic familiar to mathematicians due to issues like finite 
-precision, overflows, and machine-specific behaviors. To account for these differences, Hoare introduced a new logic~\cite{Hoare69}
+precision, overflows, and machine-specific behaviours. To account for these differences, Hoare introduced a new logic~\cite{Hoare69}
 based on assertions and inference rules for reasoning about the partial correctness of programs. Drawing inspiration 
-from mathematical axioms and formal proof techniques, he proposed a framework where program behavior could be specified 
+from mathematical axioms and formal proof techniques, he proposed a framework where program behaviour could be specified 
 and verified using logical formulas. This laid the foundation for systematic program verification and emphasized the need 
 to model computational constraints, such as those arising from the limitations of machine arithmetic, within a formal system.
 
@@ -266,28 +283,6 @@ end
 With this example we have created our own minimal \inlinecode{Tree} library, which includes the definition of a binary tree and the equality 
 operation through the \inlinecode{cmp} function.
 
-% \section{Standard ML}
-% \label{sec:Standard_ML}
-
-% Standard ML is a functional programming language that fully embraces the expressiveness of mathematical functions. 
-% However, it was also shaped by practical programming needs, leading to the inclusion of imperative constructs and a 
-% robust exception handling system. The language supports modularity through an advanced system of parametric modules, 
-% designed to facilitate the structured development of large-scale software systems. Moreover, Standard ML is strongly 
-% and statically typed, and it was the first programming language to introduce a form of polymorphic type inference that 
-% combines strong type safety with considerable flexibility in programming style ~\cite{milner1997definition}.
-
-% One of the most distinguishing features of Standard ML is its formal definition, which precisely specifies the language's 
-% static and dynamic semantics using structural operational semantics (SOS). This operational style makes the semantics 
-% especially suitable for mechanization in proof assistants like HOL, bridging the gap between theoretical definitions 
-% and executable verification. This made it one of the first programming languages to be fully defined in a mathematical 
-% sense, laying a strong foundation for formal verification frameworks and verified compilers such as 
-% CakeML~\cite{milner1997definition, SewellMTKMAO23}. 
-
-% Even though the foundational formal definition of Standard ML had already been established, the ability to embed and 
-% reason about its semantics within a proof assistant like HOL marked a significant advance. This transformation from a 
-% descriptive, paper based semantics to one that is executable and machine-verifiable played a key role in laying the 
-% groundwork for end-to-end verified compilers~\cite{Syme93}.
-
 \section{Why3}
 \label{sec:Why3}
 
@@ -326,11 +321,12 @@ must be added to the \ocaml code.
 
 \gospel terms are defined using the semantics of Separation Logic and are applied to \ocaml interfaces. The acronym \gospel stands 
 for “Generic OCaml Specification Language,” indicating that the specification logic is not limited to a single tool but is intended 
-for a variety of uses, such as verification, testing, and informal documentation~\cite{ChargueraudFLP19}. Unlike other behavioural 
-specification languages such as \textsf{SPARK} and \textsf{JML}, \gospel supports Separation Logic, a significant extension of Hoare 
-Logic and a powerful framework for reasoning about real-world programs~\cite{Reynolds02, OHearnRY01}. While \gospel is not the first 
-tool to use Separation Logic, it uniquely introduces implicit permission association in data types, a feature not found in tools 
-like \textsf{VeriFast} or \textsf{Viper}~\cite{ChargueraudFLP19}.
+for a variety of uses, such as verification, testing, and informal documentation~\cite{ChargueraudFLP19}. \gospel includes a built-in 
+parser designed primarily for \ocaml, but due to the syntactic similarities, it can also be adapted or extended to parse subsets of 
+related languages such as \cml. Unlike other behavioural specification languages such as \textsf{SPARK} and \textsf{JML}, \gospel 
+supports Separation Logic, a significant extension of Hoare Logic and a powerful framework for reasoning about real-world 
+programs~\cite{Reynolds02, OHearnRY01}. While \gospel is not the first tool to use Separation Logic, it uniquely introduces implicit 
+permission association in data types, a feature not found in tools like \textsf{VeriFast} or \textsf{Viper}~\cite{ChargueraudFLP19}.
 
 \cameleer takes as input an \ocaml program annotated with \gospel specifications and translates it into \whyml, the intermediate 
 language used by the \whythree platform. Once translated, the code can be processed by \whythree, which leverages a range of automated 
@@ -352,6 +348,16 @@ semantically valid. Within the \whythree tool, if the generated verification goa
 that the specifications may be imprecise or incomplete and require refinement. These issues are highlighted by the tool, guiding the 
 user to improve the annotations. Once all verification conditions are successfully proven, the resulting program is guaranteed to 
 be free from compiler-introduced bugs or errors, ensuring a high level of formal correctness~\cite{Filliatre11}.
+
+It is important to distinguish two broad methodologies in deductive verification. On one hand, extraction-based verification involves 
+developing verified programs directly within a proof assistant and then extracting executable code, ensuring correctness by construction. 
+On the other hand, translation-based verification starts from existing codebases, often annotated with formal specifications, and translates 
+them into an intermediate verification language. Verification conditions are then generated and discharged by automated or interactive 
+theorem provers. The \cameleer pipeline in figure \ref{fig:CameleerPipeline} follows the translation-based paradigm, 
+leveraging \whyml as the intermediate language for verification~\cite{Leroy09}.
+
+\subsection{Cameleer Example}
+\label{subsec:CameleerExample}
 
 Let us take this simple example for a recursive factorial in \ocaml + \gospel after applying the \cameleer tool:
 

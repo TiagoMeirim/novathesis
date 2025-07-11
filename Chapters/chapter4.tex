@@ -19,19 +19,19 @@ should look like in order to compile successfully and preserve the intended beha
 \section{Tool Modifications}
 
 As shown in Figure \ref{fig:Cameleer_pipeline}, which outlines the \cameleer pipeline, there is no explicit support for \cml extraction. 
-However, a small modification to the file \texttt{/bin/cli.ml} of \cameleer 's source code, which allows extending the existing extraction 
-process. By changing the \inlinecode{execute\_extract} function to invoke 
-\inlinecode{why3 extract -D cakeml \%s}, 
-the tool can target \cml as a backend. With this adjustment, running \inlinecode{cameleer program.ml $--$extract} translates
-the original \ocaml plus \gospel code into code in the \cml language. This enables extraction from \textsf{OCaml64} directly 
-into \cml, providing the basis for a verified compilation pipeline.
+However, a small modification to the file \texttt{/bin/cli.ml} of \cameleer 's source code
+\footnote{Original \cameleer code: \link{https://github.com/ocaml-gospel/cameleer/blob/master/bin/cli.ml}} 
+\footnote{Modified \cameleer code: \link{https://github.com/TiagoMeirim/cameleer/blob/master/bin/cli.ml}}, 
+which allows extending the existing extraction process. By changing the \inlinecode{execute\_extract} function to invoke 
+\inlinecode{why3 extract -D cakeml \%s}, the tool can target \cml as a backend. With this adjustment, running 
+\inlinecode{cameleer program.ml $--$extract} translates the original \ocaml plus \gospel code into code in the \cml language. 
+This enables extraction from \textsf{OCaml64} directly into \cml, providing the basis for a verified compilation pipeline.
 
 The alternative to this process is to obtain the code translated \whyml from running \cameleer with the flag \inlinecode{$--$debug} 
 and then apply the mechanism of extraction of \whythree directly. Not only is this process more complex, but also the debug flag 
 produces code that can not be opened by the \whythree platform because it contains proof goals directly in the code. This also implies
 altering the code manually or to substantially modify the behaviour of the debug flag which is not intended.
 
-%% Example to prove
 \section{Goal Pipeline}
 
 After analysing the verification pipeline in figure \ref{fig:Cameleer_pipeline} it is possible to observe that some parts have already been 
@@ -68,7 +68,7 @@ further refinement.
 
 Initially an iterative version of the factorial function was also considered, however, since \cml does not support imperative loop 
 constructs such as \inlinecode{for} or \inlinecode{while} we had to look for alternative versions of this example. Instead, we opted 
-to study the tail recursive variant to simulate iteration, found in section \ref{sec:Cameleer}. The extracted code can be seen below:
+to study the tail recursive variant to simulate iteration, found in section \ref{subsec:CameleerExample}. The extracted code can be seen below:
 
 \begin{cakeml}
 fun fact_aux n c t = let val n1 = n in

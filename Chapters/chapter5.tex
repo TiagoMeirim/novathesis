@@ -21,40 +21,53 @@ The first part for this work is focusing on improving the extraction mechanism, 
 
 \begin{itemize}
 
-\item \textbf{Correct Boolean Literals Syntax -} In \cml, boolean literals start with uppercase contrary to \ocaml. In this task we ought 
-to revise the \whythree's extraction scheme,
-which currently define these literals with all lowercase letters. So, in order to match boolean literals with \cml syntax, we must
-capitalize the initial letters (e.g., \inlinecode{true} $\rightarrow$ \inlinecode{True}).
+\item \textbf{Correct Extraction Syntax -} In this task we ought to revise the \whythree's extraction scheme, as mentioned in the case
+studies the main changes have been identified in order to have an updated extraction mechanism from \ocaml with \gospel into \cml. Most
+changes will be focused on the syntax generated from the extraction, so the syntaxes to be updated will be the boolean literals, reference
+declarations, let-bindings, data structures operations, data types and exception handling. What will be done in this section is changing
+case letters, add and eliminate tokens, change scoping, change declarations and operation calling. These changes need to be done because 
+the syntax of \ocaml is quite different from \cml, and since the extraction mechanism is outdated all of the above are essential.
 
-\item \textbf{Correct Reference Declaration Syntax -} Similar to boolean literals, reference declarations also start with an uppercase 
-letter, which contrasts with \ocaml. The same 
-capitalization solution will be applied to the reference token in order to follow \cml conventions 
-(e.g., \inlinecode{ref} $\rightarrow$ \inlinecode{Ref}).
 
-\item \textbf{Correct Let-Binding Syntax -} Regarding the let-binding structure in \cml, this always terminates with the \inlinecode{end} 
-keyword. During translation sometimes there 
-are some missing \inlinecode{end} tokens. This may be due to \ocaml not having an explicit termination token for let-bindings. Additionally, 
-the parameters of the functions are duplicated with let-bindings, this is redundant, and it is our objective to simplify the resulting 
-translations.
+\item \textbf{Define An Extensive Case Study -} Develop a library to 
 
-\item \textbf{Correct Data Structures Operations Syntax -} Two of the most commonly used libraries for data structures, List and Array, 
-have displayed errors when translating their operations into 
-\cml. Some of the errors include the omitted prefix for the library name and different operation names. 
-Even if the operations are quite similar from \ocaml and \cml, the translation doesn't generate the same operation calling, therefore, to 
-have a fully correct and compilable code in \cml arises the necessity to replace the data structures operations with the corresponding 
-ones.
+\item \textbf{Extensively Test Extraction Mechanism -} Create an extensive battery test to ensure all the changes done to the extraction
+mechanism are correct. Use the tests from the case studies and analyse the code generated from \ocaml with \gospel annotations and
+confirm if it indeed maintains the same behaviour and if the code is compilable for \cml.
 
-\item \textbf{Correct Data Type Syntax -} When defining the data types, \cml's syntax differs from \ocaml's when it comes to 
-tuple declarations, in particular, 
-the \inlinecode{of} keyword and the separator \inlinecode{*} found in \ocaml are not used in \cml. Another translation error consists in
-misplacement of the generic type, which is situated before the \inlinecode{datatype} keyword, rather than after. The solution comes 
-through fixing data type definitions to respect \cml ordering and syntax.
 
-\item \textbf{Correct Exception Handling -} In \ocaml we can declare exceptions within functions through let-bindings, contrary to
-\cml. All exceptions need to be 
-declared at the global level. Furthermore, \ocaml supports a few predefined exceptions found in the standard library which have no 
-direct translation in \cml, so they also need to be declared. For this task it is essential to refactor the exception declarations 
-and usage to comply with \cml, ensuring all exceptions are defined properly.
+% which currently define these literals with all lowercase letters. So, in order to match boolean literals with \cml syntax, we must
+% capitalize the initial letters (e.g., \inlinecode{true} $\rightarrow$ \inlinecode{True}).
+
+% \item \textbf{Correct Reference Declaration Syntax -} Similar to boolean literals, reference declarations also start with an uppercase 
+% letter, which contrasts with \ocaml. The same 
+% capitalization solution will be applied to the reference token in order to follow \cml conventions 
+% (e.g., \inlinecode{ref} $\rightarrow$ \inlinecode{Ref}).
+
+% \item \textbf{Correct Let-Binding Syntax -} Regarding the let-binding structure in \cml, this always terminates with the \inlinecode{end} 
+% keyword. During translation sometimes there 
+% are some missing \inlinecode{end} tokens. This may be due to \ocaml not having an explicit termination token for let-bindings. Additionally, 
+% the parameters of the functions are duplicated with let-bindings, this is redundant, and it is our objective to simplify the resulting 
+% translations.
+
+% \item \textbf{Correct Data Structures Operations Syntax -} Two of the most commonly used libraries for data structures, List and Array, 
+% have displayed errors when translating their operations into 
+% \cml. Some of the errors include the omitted prefix for the library name and different operation names. 
+% Even if the operations are quite similar from \ocaml and \cml, the translation doesn't generate the same operation calling, therefore, to 
+% have a fully correct and compilable code in \cml arises the necessity to replace the data structures operations with the corresponding 
+% ones.
+
+% \item \textbf{Correct Data Type Syntax -} When defining the data types, \cml's syntax differs from \ocaml's when it comes to 
+% tuple declarations, in particular, 
+% the \inlinecode{of} keyword and the separator \inlinecode{*} found in \ocaml are not used in \cml. Another translation error consists in
+% misplacement of the generic type, which is situated before the \inlinecode{datatype} keyword, rather than after. The solution comes 
+% through fixing data type definitions to respect \cml ordering and syntax.
+
+% \item \textbf{Correct Exception Handling -} In \ocaml we can declare exceptions within functions through let-bindings, contrary to
+% \cml. All exceptions need to be 
+% declared at the global level. Furthermore, \ocaml supports a few predefined exceptions found in the standard library which have no 
+% direct translation in \cml, so they also need to be declared. For this task it is essential to refactor the exception declarations 
+% and usage to comply with \cml, ensuring all exceptions are defined properly.
 
 \end{itemize}
 
@@ -65,36 +78,45 @@ the syntactic and semantic differences while translating, and the available feat
 
 \begin{itemize}
 
-\item \textbf{Arithmetic and Boolean operations -} The first step in any basic translation tool is to define the integer and boolean 
-data types as well as their respective operations.
-This includes defining the literals correctly, as previously mentioned the boolean tokens are not equally written, and operations
-such as addition, subtraction, multiplication, equality and inequality. Whenever necessary, casing and syntax will be adjusted.
+\item \textbf{Functional Constructs -}
 
-\item \textbf{Let-Bindings -} This construct is essential to functional languages. The correct syntax for this construct in 
-\cml includes explicit 
-termination with the \inlinecode{end} keyword, meanwhile in \ocaml there is no explicit termination. This construct requires 
-special attention when multiple let-bindings are nested due to the different environments.
+\item \textbf{Imperative Constructs -}
 
-\item \textbf{References -} To support references it is important to define three operations, these being creation, assignment and 
-access. The correct translation
-from \cml to \ocaml must take into consideration the main syntax difference which is casing: \inlinecode{ref} in \ocaml
-and \inlinecode{Ref} in \cml.
+\item \textbf{Module System -}
 
-\item \textbf{Data Structure Operations -} Most real programs make use of built-in complex data structures such as Arrays and Lists. 
-This urges for the translation of their 
-basic operations already present in the standard library, besides the additional operations featured in the respective dedicated 
-library for that data structure.
+\item \textbf{Extensively Test The New Tool -}
 
-\item \textbf{Data Types -} For many programs the built-in data structures do not suffice, so, user defined data types are a must 
-for programming languages.
-Such that, it is natural to provide a translation scheme for the definition of data types in \cml into idiomatic \ocaml type declarations, 
-preserving constructors and structure.
 
-\item \textbf{Exception Handling -} Robust programs are built with the expectation to fail occasionally, so there should 
-be mechanisms to handle and recover from these 
-situations. One of these mechanisms are exceptions, which offer clean and concise flagging for these non-natural cases.
-When transforming exception declarations and usage from \cml back into \ocaml style with inline definitions and raises, we must also take
-into consideration that \cml only allows global declaration of exceptions.
+% \item \textbf{Arithmetic and Boolean operations -} The first step in any basic translation tool is to define the integer and boolean 
+% data types as well as their respective operations.
+% This includes defining the literals correctly, as previously mentioned the boolean tokens are not equally written, and operations
+% such as addition, subtraction, multiplication, equality and inequality. Whenever necessary, casing and syntax will be adjusted.
+
+% \item \textbf{Let-Bindings -} This construct is essential to functional languages. The correct syntax for this construct in 
+% \cml includes explicit 
+% termination with the \inlinecode{end} keyword, meanwhile in \ocaml there is no explicit termination. This construct requires 
+% special attention when multiple let-bindings are nested due to the different environments.
+
+% \item \textbf{References -} To support references it is important to define three operations, these being creation, assignment and 
+% access. The correct translation
+% from \cml to \ocaml must take into consideration the main syntax difference which is casing: \inlinecode{ref} in \ocaml
+% and \inlinecode{Ref} in \cml.
+
+% \item \textbf{Data Structure Operations -} Most real programs make use of built-in complex data structures such as Arrays and Lists. 
+% This urges for the translation of their 
+% basic operations already present in the standard library, besides the additional operations featured in the respective dedicated 
+% library for that data structure.
+
+% \item \textbf{Data Types -} For many programs the built-in data structures do not suffice, so, user defined data types are a must 
+% for programming languages.
+% Such that, it is natural to provide a translation scheme for the definition of data types in \cml into idiomatic \ocaml type declarations, 
+% preserving constructors and structure.
+
+% \item \textbf{Exception Handling -} Robust programs are built with the expectation to fail occasionally, so there should 
+% be mechanisms to handle and recover from these 
+% situations. One of these mechanisms are exceptions, which offer clean and concise flagging for these non-natural cases.
+% When transforming exception declarations and usage from \cml back into \ocaml style with inline definitions and raises, we must also take
+% into consideration that \cml only allows global declaration of exceptions.
 
 \end{itemize}
 
@@ -138,31 +160,21 @@ Below we present a Gantt Chart with the previously mentioned tasks spread into t
 
 \ganttgroup{From OCaml to CakeML}{1}{12}\\
 
-\ganttbar{Correct Boolean Literals Syntax}{1}{1} \\
+\ganttbar{Correct Extraction Syntax}{1}{3} \\
 
-\ganttbar{Correct Reference Declaration Syntax}{2}{2} \\
+\ganttbar{Define An Extensive Case Study}{4}{10} \\
 
-\ganttbar{Correct Let-Binding Syntax}{3}{4} \\
-
-\ganttbar{Correct Data Structures Operations Syntax}{5}{6} \\
-
-\ganttbar{Correct Data Type Syntax}{7}{9} \\
-
-\ganttbar{Correct Exception Handling}{10}{12} \\
+\ganttbar{Extensively Test Extraction Mechanism}{11}{12} \\
 
 \ganttgroup{Translation from CakeML to OCaml}{13}{26} \\
 
-\ganttbar{Arithmetic and Boolean operations}{13}{14} \\
+\ganttbar{Functional Constructs}{13}{16} \\
 
-\ganttbar{Let-Bindings}{15}{16} \\
+\ganttbar{Imperative Constructs}{17}{21} \\
 
-\ganttbar{References}{17}{19} \\
+\ganttbar{Module System}{22}{24} \\
 
-\ganttbar{Data Structure Operations}{20}{21} \\
-
-\ganttbar{Data Types}{22}{23} \\
-
-\ganttbar{Correct Exception Handling}{24}{26} \\
+\ganttbar{Extensively Test The New Tool}{25}{26} \\
 
 \ganttgroup{Dissertation}{25}{28} \\
 \ganttbar{Writing}{25}{28}
