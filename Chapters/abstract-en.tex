@@ -20,13 +20,17 @@ that starts with programs written in \ocaml with \gospel annotations with the en
 producing correct-by-construction \cml code. The first step involves translating the
 annotated \ocaml code to \whyml using the \cameleer tool. This \whyml code should then be 
 verified on the \whythree platform and ultimately extracted to \cml. Additionally, the 
-pipeline should also feature a translation scheme in the opposite direction.
+pipeline should also feature a translation scheme in the opposite direction, in which
+we propose \gospel as a generic specification language for the ML family languages, in
+particular \cml, in order to verify programs in these languages using \cameleer.
 
 Currently, the extraction mechanism in \whythree to \cml is outdated and only supports
 a subset of the language. As such, we intend to revisit and expand upon it in this 
 work, by updating the translation scheme, implement a mechanism to stop the extraction
 of non-verified code and to report cases where translation is not possible due to 
-incompatibilities between features.
+incompatibilities between features. On the opposite direction we want to develop
+a translation scheme from \cml to \ocaml and reutilize the \gospel parser to allow 
+verification with \cameleer.
 
 In this document, a thorough study was conducted concerning the state of \whythree's
 extraction mechanism, alongside the selected tools, to identify which steps of the 

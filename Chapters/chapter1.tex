@@ -33,19 +33,17 @@ logical obligations without human intervention~\cite{Barrett2018}. The second is
 CompCert~\cite{Leroy09-back-end}, which provably ensures that the generated machine code faithfully preserves the semantics of the source 
 program.
 
-
 Why are verified compilers such an important target for formal verification? If a verified program is compiled by a 
 faulty compiler, the resulting executable may not preserve its intended behaviour, invalidating any higher-level correctness
 obtained previously. Compilers like CompCert and \cml~\cite{POPL14} address this issue by providing formally verified compilation pipelines
 ~\cite{LoowKTMNAF19, GrossEPPC22, Leroy09}, thereby eliminating a major source of uncertainty and ensuring that correctness is 
 preserved from source code to machine code~\cite{LeroyCompilerMeaning}.
 
-
 Developments in relation to verified code have become increasingly crucial to achieve correctness and provide safety, 
 the way we define correctness has more than one definition, it can be specified informally or written in formal language 
 ~\cite{Filliatre11}. The weight of functional languages for deductive software verification has been quite low despite having
-good candidates for verification, like \ocaml. Ever since 2018 with the introduction of \gospel~\cite{ChargueraudFLP19}, with providing
-formal language specification tightly integrated with \ocaml, verification has become easier with a modular specification
+good candidates for verification, like \ocaml. Ever since 2018 with the introduction of \gospel~\cite{ChargueraudFLP19}, a
+formal specification language designed specifically for \ocaml, verification has become easier with modular specification
 that doesn't need many changes to \ocaml code. This wasn't the first time formal logic and proof has been merged with 
 functional programming, previous and more foundational systems like Coq~\cite{75277.75285} and \whyml~\cite{FilliatreP13} have
 paved the way. With the development of a behavioural specification language for \ocaml, soon after a deductive verification tool
@@ -59,6 +57,11 @@ component of the pipeline throughout all the steps. Our motivation stems from th
 to the verification of \ocaml programs with \gospel annotations that eventually compile to correct machine code, by using the \cml
 compiler.
 
+It is also important to distinguish two broad methodologies in deductive verification. On one hand, extraction-based verification involves 
+developing verified programs directly within a proof assistant and then extracting executable code, ensuring correctness by construction. 
+On the other hand, translation-based verification starts from existing codebases, often annotated with formal specifications, and translates 
+them into an intermediate verification language. Verification conditions are then generated and discharged by automated or interactive 
+theorem provers~\cite{Leroy09}.
 
 \section{Problem Definition}
 \label{sec:Problem_Definition}
@@ -66,15 +69,23 @@ compiler.
 In order to create a pipeline from \ocaml to \cml and back, there is the need to understand the already existing translation tools.
 Firstly, \cameleer takes as input \ocaml programs with \gospel annotations and internally these are translated onto \whyml code, which
 can then be verified inside \whythree's ide or extracted to another language. The \whythree extraction mechanism currently allows the 
-translation from \whyml to three other languages, with one of them being \cml. By combining these two mechanisms we reach our goal
+translation from \whyml to four other languages, with one of them being \cml. By combining these two mechanisms we reach our goal
 of creating a pipeline to produce compiled code completely verified. However, we observed that the current extraction mechanism 
 concerning \cml is severely outdated and unreliable, after extensive tests using multiple \ocaml features since it failed to compile 
 on several instances. \cameleer also features an extraction mechanism that currently produces \ocaml code from its intermediary
 representation, \whyml, instead of producing \cml code. Another facet of this pipeline is to translate \cml programs into \ocaml
-code, and surprisingly, there is no such tool. This leads us to the following question: 
+code, and surprisingly, there is no such tool. The development of this new tool should enable direct verification of \cml code, 
+allowing correctness to be established before any extraction process takes place. This leads us to the following question: 
 
 \vspace{5mm}
-\centerline{\textit{How do we bridge these tools to create a pipeline that ensures correctness throughout all steps?}}
+\centerline{\textit{How do extraction-based and translation-based approaches differ in ensuring program correctness?}}
+
+An analysis of these two approaches leads us to reflect about:
+
+\begin{enumerate}
+    \item \centerline{\textit{How do we bridge these tools to create a pipeline that ensures correctness throughout all steps?}}
+    \item \centerline{\textit{How does adding a specification language affect the verification workflow of certified compilers?}}
+\end{enumerate}
 
 \section{Goals and Expected Contributions}
 \label{sec:Goals_and_Expected_Contributions}
@@ -86,7 +97,8 @@ in detail the issues with the translation, what are the necessary changes to com
 or fixing syntactic issues for the features already supported by the extraction mechanism, directly in \whythree source code.
 For the features that are not supported by one of the languages, providing a comprehensive error message rather than allowing 
 the extraction to take place. To make the pipeline more robust we should confirm if the program is verified beforehand when performing 
-an extraction. Since, there is no translation mechanism from \cml to \ocaml, it creates the need to develop a new tool that respects all 
+an extraction. Since, there is no translation mechanism from \cml to \ocaml, it creates the need to develop a new tool that can
+verify \cml code before translating. This involves defining a subset of the \cml code that respects all 
 the syntactic and semantic differences, meanwhile flagging with an error message any unsupported features.
 
 \section{Report Structure}

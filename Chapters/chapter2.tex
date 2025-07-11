@@ -12,7 +12,7 @@
 \chapter{Background}
 \label{cha:Background}
 
-In this chapter we present the necessary background for the formal verification field and the elected tools.
+In this chapter we present the necessary background for the formal verification field, operational semantics and the elected tools.
 
 \section{Operational Semantics}
 \label{sec:Operational_Semantics}
@@ -30,7 +30,7 @@ program states, as well as properties like divergence or concurrency. In contras
 evaluate to final values in one go, which is more straightforward for reasoning about the overall behaviour of a 
 program~\cite{abs-0808-0586}. However, big-step semantics had a challenge when it came to handling non-terminating behaviour, so 
 Leroy and Grall~\cite{abs-0808-0586} introduced coinductive definitions to model both termination and divergence within a single framework. 
-This innovation has played a key role in the development of verified compilers and proof systems like Coq.
+This innovation has played a key role in the development of verified compilers and proof systems like Coq~\cite{75277.75285}.
 
 In the semantics of modern programming languages, particularly those that integrate both functional and imperative paradigms, such as 
 \ocaml and \cml, it becomes necessary to extend traditional operational semantics to accurately capture features like mutable state, 
@@ -245,6 +245,7 @@ let rec search_aux a c n =
 
 let linear_search a n = search_aux a 0 n
 \end{ocamlenv}
+\label{subsec:SearchCode}
 
 The core function, \inlinecode{linear\_search}, delegates the search process to the auxiliary function and initializes it with the current
 index as 0, as to ensure it starts at the beginning of the array. The auxiliary function \inlinecode{search\_aux} receives as arguments 
@@ -298,10 +299,10 @@ It supports rich language features including pattern matching, recursive definit
 coinductive predicates. Moreover, it comes with a standard library of logical theories covering arithmetic, sets, maps, 
 and more.
 
-\whythree sets itself apart from other approaches that also provide rich specification languages like \textsf{Coq} and 
-\textsf{Isabelle} by aiming to maximize automation. Rather than functioning as a standalone theorem prover, it serves 
-as a front-end that generates proof obligations to be discharged by external automated provers such as Z3, Alt-Ergo, 
-Vampire, and CVC5, as well as interactive systems like Coq and PVS.
+\whythree sets itself apart from other approaches that also provide rich specification languages like \textsf{Coq}~\cite{75277.75285} and 
+\textsf{Isabelle}~\cite{Jacobsen_2023} by aiming to maximize automation. Rather than functioning as a standalone theorem prover, it serves 
+as a front-end that generates proof obligations to be discharged by external automated provers such as Z3~\cite{MouraB08}, Alt-Ergo~\cite{ConchonIM17}, 
+and cvc5~\cite{BarbosaBBKLMMMN22}, as well as interactive systems like \textsf{Coq} and \textsf{Isabelle}.
 
 In the context of automated program verification, \whythree simplifies the process by automatically generating verification 
 conditions from annotated source code and delegating their resolution to a variety of powerful external theorem provers. 
@@ -323,14 +324,16 @@ must be added to the \ocaml code.
 for “Generic OCaml Specification Language,” indicating that the specification logic is not limited to a single tool but is intended 
 for a variety of uses, such as verification, testing, and informal documentation~\cite{ChargueraudFLP19}. \gospel includes a built-in 
 parser designed primarily for \ocaml, but due to the syntactic similarities, it can also be adapted or extended to parse subsets of 
-related languages such as \cml. Unlike other behavioural specification languages such as \textsf{SPARK} and \textsf{JML}, \gospel 
+related languages such as \cml. Unlike other behavioural specification languages such as \textsf{SPARK}~\cite{SPARK} and 
+\textsf{JML}~\cite{article}, \gospel 
 supports Separation Logic, a significant extension of Hoare Logic and a powerful framework for reasoning about real-world 
 programs~\cite{Reynolds02, OHearnRY01}. While \gospel is not the first tool to use Separation Logic, it uniquely introduces implicit 
 permission association in data types, a feature not found in tools like \textsf{VeriFast} or \textsf{Viper}~\cite{ChargueraudFLP19}.
 
 \cameleer takes as input an \ocaml program annotated with \gospel specifications and translates it into \whyml, the intermediate 
 language used by the \whythree platform. Once translated, the code can be processed by \whythree, which leverages a range of automated 
-theorem provers, such as Alt-Ergo, Z3, and CVC5, to discharge verification conditions. This seamless integration between \cameleer, 
+theorem provers, such as Alt-Ergo~\cite{ConchonIM17}, Z3~\cite{MouraB08}, and cvc5~\cite{BarbosaBBKLMMMN22}, to discharge verification 
+conditions. This seamless integration between \cameleer, 
 \gospel, and \whythree significantly enhances the level of proof automation, allowing developers to verify functional correctness 
 properties of \ocaml programs with minimal manual intervention. This behaviour is captured by the following pipeline:
 
@@ -349,12 +352,14 @@ that the specifications may be imprecise or incomplete and require refinement. T
 user to improve the annotations. Once all verification conditions are successfully proven, the resulting program is guaranteed to 
 be free from compiler-introduced bugs or errors, ensuring a high level of formal correctness~\cite{Filliatre11}.
 
-It is important to distinguish two broad methodologies in deductive verification. On one hand, extraction-based verification involves 
-developing verified programs directly within a proof assistant and then extracting executable code, ensuring correctness by construction. 
-On the other hand, translation-based verification starts from existing codebases, often annotated with formal specifications, and translates 
-them into an intermediate verification language. Verification conditions are then generated and discharged by automated or interactive 
-theorem provers. The \cameleer pipeline in figure \ref{fig:CameleerPipeline} follows the translation-based paradigm, 
-leveraging \whyml as the intermediate language for verification~\cite{Leroy09}.
+% It is important to distinguish two broad methodologies in deductive verification. On one hand, extraction-based verification involves 
+% developing verified programs directly within a proof assistant and then extracting executable code, ensuring correctness by construction. 
+% On the other hand, translation-based verification starts from existing codebases, often annotated with formal specifications, and translates 
+% them into an intermediate verification language. Verification conditions are then generated and discharged by automated or interactive 
+% theorem provers~\cite{Leroy09}. 
+
+The \cameleer pipeline in figure \ref{fig:CameleerPipeline} follows the translation-based paradigm, 
+leveraging \whyml as the intermediate language for verification.
 
 \subsection{Cameleer Example}
 \label{subsec:CameleerExample}

@@ -11,26 +11,11 @@
 \chapter{Preliminary Results}
 \label{cha:Preliminary_Results}
 
-This chapter presents a set of manually derived examples that illustrate how \ocaml + \gospel code can be correctly translated into 
+This chapter presents the goal pipeline, the initial tool modifications already implemented and a set of manually derived examples that 
+illustrate how \ocaml + \gospel code can be correctly translated into 
 semantically equivalent \cml representations. These examples serve as a reference for the expected behaviour and structure of verified 
 translations. The goal is to demonstrate the existing tools for translation into \cml and identifying what the corresponding \cml code 
 should look like in order to compile successfully and preserve the intended behaviour.
-
-\section{Tool Modifications}
-
-As shown in Figure \ref{fig:Cameleer_pipeline}, which outlines the \cameleer pipeline, there is no explicit support for \cml extraction. 
-However, a small modification to the file \texttt{/bin/cli.ml} of \cameleer 's source code
-\footnote{Original \cameleer code: \link{https://github.com/ocaml-gospel/cameleer/blob/master/bin/cli.ml}} 
-\footnote{Modified \cameleer code: \link{https://github.com/TiagoMeirim/cameleer/blob/master/bin/cli.ml}}, 
-which allows extending the existing extraction process. By changing the \inlinecode{execute\_extract} function to invoke 
-\inlinecode{why3 extract -D cakeml \%s}, the tool can target \cml as a backend. With this adjustment, running 
-\inlinecode{cameleer program.ml $--$extract} translates the original \ocaml plus \gospel code into code in the \cml language. 
-This enables extraction from \textsf{OCaml64} directly into \cml, providing the basis for a verified compilation pipeline.
-
-The alternative to this process is to obtain the code translated \whyml from running \cameleer with the flag \inlinecode{$--$debug} 
-and then apply the mechanism of extraction of \whythree directly. Not only is this process more complex, but also the debug flag 
-produces code that can not be opened by the \whythree platform because it contains proof goals directly in the code. This also implies
-altering the code manually or to substantially modify the behaviour of the debug flag which is not intended.
 
 \section{Goal Pipeline}
 
@@ -43,16 +28,40 @@ failures in extraction, for instance the lack of support for \inlinecode{while} 
 The main goal of this work is to expand the currently available pipeline of translating code from \ocaml with \gospel specifications 
 into \whyml, where it can be verified using the various automated provers available in \whythree. We want to achieve 
 a more robust extraction mechanism with the ideas as previously discussed. Moreover, we ought to provide a new tool that 
-translates compilable \cml programs into \ocaml equivalents that can be specified afterwards with \gospel so that one may prove 
-their correctness in \cameleer. The figure below represents the goal pipeline:
+translates a subset of compilable \cml code with \gospel annotations into \ocaml with \gospel equivalents that can later
+prove their correctness in \cameleer. Creating this translation tool for a certified compiler like \cml is particularly valuable for 
+research and comparative analysis. The figure below represents the goal pipeline:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{images/Goal_Pipeline.png}
+    \includegraphics[width=\linewidth]{images/goal_pipeline.pdf}
     \caption{Goal pipeline}
+    \label{fig:GoalPipeline}
 \end{figure}
 
+The pipeline in the previous figure \ref{fig:GoalPipeline} shows the two different approaches for deductive verification, extraction-based verification
+and translation-based verification. These two approaches for deductive verification can be put through the same case studies, in order to take 
+conclusions from their trust in the pipeline, ease of automation and the expressiveness in the specifications.
+
+\section{Tool Modifications}
+
+As shown in Figure \ref{fig:GoalPipeline}, which outlines the \cameleer pipeline, there is indirect support for \cml 
+through \cameleer, but the current extraction mechanism uses the OCaml64 option. 
+A small modification to the file \texttt{/bin/cli.ml} of \cameleer 's source code
+\footnote{Original \cameleer code: \link{https://github.com/ocaml-gospel/cameleer/blob/master/bin/cli.ml}} 
+\footnote{Modified \cameleer code: \link{https://github.com/TiagoMeirim/cameleer/blob/master/bin/cli.ml}}, 
+allows the extraction to \cml. By changing the \inlinecode{execute\_extract} function to invoke 
+\inlinecode{why3 extract -D cakeml \%s}, the tool can target \cml as a backend. With this adjustment, running 
+\inlinecode{cameleer program.ml $--$extract} translates the original \ocaml plus \gospel code into code in the \cml language. 
+This enables extraction from \textsf{OCaml64} directly into \cml, providing the basis for a verified compilation pipeline.
+
+The alternative to this process is to obtain the code translated \whyml from running \cameleer with the flag \inlinecode{$--$debug} 
+and then apply the mechanism of extraction of \whythree directly. Not only is this process more complex, but also the debug flag 
+produces code that can not be opened by the \whythree platform because it contains proof goals directly in the code. This also implies
+altering the code manually or to substantially modify the behaviour of the debug flag which is not intended.
+
 \section{Case Studies}
+\label{sec:Case_Studies}
 
 For all the case studies below mentioned, the \ocaml + \gospel code was verified through \whythree automatic
 provers before applying the extraction command to translate into \cml. This verification step is essential because the correctness 
@@ -112,7 +121,7 @@ our pipeline can function if small changes are applied to the extraction mechani
 
 One possible use of exceptions, although it may seem natural at first, can be to stop iteration early in \ocaml, for instance, in the 
 context of linear search when the desired element is found, for more information regarding the implementation see section 
-\ref{subsec:SideEffects}. Once again, since, for and while loops are not available in \cml to simulate iteration we use recursion 
+\ref{subsec:SearchCode}. Once again, since, for and while loops are not available in \cml to simulate iteration we use recursion 
 with a counter:
 
 \begin{gospell}

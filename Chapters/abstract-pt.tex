@@ -19,17 +19,21 @@ onde começa com programas escritos em \ocaml com anotações em \gospel, onde o
 é produzir código \cml correto por construção. O primeiro passo envolve a tradução de código 
 \ocaml anotado para \whyml através da ferramenta \cameleer. Este código \whyml deve ser 
 posteriormente verificado na plataforma \whythree e em última instância extraído para \cml.
-Adicionalmente, a \textit{pipeline} deve também conter um esquema de tradução na direção oposta.
+Adicionalmente, a \textit{pipeline} deve também conter um esquema de tradução na direção oposta,
+onde propomos a utilização de \gospel como uma linguagem genérica de especificação para linguagens
+da família ML, em particular \cml, de modo a verificar programas nestas linguagens utilizando
+a ferramenta \cameleer.
 
 Atualmente, o mecanismo de extração do \whythree para \cml é obsoleto e apenas suporta
 um subconjunto da linguagem. Como tal, tencionamos revisitar e expandí-lo neste trabalho,
 ao atualizar o esquema de tradução, implementar o mecanismo para parar a extração de
 código não verificado e reportar casos onde a tradução não é possível devido a incompatibilidades
-entre funcionalidades.
+entre funcionalidades. Na direção oposta pretendemos desenvolver um esquema de tradução de 
+\cml para \ocaml e reutilizar o parser de \gospel de modo a permitir verificação através de \cameleer.
 
-Neste documento, um estudo minucioso foi conduzido em relação ao estado do mecanismo de
+Neste documento, foi conduzido um estudo minucioso sobre o estado do mecanismo de
 extração do \whythree, em conjunto com as ferramentas escolhidas, para identificar quais 
-os passos da \textit{pipeline} requerem modificações. Para além disso, também apresentamos
+os passos da \textit{pipeline} requerem modificações. Além disso, apresentamos
 os conceitos teóricos sobre as Semânticas Operacionais, Verificação Dedutiva e Compiladores
 Verificados.
 

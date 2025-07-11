@@ -21,102 +21,75 @@ The first part for this work is focusing on improving the extraction mechanism, 
 
 \begin{itemize}
 
-\item \textbf{Correct Extraction Syntax -} In this task we ought to revise the \whythree's extraction scheme, as mentioned in the case
-studies the main changes have been identified in order to have an updated extraction mechanism from \ocaml with \gospel into \cml. Most
-changes will be focused on the syntax generated from the extraction, so the syntaxes to be updated will be the boolean literals, reference
-declarations, let-bindings, data structures operations, data types and exception handling. What will be done in this section is changing
-case letters, add and eliminate tokens, change scoping, change declarations and operation calling. These changes need to be done because 
-the syntax of \ocaml is quite different from \cml, and since the extraction mechanism is outdated all of the above are essential.
+\item \textbf{Correct Extraction Syntax -} In this task we ought to revise the \whythree's extraction scheme in particular to \cml. In the 
+case studies, found in section \ref{sec:Case_Studies}, the main issues have been identified, which primarily stem from
+syntax generated from the extraction. These issues include casing when writing boolean literals and reference
+declarations, let-bindings without the obligatory termination token, duplicated argument declarations, mismatching data structures operations, 
+misplacement in generic data types, addition of module support, unnecessary tokens in tuple declaration inside data types, and 
+wrong scoping for exception handling. 
+Since these changes need to be done because the syntax of \ocaml is quite different from \cml and the extraction mechanism is outdated,
+all of the above are essential. Furthermore, the addition of error reporting when features can not be directly converted into \cml will also
+be implemented to have a more safe and robust extraction mechanism. Finally, the extraction will only be allowed if the \ocaml code with
+\gospel annotations was already correctly verified by \cameleer.
 
 
-\item \textbf{Define An Extensive Case Study -} Develop a library to 
+\item \textbf{Define An Extensive Case Study -} The next step in the proposed approach involves first developing a library of formally 
+verified examples, particularly focusing on fundamental data structures. These examples will be written and annotated in \whyml 
+and with the help of \whythree's automated provers formally verified, only then after ensuring that these examples satisfy their 
+specifications will the verified code be extracted or translated into \cml, thereby ensuring that the resulting \cml code inherits 
+the proven correctness guarantees. The set of examples needs to be extensive in relation to the number of features used to accomplish
+an extraction mechanism that encapsulates all the features approached.
 
-\item \textbf{Extensively Test Extraction Mechanism -} Create an extensive battery test to ensure all the changes done to the extraction
-mechanism are correct. Use the tests from the case studies and analyse the code generated from \ocaml with \gospel annotations and
-confirm if it indeed maintains the same behaviour and if the code is compilable for \cml.
-
-
-% which currently define these literals with all lowercase letters. So, in order to match boolean literals with \cml syntax, we must
-% capitalize the initial letters (e.g., \inlinecode{true} $\rightarrow$ \inlinecode{True}).
-
-% \item \textbf{Correct Reference Declaration Syntax -} Similar to boolean literals, reference declarations also start with an uppercase 
-% letter, which contrasts with \ocaml. The same 
-% capitalization solution will be applied to the reference token in order to follow \cml conventions 
-% (e.g., \inlinecode{ref} $\rightarrow$ \inlinecode{Ref}).
-
-% \item \textbf{Correct Let-Binding Syntax -} Regarding the let-binding structure in \cml, this always terminates with the \inlinecode{end} 
-% keyword. During translation sometimes there 
-% are some missing \inlinecode{end} tokens. This may be due to \ocaml not having an explicit termination token for let-bindings. Additionally, 
-% the parameters of the functions are duplicated with let-bindings, this is redundant, and it is our objective to simplify the resulting 
-% translations.
-
-% \item \textbf{Correct Data Structures Operations Syntax -} Two of the most commonly used libraries for data structures, List and Array, 
-% have displayed errors when translating their operations into 
-% \cml. Some of the errors include the omitted prefix for the library name and different operation names. 
-% Even if the operations are quite similar from \ocaml and \cml, the translation doesn't generate the same operation calling, therefore, to 
-% have a fully correct and compilable code in \cml arises the necessity to replace the data structures operations with the corresponding 
-% ones.
-
-% \item \textbf{Correct Data Type Syntax -} When defining the data types, \cml's syntax differs from \ocaml's when it comes to 
-% tuple declarations, in particular, 
-% the \inlinecode{of} keyword and the separator \inlinecode{*} found in \ocaml are not used in \cml. Another translation error consists in
-% misplacement of the generic type, which is situated before the \inlinecode{datatype} keyword, rather than after. The solution comes 
-% through fixing data type definitions to respect \cml ordering and syntax.
-
-% \item \textbf{Correct Exception Handling -} In \ocaml we can declare exceptions within functions through let-bindings, contrary to
-% \cml. All exceptions need to be 
-% declared at the global level. Furthermore, \ocaml supports a few predefined exceptions found in the standard library which have no 
-% direct translation in \cml, so they also need to be declared. For this task it is essential to refactor the exception declarations 
-% and usage to comply with \cml, ensuring all exceptions are defined properly.
+\item \textbf{Extensively Test Extraction Mechanism -} We will use the previous case study to create an extensive battery test to ensure 
+all the changes done to the extraction mechanism are correct. The tests will provide an understanding if the changes were correctly
+implemented while analysing the code generated from \ocaml with \gospel annotations and confirming if it indeed maintains the same 
+behaviour and if the code is compilable for \cml.
 
 \end{itemize}
 
 \section{Translation from CakeML to OCaml}
 
-The next big task is to create a new tool that can do the inverse pipeline of the previous work. This new tool will respect
-the syntactic and semantic differences while translating, and the available features of \cml.
+The next big task in our work is to verify \cml code through translation which corresponds going into the inverse direction
+of the pipeline. To achieve this goal we will integrate \gospel with \cml and provide a new tool in the form of a parser from
+\cml to \ocaml, since the \gospel parser already exists and is well suited for languages of the ML family.
 
 \begin{itemize}
 
-\item \textbf{Functional Constructs -}
+\item \textbf{Parser From CakeML to OCaml -} The first step in any basic translation tool is to define the correct syntax constructs 
+for every supported feature. As mentioned in the case study, found in section \ref{sec:Case_Studies}, as \cml's syntax varies from
+\ocaml's there is the need to create, now from scratch, a fully capable translation tool. The issues approached for the inverted
+pipeline will also be addressed in this implementation, those will be, the correct casing for boolean literals and reference
+declarations, let-bindings with no defined obligatory termination token, the correct scoping for exception declarations, correct data
+structure encapsulation, use of the exceptions present in the standard library of \ocaml, translation for modules, correct generic data 
+types placement and addition of tokens for certain tuple declarations. The translation tool will be done from the start and inclemently
+but already has the necessary guidelines for the correct syntax transitions.
 
-\item \textbf{Imperative Constructs -}
 
-\item \textbf{Module System -}
+\item \textbf{Integrate GOSPEL -} The next crucial step toward ensuring verification prior to translation involves integrating the 
+\gospel parser into a subset of the \cml language. This step aims to enable the direct annotation of \cml code using \gospel specifications, 
+effectively allowing us to reuse the existing \gospel infrastructure beyond its original scope in \ocaml. By embedding \gospel support into 
+a syntactically compatible subset of \cml, we can construct annotated \cml programs that mirror the same specification and verification 
+semantics supported by the \cameleer pipeline. This enhancement enables a powerful workflow: \cml programs annotated with \gospel can be 
+mechanically translated into \ocaml code, preserving both semantics and specifications, which can then be fed into the \cameleer tool for 
+automated deductive verification. Since \cml is a certified compiler with a formally verified semantics and trusted compilation pipeline, 
+verifying the correctness of \cml programs through this workflow provides a strong end-to-end guarantee.
 
-\item \textbf{Extensively Test The New Tool -}
+\item \textbf{Extensively Test The Parser -} We will reuse the same examples of the case studies from the previous pipeline, but now
+proving directly the new subset of \cml with \gospel annotations. By leveraging the \gospel parser within this \cml subset, 
+we aim to validate whether the annotated programs can still be successfully translated into \ocaml, preserving both their behaviour and 
+logical contracts. Once these test cases are correctly discharged through the \cameleer tool, this will demonstrate that the specifications 
+applied directly at the \cml level are sound and compatible with the existing verification infrastructure. 
 
+This, in turn, lays the foundation for the broader research goal: a comparative exploration of two fundamental paradigms in deductive 
+verification. On one hand we have the extraction-based verification where programs are written and verified within a proof assistant 
+and correctness is guaranteed by construction when extracting to another language. On the other hand we have translation-based verification 
+where existing annotated source code is translated into an intermediate verification language from which verification conditions are 
+generated and discharged using automated provers.
 
-% \item \textbf{Arithmetic and Boolean operations -} The first step in any basic translation tool is to define the integer and boolean 
-% data types as well as their respective operations.
-% This includes defining the literals correctly, as previously mentioned the boolean tokens are not equally written, and operations
-% such as addition, subtraction, multiplication, equality and inequality. Whenever necessary, casing and syntax will be adjusted.
+By verifying the same case studies through the two approaches we can evaluate their advantages and trade-offs. All this depends on the 
+trust in the pipeline, ease of automation and the expressiveness in the specifications. In the end this comparison may offer an evaluation 
+on what real world verification contexts benefit more from their combining effort or if one is more well-suited than the other.
 
-% \item \textbf{Let-Bindings -} This construct is essential to functional languages. The correct syntax for this construct in 
-% \cml includes explicit 
-% termination with the \inlinecode{end} keyword, meanwhile in \ocaml there is no explicit termination. This construct requires 
-% special attention when multiple let-bindings are nested due to the different environments.
-
-% \item \textbf{References -} To support references it is important to define three operations, these being creation, assignment and 
-% access. The correct translation
-% from \cml to \ocaml must take into consideration the main syntax difference which is casing: \inlinecode{ref} in \ocaml
-% and \inlinecode{Ref} in \cml.
-
-% \item \textbf{Data Structure Operations -} Most real programs make use of built-in complex data structures such as Arrays and Lists. 
-% This urges for the translation of their 
-% basic operations already present in the standard library, besides the additional operations featured in the respective dedicated 
-% library for that data structure.
-
-% \item \textbf{Data Types -} For many programs the built-in data structures do not suffice, so, user defined data types are a must 
-% for programming languages.
-% Such that, it is natural to provide a translation scheme for the definition of data types in \cml into idiomatic \ocaml type declarations, 
-% preserving constructors and structure.
-
-% \item \textbf{Exception Handling -} Robust programs are built with the expectation to fail occasionally, so there should 
-% be mechanisms to handle and recover from these 
-% situations. One of these mechanisms are exceptions, which offer clean and concise flagging for these non-natural cases.
-% When transforming exception declarations and usage from \cml back into \ocaml style with inline definitions and raises, we must also take
-% into consideration that \cml only allows global declaration of exceptions.
 
 \end{itemize}
 
@@ -130,7 +103,7 @@ implementation steps, and analysing the results and limitations of the pipeline 
 
 \end{itemize}
 
-%% \newpage
+\newpage
 
 \section{Gantt Chart}
 
@@ -168,13 +141,11 @@ Below we present a Gantt Chart with the previously mentioned tasks spread into t
 
 \ganttgroup{Translation from CakeML to OCaml}{13}{26} \\
 
-\ganttbar{Functional Constructs}{13}{16} \\
+\ganttbar{Parser From CakeML to OCaml}{13}{21} \\
 
-\ganttbar{Imperative Constructs}{17}{21} \\
+\ganttbar{Integrate GOSPEL}{22}{24} \\
 
-\ganttbar{Module System}{22}{24} \\
-
-\ganttbar{Extensively Test The New Tool}{25}{26} \\
+\ganttbar{Extensively Test The Parser}{25}{26} \\
 
 \ganttgroup{Dissertation}{25}{28} \\
 \ganttbar{Writing}{25}{28}

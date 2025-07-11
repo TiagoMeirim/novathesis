@@ -50,8 +50,9 @@ Realistic refers to a compiler that can be effectively employed in the productio
 
 \compcert adopts a multi-pass compilation architecture, where each pass translates an intermediate representation into a lower-level 
 form, gradually transforming the high-level C source code into target assembly code. These intermediate languages are Clight, Cminor, 
-RTL, LTL, and others which are formally defined within Coq. \compcert's core is implemented in Gallina, the functional programming 
-language of Coq, which is based on the Calculus of Inductive Constructions, a powerful higher-order logic and typed $\lambda$-calculus. 
+RTL, LTL, and others which are formally defined within Coq~\cite{75277.75285}. \compcert's core is implemented in Gallina, the 
+functional programming language of Coq, which is based on the Calculus of Inductive Constructions, a powerful higher-order logic and 
+typed $\lambda$-calculus. 
 This implementation enables formal reasoning and machine-checked proofs of correctness for each compilation phase~\cite{MonniauxB22}.
 
 Although \compcert is developed in Coq, it is not executed within the proof assistant. Instead, the verified Gallina code is extracted 
@@ -95,7 +96,7 @@ static and dynamic semantics using structural operational semantics~\cite{milner
 groundwork for end-to-end verified compilers~\cite{Syme93}.
 
 In \cml it is possible to find a verified type system, which is also an important achievement in the context of a certified compiler.
-It provides a sound and complete implementation of a system with type inference making use of the type soundness theorem and using HOL4
+It provides a sound and complete implementation of a system with type inference making use of the type soundness theorem and using HOL4~\cite{SlindN08} 
 proof assistant. These results ensure that any \cml program accepted by the type inferencer is guaranteed to be 
 well-typed and thus have well-defined semantics. This contributes to \cml's overall goal of ensuring correctness by construction 
 throughout the pipeline~\cite{TanOK15}.
@@ -112,7 +113,7 @@ for 6 architectures:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{images/CakeMLPipeline.png}
+    \includegraphics[width=\linewidth]{images/cake.pdf}
     \caption{\cml multi-stage pipeline}
     \label{fig:CakeMLPipeline}
 \end{figure}
@@ -141,7 +142,7 @@ to accommodate the extraction mechanism from \whythree :
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{images/Cameleer.png}
+    \includegraphics[width=\linewidth]{images/cameleer_extract.pdf}
     \caption{\ocaml to \whyml pipeline with \cameleer}
     \label{fig:Cameleer_pipeline}
 \end{figure}
