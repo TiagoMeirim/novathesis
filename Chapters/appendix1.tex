@@ -8,49 +8,347 @@
 
 \typeout{NT FILE appendix1.tex}%
 
-\chapter{\emph{NOVAthesis} covers showcase}
-\label{app:covers_showcase}
+\chapter{Complete Case Studies}
+\label{app:appendix}
 
-This Appendix shows examples of covers for some of the supported Schools.  When the Schools have very similar covers (e.g., all the schools from Universidade do Minho), just one cover is shown.  If the covers for MSc dissertations and PhD  thesis are considerable different (e.g., for FCT-NOVA and UMinho), then both are shown.
+\section*{Tail Recursive Factorial}
 
-\newcommand{\showcasecoversize}{0.3\textwidth}
-\newcommand*{\myhfill}{}
-\newcommand{\myincludeimage}[1]{%
-    \myhfill%
-    \defifundef{\mycvbox}{\newsavebox}%
-    \savebox{\mycvbox}{\includegraphics[width=\showcasecoversize]{#1}}%
-    \defifundef{\mycvboxht}{\newlength}%
-    \setlength{\mycvboxht}{\dimexpr \showcasecoversize*\paperheight/\paperwidth}%
-    \rule{0pt}{1.1\mycvboxht}%
-    \setlength{\fboxsep}{0pt}%
-    \fbox{\includegraphics[width=\showcasecoversize]{#1}}%
-    \renewcommand*{\myhfill}{\hfill}%
-}
+\subsection*{OCaml + GOSPEL}
 
-% \noindent\forcsvlist{\myincludeimage}{%
-%   cover-nova-fct-msc,
-%   cover-nova-fct-phd,
-%   cover-nova-ims-phd,
-%   %
-%   cover-uminho-ee-phd,
-%   cover-uminho-ee-msc,
-%   cover-other-esep-phd,
-%   %
-%   cover-nova-fcsh-phd,
-%   cover-nova-ensp-phd,
-%   cover-iscteiul-eta-phd,
-%   %
-%   cover-ulisboa-fc-phd,
-%   cover-ulisboa-ist-phd,
-%   cover-ulht-deisi-msc,
-%   %
-%   cover-ipl-isel-msc,
-%   cover-ips-ests-msc,
-%   cover-other-mscgt-msc%
-% }
+\begin{gospell}
+(*@ 
+  function rec factorial (n:int) :int = 
+    if n=0 then 1 else n * factorial (n-1)
+*)
+(*@ 
+  requires n >= 0
+  variant n
+*)
 
-\lipsum[1-20]
+let rec fact_aux n c t =
+  if c <= n then fact_aux n (c+1) (t*c) else t
+(*@
+  r = fact_aux n c t
+  requires n >= 0
+  requires 0 < c <= n+1
+  requires t = factorial (c-1)
+  ensures r = factorial n
+  variant n+1-c
+*)
 
-\section{A section here}
+let fact n = fact_aux n 1 1
+(*@ 
+  r = fact n
+  requires n >= 0 
+  ensures r = factorial n
+*)
+\end{gospell}
 
-\lipsum[1-20]
+\newpage
+
+\subsection*{Generated CakeML}
+
+\begin{cakeml}
+fun fact_aux n c t = let val n1 = n in
+  let val c1 = c in
+  let val t1 = t in
+  if c1 <= n1 then (fact_aux n1 (c1 + (1)) (t1 * c1))  else (t1)
+
+fun fact n = let val n1 = n in fact_aux n1 (1) (1)
+\end{cakeml}
+
+\subsection*{Corrected CakeML 1st Version}
+
+\begin{cakeml}
+fun fact_aux n c t = let val n1 = n in
+  let val c1 = c in
+  let val t1 = t in
+  if c1 <= n1 then (fact_aux n1 (c1 + (1)) (t1 * c1))  else (t1)
+  end end end
+
+fun fact n = let val n1 = n in fact_aux n1 (1) (1) end
+\end{cakeml}
+
+\subsection*{Corrected CakeML 2nd Version}
+
+\begin{cakeml}
+fun fact_aux n c t = 
+  if c <= n then (fact_aux n (c + (1)) (t * c))  else (t)
+
+fun fact n = fact_aux n (1) (1)
+\end{cakeml}
+
+\newpage
+
+\section*{Exception recursive search}
+
+\subsection*{OCaml + GOSPEL}
+
+\begin{gospell}
+let rec search_aux a c n =
+  let exception Break of int in try
+    if c = Array.length a then raise Not_found 
+    else if a.(c) = n then raise (Break c) 
+    else search_aux a (c+1) n
+  with Break i -> i
+(*@
+  r = search_aux a c n
+  requires 0 <= c <= Array.length a
+  requires forall k. 0 <= k < c -> a.(k) <> n
+  raises Not_found -> forall k. 0 <= k < Array.length a -> a.(k) <> n
+  ensures 0 <= r < Array.length a
+  ensures a.(r) = n
+  variant Array.length a - c
+*)
+
+let linear_search a n = search_aux a 0 n
+(*@
+  r = linear_search a n
+  raises Not_found -> forall k. 0 <= k < Array.length a -> a.(k) <> n
+  ensures 0 <= r < Array.length a
+  ensures a.(r) = n
+*)
+\end{gospell}
+
+\subsection*{Generated CakeML}
+
+\begin{cakeml}
+fun search_aux a c n = let val a1 = a in
+  let val c1 = c in
+  let val n1 = n in
+  let exception Break of (int) in
+  ((if c1 = (a1.length) then (raise Not_found) 
+    else (if (get a1 c1) = n1 then (raise (Break n1)) 
+          else (search_aux a1 (c1 + (1)) n1)))
+  handle   Break i => i)
+
+fun linear_search a n =
+  let val a1 = a in let val n1 = n in search_aux a1 (0) n1
+\end{cakeml}
+
+\newpage
+
+\subsection*{Corrected CakeML}
+
+\begin{cakeml}
+
+exception Not_found
+exception Break int
+
+fun search_aux a c n =
+  ((if c = (Array.length a) then (raise Not_found) 
+    else (if (Array.sub  a c) = n then (raise (Break n)) 
+          else (search_aux a (c + (1)) n)))
+  handle Break i => i)
+
+fun linear_search a n = search_aux a (0) n
+
+\end{cakeml}
+
+\newpage
+
+\section*{Count Even For A List}
+
+\subsection*{OCaml + GOSPEL}
+
+\begin{gospell}
+let count_even l =
+  let l1 = List.filter (fun x -> x > 0 && x mod 2 = 0) l in
+  let l2 = List.rev l1 in
+  (List.length l2, l2)
+(*@ (s, r) = count_even l
+    ensures s = List.length r
+    ensures forall x: int. List.mem x r -> x > 0 && mod x 2 = 0 
+    ensures forall x: int. List.mem x r -> List.mem x l
+    ensures forall x: int. not List.mem x l -> not List.mem x r *)
+\end{gospell}
+
+\subsection*{Generated CakeML}
+
+\begin{cakeml}
+fun count_even l =
+  let val l1 = l in
+  let val l11 = filter (fn x => (x > (0)) andalso ((mod x (2)) = (0))) l1 in
+  let val l2 = rev l11 in (List.length l2, l2)
+\end{cakeml}
+
+\subsection*{Corrected CakeML}
+
+\begin{cakeml}
+fun count_even l =
+  let val l1 = List.filter (fn x => (x > (0)) andalso ((Int.mod x (2)) = (0))) l in
+  let val l2 = List.rev l1 in (List.length l2, l2) end end
+\end{cakeml}
+
+\newpage
+
+\section*{Depth-search tree}
+
+\subsection*{OCaml + GOSPEL}
+
+\begin{gospell}
+(*@ function rec to_list (t: 'a tree) : 'a list = 
+  match t with
+  | Leaf -> []
+  | Node l x r -> x :: to_list l @ to_list r
+*)
+(*@
+  variant t
+*)
+
+let rec depth_search t n = 
+  match t with
+  | Leaf -> false
+  | Node (l,x,r) -> x = n || depth_search l n || depth_search r n
+(*@
+  r = depth_search t n
+  variant t
+  ensures List.mem n (to_list t) <-> r
+*)
+\end{gospell}
+
+\subsection*{Generated CakeML}
+
+\begin{cakeml}
+'a datatype tree = Leaf | Node of 'a tree * 'a * 'a tree
+
+fun depth_search t n = let val t1 = t in
+  let val n1 = n in
+  (case t1 of
+    Leaf => false
+  | Node l x r =>
+    (x = n1) orelse ((depth_search l n1) orelse (depth_search r n1)))
+\end{cakeml}
+
+\subsection*{Corrected CakeML}
+
+\begin{cakeml}
+datatype 'a tree = Leaf | Node ('a tree) 'a ('a tree)
+
+fun depth_search t n =
+  (case t of
+    Leaf => False
+  | Node l x r =>
+    (x = n) orelse ((depth_search l n) orelse (depth_search r n)))
+\end{cakeml}
+
+\newpage
+
+\section*{Tree Comparison}
+
+\subsection*{OCaml + GOSPEL}
+
+\begin{gospell}
+module Tree = struct
+  type 'a tree =
+    | Leaf
+    | Node of 'a tree * 'a * 'a tree
+
+  let rec cmp t1 t2 =
+    match t1, t2 with
+    | Leaf, Leaf -> true
+    | Leaf, _ -> false
+    | _, Leaf -> false
+    | Node (l1,x1,r1), Node (l2,x2,r2) -> cmp l1 l2 && x1 = x2 && cmp r1 r2
+  (*@
+  r = cmp t1 t2
+  variant t1
+  ensures r <-> t1 = t2
+  *)
+end
+\end{gospell}
+
+\subsection*{Generated CakeML}
+
+\begin{cakeml}
+'a datatype tree = Leaf | Node of 'a tree * 'a * 'a tree
+
+fun cmp t1 t2 = let val t11 = t1 in
+  let val t21 = t2 in
+  (case (t11, t21) of
+    (Leaf, Leaf) => true
+  | (Leaf, _) => false
+  | (_, Leaf) => false
+  | (Node l1 x1 r1, Node l2 x2 r2) =>
+    (cmp l1 l2) andalso ((x1 = x2) andalso (cmp r1 r2)))
+\end{cakeml}
+
+\subsection*{Corrected CakeML}
+
+\begin{cakeml}
+structure Tree = struct
+  datatype 'a tree = Leaf | Node ('a tree) 'a ('a tree)
+
+  fun cmp t1 t2 =
+  (case (t1, t2) of
+    (Leaf, Leaf) => True
+  | (Leaf, _) => False
+  | (_, Leaf) => False
+  | (Node l1 x1 r1, Node l2 x2 r2) =>
+      (cmp l1 l2) andalso ((x1 = x2) andalso (cmp r1 r2)))
+end
+\end{cakeml}
+
+\newpage
+
+\section*{References}
+
+\subsection*{OCaml + GOSPEL}
+
+\begin{gospell}
+let rec eudiv_aux (x: int) (y: int) (r: int ref) (q: int ref) =
+  if !r >= y then (r := !r - y; q := !q + 1; eudiv_aux x y r q)
+  else ()
+(*@ res = eudiv_aux x y r q
+    requires x >= 0
+    requires y > 0
+    requires 0 <= !r <= x
+    requires x = y * !q + !r
+    variant !r - y
+    ensures x = y * !q + !r
+    ensures 0 <= !r <= x
+    ensures 0 <= !r < y *)
+
+let euclidean_div x y =
+    let r = ref x and q = ref 0 in 
+  eudiv_aux x y r q;
+  (!q, !r)
+(*@ (q, r) = euclidean_div x y
+    requires x >= 0
+    requires y > 0
+    ensures x = y * q + r
+    ensures 0 <= r < y *)
+\end{gospell}
+
+\subsection*{Generated CakeML}
+
+\begin{cakeml}
+fun eudiv_aux x y r q = let val x1 = x in
+  let val y1 = y in
+  let val r1 = r in
+  let val q1 = q in
+  if (!r1) >= y1
+  then ((r1 := ((!r1) - y1); q1 := ((!q1) + (1)); eudiv_aux x1 y1 r1 q1))
+
+fun euclidean_div x y =
+  let val x1 = x in
+  let val y1 = y in
+  let val r = ref x1 in
+  let val q = ref (0) in (eudiv_aux x1 y1 r q; (!q, !r))
+\end{cakeml}
+
+\newpage
+
+\subsection*{Corrected CakeML}
+
+\begin{cakeml}
+fun eudiv_aux x y r q =
+  if (!r) >= y
+  then ((r := ((!r) - y); q := ((!q) + (1)); eudiv_aux x y r q))
+  else ()
+
+fun euclidean_div x y =
+  let val r = Ref x in
+  let val q = Ref (0) in (eudiv_aux x y r q; (!q, !r)) 
+    end end
+\end{cakeml}

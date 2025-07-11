@@ -232,7 +232,7 @@ process is finished. The values for the remainder and quotient are saved inside 
 
 \ocaml also provides exception handling in a structured way to deal with runtime errors by allowing programmers to define 
 and raise custom exceptions. In addition to user-defined exceptions, \ocaml provides a range of built-in exceptions, which are 
-extensively used by the standard library to handle common error cases. Also, it is important to mention that built-in arrays are mutable
+extensively used by the standard library to handle common error cases, for example \inlinecode{Not\_found}. Also, it is important to mention that built-in arrays are mutable
 have a fixed length and allow direct access to elements using their index. We combine these two elements on the example below:
 
 \begin{ocamlenv}
@@ -258,6 +258,7 @@ Overall, while \ocaml encourages a functional programming style and includes str
 its imperative features make it a multi-paradigm language that combines the benefits of both functional and imperative styles.
 
 \subsection{Module System}
+\label{subsec:ModuleSystem}
 
 The module system enables parametric modularity through modules and functors, supporting abstraction, separation of concerns, and 
 scalable design. At the heart of this system are signatures, which serve as formal interfaces specifying the types and values a 
@@ -268,7 +269,7 @@ This modular structure is especially useful in verification contexts because it 
 implementation. This separation makes it easier to reason about and verify each component independently, improving 
 maintainability and correctness.
 
-We can expand on the example found in the section \ref{subsec:ADT} by adding encapsulating a module around it:
+We can expand on the example found in the section \ref{subsec:ADT} by encapsulating a module around it:
 
 \begin{ocamlenv}
 module Tree = struct
@@ -328,7 +329,8 @@ related languages such as \cml. Unlike other behavioural specification languages
 \textsf{JML}~\cite{article}, \gospel 
 supports Separation Logic, a significant extension of Hoare Logic and a powerful framework for reasoning about real-world 
 programs~\cite{Reynolds02, OHearnRY01}. While \gospel is not the first tool to use Separation Logic, it uniquely introduces implicit 
-permission association in data types, a feature not found in tools like \textsf{VeriFast} or \textsf{Viper}~\cite{ChargueraudFLP19}.
+permission association in data types, a feature not found in tools like \textsf{VeriFast}~\cite{JacobsSPVPP11} or 
+\textsf{Viper}~\cite{0001SS16}~\cite{ChargueraudFLP19}.
 
 \cameleer takes as input an \ocaml program annotated with \gospel specifications and translates it into \whyml, the intermediate 
 language used by the \whythree platform. Once translated, the code can be processed by \whythree, which leverages a range of automated 
@@ -344,13 +346,13 @@ properties of \ocaml programs with minimal manual intervention. This behaviour i
     \label{fig:CameleerPipeline}
 \end{figure}
 
-In figure \ref{fig:CameleerPipeline} demonstrates how the translation mechanism integrates with surrounding frameworks to produce 
+Figure \ref{fig:CameleerPipeline} demonstrates how the translation mechanism integrates with surrounding frameworks to produce 
 deductively verified \ocaml code annotated with \gospel specifications. If an error is detected in the original \ocaml code during 
 translation, the process reverts to the source, requiring corrections to ensure that the generated \whyml code is syntactically and 
 semantically valid. Within the \whythree tool, if the generated verification goals cannot be discharged by the automated provers, it indicates 
 that the specifications may be imprecise or incomplete and require refinement. These issues are highlighted by the tool, guiding the 
 user to improve the annotations. Once all verification conditions are successfully proven, the resulting program is guaranteed to 
-be free from compiler-introduced bugs or errors, ensuring a high level of formal correctness~\cite{Filliatre11}.
+respect its specification, ensuring a high level of formal correctness~\cite{Filliatre11}.
 
 % It is important to distinguish two broad methodologies in deductive verification. On one hand, extraction-based verification involves 
 % developing verified programs directly within a proof assistant and then extracting executable code, ensuring correctness by construction. 
@@ -424,7 +426,7 @@ multiplication with the accumulator starting at 0 would not take into considerat
 the third argument, represents the neutral element for multiplication. The \gospel annotations specify the expected behaviour, including 
 pre-conditions such as non-negativity of \inlinecode{n} and the correctness of the returned result.
 
-The translated code to \whyml creates 2 goals, one for the function \inlinecode{fact} and another for the logical function
+The translated code to \whyml creates 3 goals, one for the function \inlinecode{fact} and another for the logical function
 \inlinecode{factorial}. After splitting the goals we get for \inlinecode{fact} the variant and pre-condition, and for
 \inlinecode{factorial} the invariant initialization, the invariant preservation, the post-condition and the VC:
 

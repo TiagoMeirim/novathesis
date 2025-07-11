@@ -147,9 +147,9 @@ to accommodate the extraction mechanism from \whythree :
     \label{fig:Cameleer_pipeline}
 \end{figure}
 
-A brief explanation for the pipeline, is that \cameleer translates \ocaml programs with \gospel annotations to \whyml language internally,
-on one hand if an error is caught relating to \ocaml or \whyml it will be handled accordingly, on the other hand if there is no syntax error
-the \whythree platform is initialized and the provers can be used to verify the proof goals.
+A brief explanation for the extended \cameleer pipeline, is that \cameleer translates \ocaml programs with \gospel annotations to 
+\whyml language internally, on one hand if an error is caught relating to \ocaml or \whyml it will be handled accordingly, on the 
+other hand if there is no syntax error the \whythree platform is initialized and the provers can be used to verify the proof goals.
 
 The extraction mechanism introduced in the figure \ref{fig:Cameleer_pipeline} is separate from the verification process.
 This means that a program may be extracted to another language without requiring the correctness of the code to be proven, 
@@ -159,7 +159,7 @@ code falling on the user's side.
 
 The initial objective of the extraction mechanism was to build correct by construction libraries with the help of \whythree. This lead
 to the creation of a mechanism that in itself does not jeopardize the behaviour of the original code when translating, this is due to its 
-mathematical formalization~\cite{Pereira18}. One of the main advantages is the dedicated phase for the removal of ghost code and logical
+mathematical formalization~\cite{Pereira18}. One of the main advantages is the existence of a dedicated phase for the removal of ghost code and logical
 annotations present in the original \whyml code, in addition to a few conservative optimizations. The resulting code does not contain 
 any logical elements which facilitates the translation to a new language, this means the only effort that needs to be done
 is similar to writing a printer from an intermediate representation of the language to be added~\cite{Pereira18}. Currently, four languages 

@@ -53,7 +53,7 @@ A small modification to the file \texttt{/bin/cli.ml} of \cameleer 's source cod
 allows the extraction to \cml. By changing the \inlinecode{execute\_extract} function to invoke 
 \inlinecode{why3 extract -D cakeml \%s}, the tool can target \cml as a backend. With this adjustment, running 
 \inlinecode{cameleer program.ml $--$extract} translates the original \ocaml plus \gospel code into code in the \cml language. 
-This enables extraction from \textsf{OCaml64} directly into \cml, providing the basis for a verified compilation pipeline.
+This enables extraction from \ocaml directly into \cml, providing the basis for a verified compilation pipeline.
 
 The alternative to this process is to obtain the code translated \whyml from running \cameleer with the flag \inlinecode{$--$debug} 
 and then apply the mechanism of extraction of \whythree directly. Not only is this process more complex, but also the debug flag 
@@ -72,6 +72,9 @@ no longer carry the desired formal guarantees, thereby breaking the intended end
 Since this step is intended only to demonstrate what already exists, the generated code may contain significant syntax errors 
 and may not be compilable. These issues reflect limitations in the current extraction process and highlight the need for 
 further refinement.
+
+For presentation purposes we omitted parts of the original \ocaml + \gospel code in some of the case studies. The complete 
+versions can be found in the appendix \ref{app:appendix}.
 
 \subsection{Tail Recursive Factorial}
 
@@ -144,7 +147,7 @@ precondition above there is the need to state that all the values previously see
 should have terminated earlier.
 
 Since the exception \inlinecode{Not\_Found} was not handled this means that the function does not return a value in case it is raised,
-therefore only when a value is found it terminates successfully. In that case we need to express two ensure clauses, one that states 
+therefore only when a value is found it terminates successfully. In that case, we need to express two ensure clauses, one that states 
 the resulting index is a value between 0 and the length of the array a minus one and that the element of the array in the index returned 
 is effectively the value searching for. As the index is increasing in each iteration, at some point it becomes equal to the length of the 
 array, thereby proving termination and the variant clause.
@@ -418,7 +421,7 @@ produces compilable \cml code.
 \subsection{Tree Comparison}
 
 With this example we only want to understand if the module system is working as intended in \cml. The module system in \cml is very 
-limited since it does not support signatures and functors. In section \ref{subsec:ADT} we present a simple tree module in \ocaml that 
+limited since it does not support signatures and functors. In section \ref{subsec:ModuleSystem} we present a simple tree module in \ocaml that 
 contains the comparison between trees. Below it is shown the necessary \gospel annotations:
 
 \begin{gospell}
