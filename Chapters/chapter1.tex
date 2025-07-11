@@ -80,11 +80,13 @@ allowing correctness to be established before any extraction process takes place
 \vspace{5mm}
 \centerline{\textit{How do extraction-based and translation-based approaches differ in ensuring program correctness?}}
 
-An analysis of these two approaches leads us to reflect about:
+In our proposed pipeline, both extraction-based and translation-based approaches are integrated, offering a unique opportunity 
+to examine how these methodologies apply for the same case studies. This dual exploration not only highlights the distinctions 
+between the two, but also leads to reflection on:
 
 \begin{enumerate}
-    \item \centerline{\textit{How do we bridge these tools to create a pipeline that ensures correctness throughout all steps?}}
-    \item \centerline{\textit{How does adding a specification language affect the verification workflow of certified compilers?}}
+    \item \textit{How do we bridge these tools to create a pipeline that ensures correctness throughout all steps?}
+    \item \textit{How does adding a specification language affect the verification workflow of certified compilers?}
 \end{enumerate}
 
 \section{Goals and Expected Contributions}
@@ -97,9 +99,12 @@ in detail the issues with the translation, what are the necessary changes to com
 or fixing syntactic issues for the features already supported by the extraction mechanism, directly in \whythree source code.
 For the features that are not supported by one of the languages, providing a comprehensive error message rather than allowing 
 the extraction to take place. To make the pipeline more robust we should confirm if the program is verified beforehand when performing 
-an extraction. Since, there is no translation mechanism from \cml to \ocaml, it creates the need to develop a new tool that can
-verify \cml code before translating. This involves defining a subset of the \cml code that respects all 
-the syntactic and semantic differences, meanwhile flagging with an error message any unsupported features.
+an extraction. Since, there is no translation mechanism from \cml to \ocaml, it creates the need to develop a new tool. Our objective is 
+to extend the \gospel parser to support languages within the ML family, enabling the application of formal specifications directly to 
+\cml code. This will allow verification to take place prior to translation. Specifically, we aim to build a new translation tool, 
+driven by a custom parser, that converts \cml with \gospel annotations into \ocaml with \gospel annotation. To achieve this, we define
+a subset of the \cml code that respects all the syntactic and semantic differences, meanwhile flagging with an error message any 
+unsupported features.
 
 \section{Report Structure}
 \label{sec:Report_Structure}
