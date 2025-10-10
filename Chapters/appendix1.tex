@@ -137,7 +137,7 @@ exception Break int
 
 fun search_aux a c n =
   ((if c = (Array.length a) then (raise Not_found) 
-    else (if (Array.sub  a c) = n then (raise (Break n)) 
+    else (if (Array.sub a c) = n then (raise (Break n)) 
           else (search_aux a (c + (1)) n)))
   handle Break i => i)
 
