@@ -8,150 +8,78 @@
 
 \typeout{NT FILE chapter5.tex}%
 
-\chapter{Work Plan}
-\label{cha:Work_Plan}
+\chapter{Extraction}
+\label{cha:Extraction}
 
-In this chapter we enumerate all the steps for the next few months about the development and objectives to be done for our work.
-Every task is put onto a flexible time frame, because some tasks may end sooner or later than we expect, leading us to adjust the 
-schedule when needed.
+The Extraction process, in the context of deductive program verification, refers to the process of deriving executable code from a verified specification by 
+systematically eliminating all proof-oriented content that carries no computational meaning. Rather than re-verifying correctness in the target language, extraction 
+relies on the guarantees already established during the verification phase, delegating to the extraction mechanism the responsibility of faithfully preserving the program's 
+computational behaviour across the language boundary. In \whythree, this process is formalized through a dedicated ghost code erasure phase followed by a language-specific 
+driver, which together ensure that the logical constructs of a \whyml program spanning both program-level annotations such as pre-conditions, post-conditions, invariants, and 
+ghost variables, and theory-level constructs such as predicates, lemmas, and axioms that support the proof obligations are cleanly removed before the 
+remaining computational fragment is translated to the target language. It is precisely this translation step that introduces the constraints examined in this chapter, 
+since the target language must be capable of representing the extracted fragment, the differences between \whyml and \cml impose a well-defined boundary on 
+the subset of \whyml constructs that can be viably used within the pipeline.
 
-\section{From OCaml to CakeML}
+\section{\whyml Subset}
 
-The first part for this work is focusing on improving the extraction mechanism, while fixing the issues aforementioned.
+The integration of \cml into the verification pipeline introduces a set of constraints that must be carefully accounted for. Unlike \ocaml and \whyml, 
+which belong to the ML language family but are designed with expressiveness and specification in mind, \cml was developed primarily with compiler correctness 
+as its central concern, making its language design reflect the requirements of a formally verified compilation chain rather than general-purpose functional programming.
+As a consequence, \cml supports a more restricted set of language constructs than either \ocaml or \whyml. This motivates the adoption 
+of a specific subset of \whyml in the present work, one chosen to ensure that the programs expressed in the pipeline can be faithfully extracted to \cml 
+without introducing constructs that fall outside its supported fragment, thereby preserving coherence across the full pipeline.
 
-\begin{itemize}
+The subset was defined based on the limitations encountered during the extraction of \whyml code into \cml. The first restriction concerns the character 
+\inlinecode{o}, which in \cml is strictly reserved for function composition and therefore cannot be used as an identifier for any variable or function name consisting 
+solely of that character must be avoided within the subset. A further limitation arises with or-patterns since \cml does not support the grouping of multiple patterns under a 
+single branch, meaning that constructs of the form \inlinecode{| E | N l x r -> ...} are not accepted and must instead be decomposed into separate branches, inevitably 
+introducing code duplication. Additionally, \cml does not support imperative loop constructs such as \inlinecode{while} or \inlinecode{for}, requiring that all iterative 
+behaviour be expressed through explicit recursion. Functors are likewise unsupported, and mutually recursive type definitions are not accepted by \cml, both of which are 
+consequently excluded from the subset.
 
-\item \textbf{Correct Extraction Syntax -} In this task we ought to revise the \whythree's extraction scheme in particular to \cml. In the 
-case studies, found in section \ref{sec:Case_Studies}, the main issues have been identified, which primarily stem from
-syntax generated from the extraction. These issues include casing when writing boolean literals and reference
-declarations, let-bindings without the obligatory termination token, duplicated argument declarations, mismatching data structures operations, 
-misplacement in generic data types, addition of module support, unnecessary tokens in tuple declaration inside data types, and 
-wrong scoping for exception handling. 
-Since these changes need to be done because the syntax of \ocaml is quite different from \cml and the extraction mechanism is outdated,
-all of the above are essential. Furthermore, the addition of error reporting when features can not be directly converted into \cml will also
-be implemented to have a more safe and robust extraction mechanism. Finally, the extraction will only be allowed if the \ocaml code with
-\gospel annotations was already correctly verified by \cameleer.
+It should be noted that the subset defined in this chapter is not automatically enforced by the pipeline. No static analysis or syntactic check is currently performed to verify 
+that a given \whyml program operates in line with the subset defined before extraction. The user is therefore expected to respect this subset throughout the pipeline in order 
+to ensure correctness across both the extraction and translation phases of the study.
 
+\section{Corrections to the \cml Extraction Driver}
 
-\item \textbf{Define An Extensive Case Study -} The next step in the proposed approach involves first developing a library of formally 
-verified examples, particularly focusing on fundamental data structures. These examples will be written and annotated in \whyml 
-and with the help of \whythree's automated provers formally verified, only then after ensuring that these examples satisfy their 
-specifications will the verified code be extracted or translated into \cml, thereby ensuring that the resulting \cml code inherits 
-the proven correctness guarantees. The set of examples needs to be extensive in relation to the number of features used to accomplish
-an extraction mechanism that encapsulates all the features approached.
+The \cml extraction driver was already partially implemented within the Why3 platform, however it contained a number of inaccuracies that produced syntactically incorrect 
+\cml output. The corrections addressed in this section are focused on the grammar of the generated code, ensuring that the extracted programs conform to the syntactic 
+requirements of \cml. The following subsections detail each individual change applied to the driver:
 
-\item \textbf{Extensively Test Extraction Mechanism -} We will use the previous case study to create an extensive battery test to ensure 
-all the changes done to the extraction mechanism are correct. The tests will provide an understanding if the changes were correctly
-implemented while analysing the code generated from \ocaml with \gospel annotations and confirming if it indeed maintains the same 
-behaviour and if the code is compilable for \cml.
+\subsection{Capitalization Conventions}
 
-\end{itemize}
+\cml requires that certain types and literals be capitalized as part of its syntactic grammar. The previous version of the extraction driver did 
+not respect this convention, producing lowercase identifiers where uppercase is grammatically required. Notable examples include the boolean literals \inlinecode{true} 
+and \inlinecode{false}, which must be rendered as \inlinecode{True} and \inlinecode{False} respectively, as well as reference construction, where \inlinecode{ref} must 
+appear as \inlinecode{Ref}.
 
-\section{Translation from CakeML to OCaml}
+\subsection{Let Bindings Delimiters}
 
-The next big task in our work is to verify \cml code through translation which corresponds going into the inverse direction
-of the pipeline. To achieve this goal we will integrate \gospel with \cml and provide a new tool in the form of a parser from
-\cml to \ocaml, since the \gospel parser already exists and is well suited for languages of the ML family.
+A syntactic distinction between \whyml and \cml concerns the delimitation of let bindings. In \whyml, let bindings do not require an explicit termination token, as the 
+scope of the bound variable is determined by the structure of the expression. \cml, however, requires the \inlinecode{end} token to explicitly signal the closing of 
+the binding scope. The correction applied to the extraction driver ensures that this token is consistently emitted at the appropriate position in the generated code.
 
-\begin{itemize}
+\subsection{Exception Handling}
 
-\item \textbf{Parser From CakeML to OCaml -} The first step in any basic translation tool is to define the correct syntax constructs 
-for every supported feature. As mentioned in the case study, found in section \ref{sec:Case_Studies}, as \cml's syntax varies from
-\ocaml's there is the need to create, now from scratch, a fully capable translation tool. The issues approached for the inverted
-pipeline will also be addressed in this implementation, those will be, the correct casing for boolean literals and reference
-declarations, let-bindings with no defined obligatory termination token, the correct scoping for exception declarations, correct data
-structure encapsulation, use of the exceptions present in the standard library of \ocaml, translation for modules, correct generic data 
-types placement and addition of tokens for certain tuple declarations. The translation tool will be done from the start and inclemently
-but already has the necessary guidelines for the correct syntax transitions.
+Exception handling introduces one of the more significant structural differences between \whyml and \cml. While \whyml permits exception declarations within local scopes 
+using let bindings, \cml restricts exception declarations exclusively to the top level. To account for this, the extraction driver performs an initial pass over the function 
+body to identify any exception declarations or raises, after which the declarations are hoisted to the top level and omitted from their original position in the generated code. 
+Furthermore, the exceptions encountered during this work were not found in \cml's standard library, which appears to offer limited support for the exceptions commonly assumed 
+by \whyml programs, requiring them to be explicitly declared in the generated output.
 
+A separate but related concern is the handling of the \inlinecode{absurd} construct. Since \cml provides no equivalent, a pragmatic decision was made to map \inlinecode{absurd} 
+to an exception, generating an \inlinecode{exception Absurd} declaration at the top level and a corresponding \inlinecode{raise Absurd} at each point of occurrence. This 
+represents the simplest viable solution for preserving the intent of the construct when it comes to marking a branch as unreachable within \cml's constraints.
 
-\item \textbf{Integrate GOSPEL -} The next crucial step toward ensuring verification prior to translation involves integrating the 
-\gospel parser into a subset of the \cml language. This step aims to enable the direct annotation of \cml code using \gospel specifications, 
-effectively allowing us to reuse the existing \gospel infrastructure beyond its original scope in \ocaml. By embedding \gospel support into 
-a syntactically compatible subset of \cml, we can construct annotated \cml programs that mirror the same specification and verification 
-semantics supported by the \cameleer pipeline. This enhancement enables a powerful workflow: \cml programs annotated with \gospel can be 
-mechanically translated into \ocaml code, preserving both semantics and specifications, which can then be fed into the \cameleer tool for 
-automated deductive verification. Since \cml is a certified compiler with a formally verified semantics and trusted compilation pipeline, 
-verifying the correctness of \cml programs through this workflow provides a strong end-to-end guarantee.
+\section{Summary and Pipeline Implications}
 
-\item \textbf{Extensively Test The Parser -} We will reuse the same examples of the case studies from the previous pipeline, but now
-proving directly the new subset of \cml with \gospel annotations. By leveraging the \gospel parser within this \cml subset, 
-we aim to validate whether the annotated programs can still be successfully translated into \ocaml, preserving both their behaviour and 
-logical contracts. Once these test cases are correctly discharged through the \cameleer tool, this will demonstrate that the specifications 
-applied directly at the \cml level are sound and compatible with the existing verification infrastructure. 
+The majority of the corrections applied to the \cml extraction driver are syntactic in nature, addressing grammatical discrepancies between \whyml and \cml without affecting 
+the verification guarantees established during the proof phase. Capitalization conventions, let binding delimiters, and exception handling are all corrections that determine
+whether the generated code is accepted by \cml, but leave the computational semantics of the extracted program entirely unchanged.
 
-This, in turn, lays the foundation for the broader research goal: a comparative exploration of two fundamental paradigms in deductive 
-verification. On one hand we have the extraction-based verification where programs are written and verified within a proof assistant 
-and correctness is guaranteed by construction when extracting to another language. On the other hand we have translation-based verification 
-where existing annotated source code is translated into an intermediate verification language from which verification conditions are 
-generated and discharged using automated provers.
-
-By verifying the same case studies through the two approaches we can evaluate their advantages and trade-offs. All this depends on the 
-trust in the pipeline, ease of automation and the expressiveness in the specifications. In the end this comparison may offer an evaluation 
-on what real world verification contexts benefit more from their combining effort or if one is more well-suited than the other.
-
-
-\end{itemize}
-
-\section{Dissertation}
-
-\begin{itemize}
-
-\item \textbf{Writing -}
-In the last month, we will finalize the dissertation document by detailing the modifications made to the codebase, describing the 
-implementation steps, and analysing the results and limitations of the pipeline and the translation tool.
-
-\end{itemize}
-
-\newpage
-
-\section{Gantt Chart}
-
-Below we present a Gantt Chart with the previously mentioned tasks spread into the next seven months.
-
-\begin{figure}[ht]
-\tikzset{every picture/.style={xscale=0.65,yscale=0.65,transform shape}}
-\begin{ganttchart}[ y unit chart = 0.6cm,
-                    vgrid,
-                    bar top shift=-0.1,
-                    bar height=0.6,
-                    title height=0.7]{1}{28}
-    \gantttitle{August}{4}
-    \gantttitle{September}{4}
-    \gantttitle{October}{4}
-    \gantttitle{November}{4}
-    \gantttitle{December}{4}
-    \gantttitle{January}{4}
-    \gantttitle{February}{4}\\
-    \gantttitlelist{1,...,4}{1}
-    \gantttitlelist{1,...,4}{1}
-    \gantttitlelist{1,...,4}{1}
-    \gantttitlelist{1,...,4}{1}
-    \gantttitlelist{1,...,4}{1}
-    \gantttitlelist{1,...,4}{1}
-    \gantttitlelist{1,...,4}{1} \\
-
-\ganttgroup{From OCaml to CakeML}{1}{12}\\
-
-\ganttbar{Correct Extraction Syntax}{1}{3} \\
-
-\ganttbar{Define An Extensive Case Study}{4}{10} \\
-
-\ganttbar{Extensively Test Extraction Mechanism}{11}{12} \\
-
-\ganttgroup{Translation from CakeML to OCaml}{13}{26} \\
-
-\ganttbar{Parser From CakeML to OCaml}{13}{21} \\
-
-\ganttbar{Integrate GOSPEL}{22}{24} \\
-
-\ganttbar{Extensively Test The Parser}{25}{26} \\
-
-\ganttgroup{Dissertation}{25}{28} \\
-\ganttbar{Writing}{25}{28}
-
-\end{ganttchart}
-
-\caption{Tentative Schedule}
-
-\end{figure}
+The one notable exception is the handling of the \inlinecode{absurd} construct. In \whyml, \inlinecode{absurd} carries a precise logical meaning, it asserts that a given branch 
+is unreachable, a claim that must be formally justified by a discharged proof obligation. Mapping this construct to \inlinecode{raise Absurd} in \cml is ultimately not a purely 
+syntactic transformation, it replaces a statically verified impossibility with a runtime exception. While raising an exception is not a perfect semantic equivalent of an 
+unreachable branch, it represents a practical solution within \cml's constraints, given that a correctly verified program should never reach that point at runtime.

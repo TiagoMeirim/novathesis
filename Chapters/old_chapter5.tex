@@ -1,0 +1,157 @@
+% %!TEX root = ../template.tex
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% chapter5.tex
+% %% NOVA thesis document file
+% %%
+% %% Chapter with lots of dummy text
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \typeout{NT FILE chapter5.tex}%
+
+% % \chapter{Work Plan}
+% % \label{cha:Work_Plan}
+
+% In this chapter we enumerate all the steps for the next few months about the development and objectives to be done for our work.
+% Every task is put onto a flexible time frame, because some tasks may end sooner or later than we expect, leading us to adjust the 
+% schedule when needed.
+
+% \section{From OCaml to CakeML}
+
+% The first part for this work is focusing on improving the extraction mechanism, while fixing the issues aforementioned.
+
+% \begin{itemize}
+
+% \item \textbf{Correct Extraction Syntax -} In this task we ought to revise the \whythree's extraction scheme in particular to \cml. In the 
+% case studies, found in section \ref{sec:Case_Studies}, the main issues have been identified, which primarily stem from
+% syntax generated from the extraction. These issues include casing when writing boolean literals and reference
+% declarations, let-bindings without the obligatory termination token, duplicated argument declarations, mismatching data structures operations, 
+% misplacement in generic data types, addition of module support, unnecessary tokens in tuple declaration inside data types, and 
+% wrong scoping for exception handling. 
+% Since these changes need to be done because the syntax of \ocaml is quite different from \cml and the extraction mechanism is outdated,
+% all of the above are essential. Furthermore, the addition of error reporting when features can not be directly converted into \cml will also
+% be implemented to have a more safe and robust extraction mechanism. Finally, the extraction will only be allowed if the \ocaml code with
+% \gospel annotations was already correctly verified by \cameleer.
+
+
+% \item \textbf{Define An Extensive Case Study -} The next step in the proposed approach involves first developing a library of formally 
+% verified examples, particularly focusing on fundamental data structures. These examples will be written and annotated in \whyml 
+% and with the help of \whythree's automated provers formally verified, only then after ensuring that these examples satisfy their 
+% specifications will the verified code be extracted or translated into \cml, thereby ensuring that the resulting \cml code inherits 
+% the proven correctness guarantees. The set of examples needs to be extensive in relation to the number of features used to accomplish
+% an extraction mechanism that encapsulates all the features approached.
+
+% \item \textbf{Extensively Test Extraction Mechanism -} We will use the previous case study to create an extensive battery test to ensure 
+% all the changes done to the extraction mechanism are correct. The tests will provide an understanding if the changes were correctly
+% implemented while analysing the code generated from \ocaml with \gospel annotations and confirming if it indeed maintains the same 
+% behaviour and if the code is compilable for \cml.
+
+% \end{itemize}
+
+% \section{Translation from CakeML to OCaml}
+
+% The next big task in our work is to verify \cml code through translation which corresponds going into the inverse direction
+% of the pipeline. To achieve this goal we will integrate \gospel with \cml and provide a new tool in the form of a parser from
+% \cml to \ocaml, since the \gospel parser already exists and is well suited for languages of the ML family.
+
+% \begin{itemize}
+
+% \item \textbf{Parser From CakeML to OCaml -} The first step in any basic translation tool is to define the correct syntax constructs 
+% for every supported feature. As mentioned in the case study, found in section \ref{sec:Case_Studies}, as \cml's syntax varies from
+% \ocaml's there is the need to create, now from scratch, a fully capable translation tool. The issues approached for the inverted
+% pipeline will also be addressed in this implementation, those will be, the correct casing for boolean literals and reference
+% declarations, let-bindings with no defined obligatory termination token, the correct scoping for exception declarations, correct data
+% structure encapsulation, use of the exceptions present in the standard library of \ocaml, translation for modules, correct generic data 
+% types placement and addition of tokens for certain tuple declarations. The translation tool will be done from the start and incremently
+% but already has the necessary guidelines for the correct syntax transitions.
+
+
+% \item \textbf{Integrate GOSPEL -} The next crucial step toward ensuring verification prior to translation involves integrating the 
+% \gospel parser into a subset of the \cml language. This step aims to enable the direct annotation of \cml code using \gospel specifications, 
+% effectively allowing us to reuse the existing \gospel infrastructure beyond its original scope in \ocaml. By embedding \gospel support into 
+% a syntactically compatible subset of \cml, we can construct annotated \cml programs that mirror the same specification and verification 
+% semantics supported by the \cameleer pipeline. This enhancement enables a powerful workflow: \cml programs annotated with \gospel can be 
+% mechanically translated into \ocaml code, preserving both semantics and specifications, which can then be fed into the \cameleer tool for 
+% automated deductive verification. Since \cml is a certified compiler with a formally verified semantics and trusted compilation pipeline, 
+% verifying the correctness of \cml programs through this workflow provides a strong end-to-end guarantee.
+
+% \item \textbf{Extensively Test The Parser -} We will reuse the same examples of the case studies from the previous pipeline, but now
+% proving directly the new subset of \cml with \gospel annotations. By leveraging the \gospel parser within this \cml subset, 
+% we aim to validate whether the annotated programs can still be successfully translated into \ocaml, preserving both their behaviour and 
+% logical contracts. Once these test cases are correctly discharged through the \cameleer tool, this will demonstrate that the specifications 
+% applied directly at the \cml level are sound and compatible with the existing verification infrastructure. 
+
+% This, in turn, lays the foundation for the broader research goal: a comparative exploration of two fundamental paradigms in deductive 
+% verification. On one hand we have the extraction-based verification where programs are written and verified within a proof assistant 
+% and correctness is guaranteed by construction when extracting to another language. On the other hand we have translation-based verification 
+% where existing annotated source code is translated into an intermediate verification language from which verification conditions are 
+% generated and discharged using automated provers.
+
+% By verifying the same case studies through the two approaches we can evaluate their advantages and trade-offs. All this depends on the 
+% trust in the pipeline, ease of automation and the expressiveness in the specifications. In the end this comparison may offer an evaluation 
+% on what real world verification contexts benefit more from their combining effort or if one is more well-suited than the other.
+
+
+% \end{itemize}
+
+% \section{Dissertation}
+
+% \begin{itemize}
+
+% \item \textbf{Writing -}
+% In the last month, we will finalize the dissertation document by detailing the modifications made to the codebase, describing the 
+% implementation steps, and analysing the results and limitations of the pipeline and the translation tool.
+
+% \end{itemize}
+
+% \newpage
+
+% \section{Gantt Chart}
+
+% Below we present a Gantt Chart with the previously mentioned tasks spread into the next seven months.
+
+% \begin{figure}[ht]
+% \tikzset{every picture/.style={xscale=0.65,yscale=0.65,transform shape}}
+% \begin{ganttchart}[ y unit chart = 0.6cm,
+%                     vgrid,
+%                     bar top shift=-0.1,
+%                     bar height=0.6,
+%                     title height=0.7]{1}{28}
+%     \gantttitle{August}{4}
+%     \gantttitle{September}{4}
+%     \gantttitle{October}{4}
+%     \gantttitle{November}{4}
+%     \gantttitle{December}{4}
+%     \gantttitle{January}{4}
+%     \gantttitle{February}{4}\\
+%     \gantttitlelist{1,...,4}{1}
+%     \gantttitlelist{1,...,4}{1}
+%     \gantttitlelist{1,...,4}{1}
+%     \gantttitlelist{1,...,4}{1}
+%     \gantttitlelist{1,...,4}{1}
+%     \gantttitlelist{1,...,4}{1}
+%     \gantttitlelist{1,...,4}{1} \\
+
+% \ganttgroup{From OCaml to CakeML}{1}{12}\\
+
+% \ganttbar{Correct Extraction Syntax}{1}{3} \\
+
+% \ganttbar{Define An Extensive Case Study}{4}{10} \\
+
+% \ganttbar{Extensively Test Extraction Mechanism}{11}{12} \\
+
+% \ganttgroup{Translation from CakeML to OCaml}{13}{26} \\
+
+% \ganttbar{Parser From CakeML to OCaml}{13}{21} \\
+
+% \ganttbar{Integrate GOSPEL}{22}{24} \\
+
+% \ganttbar{Extensively Test The Parser}{25}{26} \\
+
+% \ganttgroup{Dissertation}{25}{28} \\
+% \ganttbar{Writing}{25}{28}
+
+% \end{ganttchart}
+
+% \caption{Tentative Schedule}
+
+% \end{figure}

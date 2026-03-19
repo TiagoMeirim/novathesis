@@ -1,0 +1,69 @@
+%!TEX root = ../template.tex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% chapter6.tex
+%% NOVA thesis document file
+%%
+%% Chapter with lots of dummy text
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\typeout{NT FILE chapter6.tex}%
+
+\chapter{Translation}
+\label{cha:Translation}
+
+%%maybe rewrite, probably too big for the first part
+
+For the following chapter it is referred the creation from base the full translation of \cml with the new \gospel annotations that were
+previously not present in the code. Unlike extraction, which derives executable code from a verified program by eliminating its logical 
+content, translation operates in the opposite direction, taking an existing implementation together with its specifications and expressing 
+both in \whyml so that verification can be carried out within the Why3 platform. The purpose of this process is not to replace extraction 
+but to serve as a basis for comparison: by independently constructing a \whyml representation of the same program, it becomes possible to 
+evaluate the two approaches against each other in terms of the verification effort required, the expressiveness of the resulting specifications, 
+and the degree to which each method preserves the intent of the original code. The following section details the translation process and the 
+decisions made when mapping \cml and \gospel constructs into their \whyml counterparts.
+
+\section{Lexer}
+
+Before any syntactic or semantic analysis can take place, the raw source text must be broken down into meaningful units. This is the responsibility 
+of the lexer, which scans the input sequentially and produces a stream of tokens that the parser can then process. Every raw source text that it is
+receiving regarding \cml it will deconstruct it into tokens for the parser, on the other hand the raw text received inside the delimited \gospel
+specifications, in between the \inlinecode{(*@} and \inlinecode{*)}, will just return the raw text into parser so it can be deconstructed in another
+phase later.
+
+\section{Parser}
+
+The parser processes the token stream produced by the lexer and constructs an abstract syntax tree representing the input program. Each recognised 
+is mapped to a corresponding AST node, producing a structured representation that the subsequent translation phase can operate on directly. 
+Operator precedence and associativity are resolved at this stage in accordance with \cml's semantics, ensuring that the structure of expressions 
+is faithfully preserved prior to translation into \whyml. Lastly, \gospel annotations are still preserved as raw strings in the abstract syntax tree, 
+deferring their interpretation to a later stage of the translation process. The resulting AST serves as the central intermediate representation 
+from which the translation into \whyml is driven.
+
+\section{Abstract Syntax Tree(AST)}
+
+The AST serves as the first structured internal representation of the input program, produced directly from the parsing phase. At this stage, the 
+AST captures the full syntactic content of the \cml source file, each represented as a typed node, that reflects the grammatical structure of the input. 
+\gospel annotations, having been recognised by the lexer and passed through the parser as raw strings, are preserved at this stage without further 
+interpretation, attached to their corresponding top-level positions in the tree.
+
+\section{\gospel Abstract Syntax Tree(GAST)}
+
+\section{AST To GAST}
+
+The transformation from AST to GAST is responsible for promoting the raw \gospel annotation strings preserved in the AST into structured \gospel AST nodes, 
+producing a unified representation in which each \cml definition is paired with its corresponding specification. This phase is driven by the \gospel parser, 
+which is invoked selectively depending on the nature of each annotation encountered.
+
+A central distinction in this transformation is between \textit{floating} and \textit{inline} \gospel annotations. Floating annotations are top-level logical 
+declarations that stand independently of any function definition, these include predicates, functions, axioms, and lemmas, which are parsed and mapped directly 
+to their corresponding GAST nodes. Inline annotations, by contrast, are specifications attached to function definitions, such as pre-conditions and post-conditions,
+that are associated with the definition that follows or precedes them in the source file. To handle this, consecutive inline annotation strings are collected and 
+merged before being passed to the \gospel parser as a single unified specification.
+
+A further consideration arises from the fact that \gospel annotations may appear either before or after their associated function definition in the source file. 
+The transformation accounts for both orderings, collecting specification fragments from either side of the definition and combining them into a single coherent 
+specification prior to parsing.
+
+\section{Printer}
+
+\section{GOSPEL Implementation}
