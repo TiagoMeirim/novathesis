@@ -48,6 +48,10 @@ interpretation, attached to their corresponding top-level positions in the tree.
 
 \section{\gospel Abstract Syntax Tree(GAST)}
 
+The GAST represents the final structured intermediate representation prior to translation into \whyml. It extends the AST by replacing raw \gospel 
+annotation strings with fully parsed \gospel nodes, producing a unified representation in which \cml program content and \gospel specifications 
+coexist in a structured and typed form.
+
 \section{AST To GAST}
 
 The transformation from AST to GAST is responsible for promoting the raw \gospel annotation strings preserved in the AST into structured \gospel AST nodes, 
@@ -66,4 +70,14 @@ specification prior to parsing.
 
 \section{Printer}
 
-\section{GOSPEL Implementation}
+The final phase of the translation is the printer, where traversing the GAST and printing the correct \whyml code. While much of the translation is a 
+straightforward structural mapping from \cml constructs to their \whyml equivalents, several design decisions merit discussion from a verification standpoint.
+
+Another decision to note is the automatic detection of recursive functions. Rather than requiring the user to explicitly mark recursive definitions, the 
+printer analyses the function body to determine whether it contains a self-referential call, emitting the \inlinecode{rec} keyword accordingly.
+This analysis correctly accounts for shadowed identifiers, ensuring that a let binding or anonymous function argument sharing the function's name 
+does not incorrectly trigger a recursive annotation.
+
+Finally, the handling of \inlinecode{Absurd} in the printer is consistent with the decision taken in the extraction driver. Whereas extraction maps 
+\inlinecode{absurd} to \inlinecode{raise Absurd}, the printer maps \inlinecode{raise Absurd} back to \inlinecode{absurd} in \whyml, restoring the original 
+construct's semantics and ensuring that unreachable branches are correctly represented in the verification context.
