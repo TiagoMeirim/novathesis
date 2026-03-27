@@ -23,6 +23,7 @@ and the degree to which each method preserves the intent of the original code. T
 decisions made when mapping \cml and \gospel constructs into their \whyml counterparts.
 
 \section{Lexer}
+\label{sec:Lexer}
 
 Before any syntactic or semantic analysis can take place, the raw source text must be broken down into meaningful units. This is the responsibility 
 of the lexer, which scans the input sequentially and produces a stream of tokens that the parser can then process. Every raw source text that it is
@@ -31,6 +32,7 @@ specifications, in between the \inlinecode{(*@} and \inlinecode{*)}, will just r
 phase later.
 
 \section{Parser}
+\label{sec:Parser}
 
 The parser processes the token stream produced by the lexer and constructs an abstract syntax tree representing the input program. Each recognised 
 is mapped to a corresponding AST node, producing a structured representation that the subsequent translation phase can operate on directly. 
@@ -40,6 +42,7 @@ deferring their interpretation to a later stage of the translation process. The 
 from which the translation into \whyml is driven.
 
 \section{Abstract Syntax Tree(AST)}
+\label{sec:AST}
 
 The AST serves as the first structured internal representation of the input program, produced directly from the parsing phase. At this stage, the 
 AST captures the full syntactic content of the \cml source file, each represented as a typed node, that reflects the grammatical structure of the input. 
@@ -47,12 +50,14 @@ AST captures the full syntactic content of the \cml source file, each represente
 interpretation, attached to their corresponding top-level positions in the tree.
 
 \section{\gospel Abstract Syntax Tree(GAST)}
+\label{sec:GAST}
 
 The GAST represents the final structured intermediate representation prior to translation into \whyml. It extends the AST by replacing raw \gospel 
 annotation strings with fully parsed \gospel nodes, producing a unified representation in which \cml program content and \gospel specifications 
 coexist in a structured and typed form.
 
 \section{AST To GAST}
+\label{sec:AST_to_GAST}
 
 The transformation from AST to GAST is responsible for promoting the raw \gospel annotation strings preserved in the AST into structured \gospel AST nodes, 
 producing a unified representation in which each \cml definition is paired with its corresponding specification. This phase is driven by the \gospel parser, 
@@ -69,6 +74,7 @@ The transformation accounts for both orderings, collecting specification fragmen
 specification prior to parsing.
 
 \section{Printer}
+\label{sec:Printer}
 
 The final phase of the translation is the printer, where traversing the GAST and printing the correct \whyml code. While much of the translation is a 
 straightforward structural mapping from \cml constructs to their \whyml equivalents, several design decisions merit discussion from a verification standpoint.

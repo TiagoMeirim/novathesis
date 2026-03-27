@@ -17,18 +17,27 @@
   morekeywords=[2]{Ref, Some, None, True, False, raise, exception, orelse},
   morekeywords=[3]{int, bool, unit, Array, List, option, tree},
   morekeywords=[4]{fun, end, let, in, structure, struct},
+  morekeywords=[5]{predicate,constant,consumes,function,goal,use,%
+  import,theory,syntax,scope,%
+  invariant,model,requires,ensures,returns,reads,writes,diverges,%
+  variant,loop,abstract,any,assume,check,%
+  clone,ghost,absurd,raises, %
+  Lemma, SPEC, PRE, POSTUNIT, POST, Definition, Prop, INV,
+  axiom,lemma,export,forall,exists,and,inductive,coinductive, performs,%
+  ephemeral,modifies,try\_ensures,post,pre,(*@,*),\[@logic\]},
   sensitive=true,
   morecomment=[s]{(*}{*)},
+  morecomment=**[s][\color{black}]{(*@}{*)},
   morestring=[b]",
   keywordstyle={\color{dark-green}\bfseries},
   keywordstyle=[2]{\color{blue}},
   keywordstyle=[3]{\color{steelblue}\bfseries},
   keywordstyle=[4]{\color{crimson}},
+  keywordstyle=[5]{\color{carrot}},
   commentstyle=\itshape\color{thegraygray},
   stringstyle=\color{red},
   basicstyle=\ttfamily\small,
   columns=[l]fullflexible,
-  escapeinside={(*@}{@*)},
   keepspaces=true,
 }
 

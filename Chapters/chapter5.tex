@@ -22,6 +22,7 @@ since the target language must be capable of representing the extracted fragment
 the subset of \whyml constructs that can be viably used within the pipeline.
 
 \section{\whyml Subset}
+\label{sec:Whyml_Subset}
 
 The integration of \cml into the verification pipeline introduces a set of constraints that must be carefully accounted for. Unlike \ocaml and \whyml, 
 which belong to the ML language family but are designed with expressiveness and specification in mind, \cml was developed primarily with compiler correctness 
@@ -43,10 +44,12 @@ that a given \whyml program operates in line with the subset defined before extr
 to ensure correctness across both the extraction and translation phases of the study.
 
 \section{Corrections to the \cml Extraction Driver}
+\label{sec:Corrections_Cakeml}
 
 The \cml extraction driver was already partially implemented within the Why3 platform, however it contained a number of inaccuracies that produced syntactically incorrect 
 \cml output. The corrections addressed in this section are focused on the grammar of the generated code, ensuring that the extracted programs conform to the syntactic 
-requirements of \cml. The following subsections detail each individual change applied to the driver:
+requirements of \cml. As described in Section~\ref{sec:Tool_Modifications}, extraction to \cml is invoked via \cameleer using the \inlinecode{--extract} flag. 
+The following subsections detail each individual change applied to the driver:
 
 \subsection{Capitalization Conventions}
 
@@ -74,6 +77,7 @@ to an exception, generating an \inlinecode{exception Absurd} declaration at the 
 represents the simplest viable solution for preserving the intent of the construct when it comes to marking a branch as unreachable within \cml's constraints.
 
 \section{Summary and Pipeline Implications}
+\label{Summary_Pipeline}
 
 The majority of the corrections applied to the \cml extraction driver are syntactic in nature, addressing grammatical discrepancies between \whyml and \cml without affecting 
 the verification guarantees established during the proof phase. Capitalization conventions, let binding delimiters, and exception handling are all corrections that determine

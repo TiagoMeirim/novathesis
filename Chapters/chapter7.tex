@@ -8,12 +8,73 @@
 
 \typeout{NT FILE chapter7.tex}%
 
-\chapter{Discussion}
-\label{cha:Discussion}
+\chapter{Comparative Evaluation}
+\label{cha:Comparative_Evaluation}
 
-\section{Extraction results}
+In order to create a fair comparison for both verification approaches the same use case will be used and analysed thoroughly for the
+extraction approach and translation approach. Before going into the results it is fundamental to talk about the impact of the subset
+in choosing the examples that can or not be used from the various verified examples from cameleer. The use case should, as always,
+respect the limitations implied from the subset chosen.
 
-\section{Translation results}
 
-\section{Use Case Comparison}
-%%comparison between verification
+\section{Verification Guarantees and Trust Boundaries}
+
+Before presenting the comparative results, it is necessary to characterize the trust boundaries of each approach and identify where verification 
+guarantees can break down. Both approaches rely on an unverified component that constitutes the critical point of failure in the formal verification.
+
+In the extraction approach, the code is verified within \whythree and the proof obligations are discharged before extraction is invoked \ref{fig:Cameleer_pipeline}. 
+However, the extraction driver itself is not formally verified, meaning that if it fails to faithfully reproduce the \whyml semantics in the generated \cml code, 
+the verification guarantees established in \whythree are silently lost. In this scenario, even if the resulting \cml code compiles successfully 
+through the verified compiler, the compiler's correctness theorem offers no assurance that the verified properties are preserved, meaning the guarantee 
+only extends from the \cml source downwards, not from the \whyml source through the driver.
+
+For the translation approach, the failure point arises earlier in the pipeline \ref{fig:GoalPipeline}. If the translation tool incorrectly translates \cml with 
+\gospel specification into \whyml, the resulting \whyml program may not faithfully represent the original \cml code, causing the verification step in \whythree 
+to verify an inaccurate model. In this case, even if the proofs discharge successfully, they would be proving properties of the translated model rather than 
+the original program. On the other hand, if the translation is faithful and the proofs discharge, the verified \cml compiler provides a strong guarantee that the 
+verified properties are preserved all the way to machine code.
+
+The fundamental distinction between the two approaches therefore lies not in the verification mechanism itself, which is \whythree in both cases, but in the position 
+of the unverified component and the consequences of its failure.
+
+\section{Comparative Case Studies}
+
+The case studies explored in these chapter were selected accordingly with the subset of the \whyml. For each example, the same 
+program is subjected to both approaches independently, allowing a direct comparison of the verification effort required, the 
+expressiveness of the resulting specifications, and the degree to which each method preserves the intent of the original code.
+
+\subsection{Red Black Tree}
+
+The Red-Black tree is a classical example of a self-balancing binary search tree in which each node is assigned a colour, either 
+Red or Black, subject to two structural invariants: no two adjacent nodes may both be Red, and every path from a node to a null 
+leaf must contain the same number of Black nodes\cite{Guibas1978}. These invariants together guarantee that the height of the tree remains bounded 
+by \textit{O}(log \textit{n}), ensuring efficient worst-case performance for search, insertion, and deletion. Furthermore, if 
+the tree as a whole satisfies these conditions, every subtree is also guaranteed to satisfy them, making the invariant compositional by nature.
+
+\subsubsection{Extraction results}
+
+The verified code used in this case study is taken directly from the \whythree library of examples~\ref{subsec:Red_Black_Trees_Whyml_Og}, which 
+provides a fully verified \whyml implementation of the Red-Black tree data structure, including all the necessary invariants and proof obligations. 
+Since this implementation originates from the \whythree library, its correctness has already been established and all proof obligations are discharged, 
+satisfying the prerequisite for extraction. The code was then subjected to the extraction mechanism described in Chapter~\ref{cha:Extraction}, 
+targeting \cml as the output language.
+
+The extraction process completed fully automatically, requiring no manual corrections to either the \whyml source or the generated \cml 
+output~\ref{subsec:Red_Black_Trees_Cakeml}. This result demonstrates that the corrected extraction driver is capable of handling a non-trivial 
+verified data structure and producing compilable \cml code without user intervention. This is a significant indicator of the robustness of the 
+corrected pipeline for programs that operate within the defined \whyml subset.
+
+\subsubsection{Translation results}
+
+For the translation approach, the \cml code generated by the extraction process was annotated with \gospel specifications~\ref{subsec:Red_Black_Trees_Cakeml_Gospel}, 
+written manually to capture the intended correctness properties of the Red-Black tree operations. This annotated \cml code was then passed through 
+the translation tool, which produced the corresponding \whyml code~\ref{subsec:Red_Black_Trees_Whyml}. 
+
+The generated \whyml code was subsequently submitted to \whythree, where all proof obligations were discharged automatically by the available provers, 
+confirming that the translation process correctly preserved the verification intent of the manually written Gospel specifications.
+
+\section{Results Comparison}
+
+With the corrected \whythree extraction tool and the new translation tool, while always staying in line with the
+\whyml subset, it is evident from the results that both approaches work accordingly with what was expected in the
+expected pipeline. Both of the codes when passing through the verification tool proceeded correctly and with no errors.
