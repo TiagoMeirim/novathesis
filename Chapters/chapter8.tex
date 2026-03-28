@@ -11,8 +11,39 @@
 \chapter{Conclusion}
 \label{cha:Conclusion}
 
-\section{Future Work}
+For the final conclusions of this study it is important to answer the questions made in \ref{sec:Problem_Definition}. The results showed there is no clear
+distinction in program correctness regarding the starting point of each approach, both reach the necessary state of verification when presented with
+the necessary provers. The tools created ensured the correct adaptation of the \gospel specification language for the ML language family, showing that
+this specification language can be integrated quite effortlessly without changing the main grammar of the ML language while still ensuring the necessary
+specifications for discharging the invariants. Ultimately adding the translation tool changed the workflow of certified compilers in a way that there is now
+a way to transform the language those compilers use in order to verify their content and ensuring not only the compiler process is safe from compiler
+issues but also from the main code specifications.
+
+In the end, this study gave an already existing library of \cml code a way to verify it with the addition of \gospel specifications.
 
 \section{Contributions}
-%%Resumo das ferramentas
-%%Optional
+
+The first contributions of this work can be summarized as follows. The first contribution concerns the correction of the \cml extraction driver within the \whythree platform, which contained a 
+number of inaccuracies that prevented the generation of syntactically correct \cml code. The corrections resulted in a driver capable of producing compilable \cml output from verified \whyml programs 
+without manual intervention.
+
+The second contribution is the design and implementation of a new translation tool that takes \cml code annotated with \gospel specifications and produces a corresponding \whyml representation suitable 
+for verification in \whythree. This tool encompasses a complete pipeline including a lexer, parser, AST, Gospel AST, and a printer that maps both \cml constructs and \gospel annotations into their 
+\whyml equivalents.
+
+The third and main contribution is a comparative evaluation of the two verification approaches, extraction and translation, using a large and complex case study, that being a verified implementation
+of Red-Black trees. This evaluation characterizes the trust boundaries of each approach, identifies the critical points of failure in each pipeline, and discusses the implications for end-to-end 
+verification guarantees when combined with \cml's formally verified compiler.
+
+\section{Future Work}
+
+There are several steps required to create a truly robust end-to-end verification pipeline using translation and extraction mechanisms. A portion of our work focused on revising and modernizing
+the extraction mechanism found in \whythree's for \cml. However, as previously mentioned, we have identified some limitations with our solution, which we would like to revisit as future work. In
+particular, we want to introduce a static verification tool that automatically determines whether a \whyml program operates within the supported subset prior to extraction. This would remove
+the current reliance on the user to manually ensure that the \whyml program complies with that subset.
+
+A more ambitious direction would be to prove the unverified components that constitute the critical points of failure in each pipeline. For the extraction approach this would 
+mean formally verifying the correctness of the \cml extraction driver, establishing that it faithfully preserves the semantics of the \whyml source in the generated \cml code. For the translation 
+approach it would mean formally verifying the translation tool itself, ensuring that the \whyml representation it produces is a faithful model of the original \cml program and its \gospel 
+specifications. Addressing these two gaps would significantly strengthen the end-to-end verification guarantees of both pipelines and bring them closer to a fully trustworthy verification 
+chain from source code to machine code.

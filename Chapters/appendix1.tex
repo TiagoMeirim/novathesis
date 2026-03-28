@@ -1065,3 +1065,352 @@ module RedBlackTree
 
 end
 \end{whylang}
+
+\newcommand{\explanation}[1]{\cellcolor{green!20}#1}
+\newcommand{\noresult}{\cellcolor{gray!20}---}
+\newcommand{\blank}{\cellcolor{gray!20}}
+\newcommand{\valid}[1]{\cellcolor{green!20}#1}
+
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline Proof obligations & Alt-Ergo 2.6.2 & CVC4 1.8 & CVC5 1.2.1 & Spass 3.9 & Z3 4.15.3 \\ 
+\hline
+\explanation{memt\_color} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{lt\_leaf} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{gt\_leaf} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{lt\_tree\_node} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{gt\_tree\_node} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{lt\_node\_lt} & \noresult& \noresult& \noresult& \valid{0.03} & \noresult \\ 
+\hline
+\explanation{gt\_node\_gt} & \noresult& \noresult& \noresult& \valid{0.03} & \noresult \\ 
+\hline
+\explanation{lt\_left} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{lt\_right} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{gt\_left} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{gt\_right} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{lt\_tree\_not\_in} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{lt\_tree\_trans} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{gt\_tree\_not\_in} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{gt\_tree\_trans} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{bst\_Leaf} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{bst\_left} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{bst\_right} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{bst\_color} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{rotate\_left} & \valid{0.02} & \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\explanation{rotate\_right} & \valid{0.02} & \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\explanation{rbtree\_Leaf} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{rbtree\_Node1} & \noresult& \noresult& \noresult& \noresult& \valid{0.01} \\ 
+\hline
+\explanation{rbtree\_left} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\explanation{rbtree\_right} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\explanation{VC for find} & \noresult& \noresult& \valid{0.03} & \noresult& \noresult\\ 
+\hline
+\explanation{rbtree\_almost\_rbtree} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\explanation{rbtree\_almost\_rbtree\_ex} & \valid{0.01} & \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\explanation{almost\_rbtree\_rbtree\_black} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\explanation{VC for lbalance} & \noresult& \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\explanation{split\_vc} & \blank& \blank& \blank& \blank& \blank\\ 
+\hline
+\hspace{0.5em}\explanation{postcondition} & \noresult& \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{0.5em}\explanation{split\_vc} & \blank& \blank& \blank& \blank& \blank\\ 
+\hline
+\hspace{1em}\explanation{postcondition} & \noresult& \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1em}\explanation{split\_vc} & \blank& \blank& \blank& \blank& \blank\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \valid{0.03} & \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.02} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \valid{0.04} & \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\end{tabular}
+
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline Proof obligations & Alt-Ergo 2.6.2 & CVC4 1.8 & CVC5 1.2.1 & Spass 3.9 & Z3 4.15.3 \\
+\hline
+\hspace{1.5em}\explanation{postcondition} & \valid{0.03} & \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\
+\hline
+\hspace{1.5em}\explanation{postcondition} & \valid{0.03} & \noresult& \noresult& \noresult& \noresult\\  
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \valid{0.03} & \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{1em}\explanation{postcondition} & \noresult& \noresult& \valid{0.03} & \noresult& \noresult\\ 
+\hline
+\hspace{1em}\explanation{postcondition} & \noresult& \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1em}\explanation{split\_vc} & \blank& \blank& \blank& \blank& \blank\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \valid{0.04} & \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.02} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \valid{0.06} & \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.02} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \valid{0.04} & \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.02} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \valid{0.04} & \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.02} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.02} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.02} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \valid{0.04} & \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.02} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition}  & \noresult& \noresult& \valid{0.02} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition}  & \noresult& \noresult& \valid{0.02} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition}  & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{1em}\explanation{postcondition}  & \noresult& \noresult& \valid{0.03} & \noresult& \noresult\\ 
+\hline
+\hspace{1em}\explanation{postcondition}  & \noresult& \noresult& \valid{0.03} & \noresult& \noresult\\ 
+\hline
+\explanation{VC for rbalance}  & \noresult& \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\explanation{split\_vc} & \blank& \blank& \blank& \blank& \blank\\ 
+\hline
+\hspace{0.5em}\explanation{postcondition}& \noresult& \noresult&  \noresult&  \noresult& \noresult \\ 
+\hline
+\hspace{0.5em}\explanation{split\_vc} & \blank& \blank& \blank& \blank& \blank\\ 
+\hline
+\hspace{1em}\explanation{postcondition}& \noresult& \noresult&  \noresult&  \noresult& \noresult \\ 
+\hline
+\hspace{1em}\explanation{split\_vc} & \blank& \blank& \blank& \blank& \blank\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition}  & \valid{0.04} & \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition}  & \noresult& \noresult& \valid{0.02} & \noresult& \noresult\\ 
+\hline
+\end{tabular}
+
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline Proof obligations & Alt-Ergo 2.6.2 & CVC4 1.8 & CVC5 1.2.1 & Spass 3.9 & Z3 4.15.3 \\
+\hspace{1.5em}\explanation{postcondition} & \valid{0.05} & \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \valid{0.04} & \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \valid{0.04} & \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \valid{0.03} & \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{1em}\explanation{postcondition} & \noresult& \noresult& \valid{0.04} & \noresult& \noresult\\ 
+\hline
+\hspace{1em}\explanation{postcondition} & \noresult& \valid{0.80} & \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1em}\explanation{postcondition} & \noresult& \noresult& \valid{0.04} & \noresult& \noresult\\ 
+\hline
+\hspace{1em}\explanation{postcondition} & \noresult& \noresult& \valid{0.03} & \noresult& \noresult\\ 
+\hline
+\explanation{VC for insert} & \valid{0.50} & \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\explanation{VC for add} & \noresult& \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\explanation{split\_vc} & \blank& \blank& \blank& \blank& \blank\\ 
+\hline
+\hspace{0.5em}\explanation{precondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{0.5em}\explanation{unreachable point} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{0.5em}\explanation{postcondition} & \noresult& \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{0.5em}\explanation{destruct\_term o} & \blank& \blank& \blank& \blank& \blank\\ 
+\hline
+\hspace{1em}\explanation{postcondition} & \noresult& \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1em}\explanation{introduce\_exists} & \blank& \blank& \blank& \blank& \blank\\ 
+\hline
+\hspace{1.5em}\explanation{postcondition} & \noresult& \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{1.5em}\explanation{destruct\_term x4} & \blank& \blank& \blank& \blank& \blank\\ 
+\hline
+\hspace{2em}\explanation{postcondition} & \noresult& \noresult& \valid{0.03}& \noresult& \noresult\\ 
+\hline
+\hspace{2em}\explanation{postcondition} & \noresult& \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{2em}\explanation{split\_vc} & \blank& \blank& \blank& \blank& \blank\\ 
+\hline
+\hspace{2.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{2.5em}\explanation{postcondition} & \noresult& \noresult& \noresult& \noresult& \noresult\\ 
+\hline
+\hspace{2.5em}\explanation{exists(n+1)} & \blank& \blank& \blank& \blank& \blank\\ 
+\hline
+\hspace{3em}\explanation{add'vc.2.0.0.1.1.0} &\noresult& \noresult& \valid{0.02} & \noresult& \noresult\\ 
+\hline
+\hspace{2.5em}\explanation{postcondition} &\noresult& \noresult& \valid{0.02} & \noresult& \noresult\\ 
+\hline
+\hspace{2.5em}\explanation{postcondition} &\noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{2.5em}\explanation{postcondition} &\noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{2.5em}\explanation{postcondition} &\noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\end{tabular}
+
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline Proof obligations & Alt-Ergo 2.6.2 & CVC4 1.8 & CVC5 1.2.1 & Spass 3.9 & Z3 4.15.3 \\
+\hline
+\hspace{2.5em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline
+\hspace{1em}\explanation{postcondition} & \noresult& \noresult& \valid{0.01} & \noresult& \noresult\\ 
+\hline \end{tabular}
+
+
+
+% \begin{center}
+% \begin{tabular}{ |c|c|c|c|c|c| } 
+%  \hline
+%  Obligations & Alt-Ergo 2.6.2 & CVC4 1.8 & CVC5 1.2.1 & Z3 4.15.3 & Spass 3.9 \\ 
+%  \hline
+%  \cellcolor{green!20}memt\_color & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.010 & \cellcolor{gray!20}---  \\ 
+%  \hline
+%  \cellcolor{green!20}lt\_leaf & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.008 & \cellcolor{gray!20}---  \\ 
+%  \hline
+%  \cellcolor{green!20}gt\_leaf& \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.005 & \cellcolor{gray!20}---  \\ 
+%  \hline
+%  \cellcolor{green!20}lt\_tree\_node & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.007 & \cellcolor{gray!20}---  \\ 
+%  \hline
+%  \cellcolor{green!20}gt\_tree\_node & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.007 & \cellcolor{gray!20}---  \\ 
+%  \hline
+%  \cellcolor{green!20}lt\_node\_lt & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.034  \\ 
+%  \hline
+%  \cellcolor{green!20}gt\_node\_gt & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.029  \\ 
+%  \hline
+%  \cellcolor{green!20}lt\_left & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.006 & \cellcolor{gray!20}---  \\ 
+%  \hline
+%  \cellcolor{green!20}lt\_right & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.007 & \cellcolor{gray!20}---  \\ 
+%  \hline
+%  \cellcolor{green!20}gt\_left & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.008 & \cellcolor{gray!20}---  \\ 
+%  \hline
+%  \cellcolor{green!20}gt\_right & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.008 & \cellcolor{gray!20}---  \\ 
+%  \hline
+%  \cellcolor{green!20}lt\_tree\_not\_in & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.007 & \cellcolor{gray!20}---  \\ 
+%  \hline
+%  \cellcolor{green!20}lt\_tree\_trans & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.006 & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}gt\_tree\_not\_in & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.005 & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}gt\_tree\_trans & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.005 & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}bst\_Leaf & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.009 & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}bst\_left & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.006 & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}bst\_right & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.006 & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}bst\_color & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.006 & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}rotate\_left & \cellcolor{green!20}0.019 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}rotate\_right & \cellcolor{green!20}0.019 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}rbtree\_Leaf & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.009 & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}rbtree\_Node1 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.006 & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}rbtree\_left & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.011 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}rbtree\_right & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.011 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}rbtree\_almost\_rbtree & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.011 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- \\
+%  \hline
+%  \cellcolor{green!20}rbtree\_almost\_rbtree\_ex & \cellcolor{green!20}0.013 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}almost\_rbtree\_rbtree\_black & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.011 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}find'vc & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.029 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}lbalance'vc* & \cellcolor{green!20}0.444 & \cellcolor{gray!20}--- & \cellcolor{green!20}0.336 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}rbalance'vc* & \cellcolor{green!20}0.213 & \cellcolor{green!20}0.800 & \cellcolor{green!20}0.237 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}insert'vc & \cellcolor{green!20}0.500 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}add'vc.0 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.011 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}add'vc.1 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.014 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}add'vc.2.0 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.020 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}add'vc.2.1 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}add'vc.2.2 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.014 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}add'vc.2.3 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.017 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- \\ 
+%  \hline
+%  \cellcolor{green!20}add'vc.2.4 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- & \cellcolor{green!20}0.013 & \cellcolor{gray!20}--- & \cellcolor{gray!20}--- \\ 
+%  \hline
+% \end{tabular}
+% \end{center}

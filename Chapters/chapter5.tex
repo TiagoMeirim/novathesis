@@ -24,6 +24,8 @@ the subset of \whyml constructs that can be viably used within the pipeline.
 \section{\whyml Subset}
 \label{sec:Whyml_Subset}
 
+\subsection{Limitations}
+
 The integration of \cml into the verification pipeline introduces a set of constraints that must be carefully accounted for. Unlike \ocaml and \whyml, 
 which belong to the ML language family but are designed with expressiveness and specification in mind, \cml was developed primarily with compiler correctness 
 as its central concern, making its language design reflect the requirements of a formally verified compilation chain rather than general-purpose functional programming.
@@ -42,6 +44,8 @@ consequently excluded from the subset.
 It should be noted that the subset defined in this chapter is not automatically enforced by the pipeline. No static analysis or syntactic check is currently performed to verify 
 that a given \whyml program operates in line with the subset defined before extraction. The user is therefore expected to respect this subset throughout the pipeline in order 
 to ensure correctness across both the extraction and translation phases of the study.
+
+\subsection{Supported Features}
 
 \section{Corrections to the \cml Extraction Driver}
 \label{sec:Corrections_Cakeml}
@@ -62,7 +66,35 @@ appear as \inlinecode{Ref}.
 
 A syntactic distinction between \whyml and \cml concerns the delimitation of let bindings. In \whyml, let bindings do not require an explicit termination token, as the 
 scope of the bound variable is determined by the structure of the expression. \cml, however, requires the \inlinecode{end} token to explicitly signal the closing of 
-the binding scope. The correction applied to the extraction driver ensures that this token is consistently emitted at the appropriate position in the generated code.
+the binding scope. 
+
+\begin{cakeml}
+    let val a = 1
+\end{cakeml} 
+
+The correction applied to the extraction driver ensures that this token is consistently emitted at the appropriate position in the generated code.
+
+\begin{cakeml}
+    let val a = 1 end
+\end{cakeml} 
+
+\subsection{Data Type Declarations}
+
+The declaration generated from the extraction was incorrect in the ordering and how the blocks were delimited. \cml does not delimit the blocks for the data types
+with \inlinecode{*} as it only needs them to be correctly placed in blocks so it can be correctly written and also the token of is not necessary. The ordering only 
+applies for the alpha where it should be in front of the data type instead of behind. As shown in the following example all these issues are present and need to be
+fixed for correct \cml grammar.
+
+\begin{cakeml}
+    'a datatype tree = Leaf | Node of 'a tree * 'a * 'a tree
+\end{cakeml}
+
+The previous code shows clearly what needs to be changed in the printer and after applying the necessary modifications the code ends up as this.
+
+\begin{cakeml}
+    datatype 'a tree = Leaf | Node ('a tree) 'a ('a tree)
+\end{cakeml}
+
 
 \subsection{Exception Handling}
 
@@ -72,9 +104,50 @@ body to identify any exception declarations or raises, after which the declarati
 Furthermore, the exceptions encountered during this work were not found in \cml's standard library, which appears to offer limited support for the exceptions commonly assumed 
 by \whyml programs, requiring them to be explicitly declared in the generated output.
 
+\newpage
+
+\begin{cakeml}
+    fun search_aux a c n = 
+    let exception Break of (int) in
+    ((if c = (a.length) then (raise Not_found) 
+        else (if (get a c) = n then (raise (Break n)) 
+            else (search_aux a (c + (1)) n)))
+    handle   Break i => i)
+\end{cakeml}
+
+The original code makes the exception declaration inside the scope of the function and that needs to be removed and placed outside of the scope.
+
+\begin{cakeml}
+    exception Not_found
+    exception Break int
+
+    fun search_aux a c n = 
+    ((if c = (a.length) then (raise Not_found) 
+        else (if (get a c) = n then (raise (Break n)) 
+            else (search_aux a (c + (1)) n)))
+    handle   Break i => i)
+\end{cakeml}
+
 A separate but related concern is the handling of the \inlinecode{absurd} construct. Since \cml provides no equivalent, a pragmatic decision was made to map \inlinecode{absurd} 
 to an exception, generating an \inlinecode{exception Absurd} declaration at the top level and a corresponding \inlinecode{raise Absurd} at each point of occurrence. This 
 represents the simplest viable solution for preserving the intent of the construct when it comes to marking a branch as unreachable within \cml's constraints.
+
+\begin{cakeml}
+    fun add t k v =
+        (case insert t k v of
+            (Node _ l kqt vqt r) => Node (Black) l kqt vqt r
+        | Leaf => absurd)
+\end{cakeml}
+
+As much as the original code is correct for the way \inlinecode{absurd} is used, it is not acceptable in \cml so we opted for this solution.
+
+\begin{cakeml}
+    exception Absurd
+    fun add t k v =
+        (case insert t k v of
+            (Node _ l kqt vqt r) => Node (Black) l kqt vqt r
+        | Leaf => raise Absurd)
+\end{cakeml}
 
 \section{Summary and Pipeline Implications}
 \label{Summary_Pipeline}

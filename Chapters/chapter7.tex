@@ -18,17 +18,18 @@ respect the limitations implied from the subset chosen.
 
 
 \section{Verification Guarantees and Trust Boundaries}
+\label{sec:Verification_Guarantees_and_Trust_Boundaries}
 
 Before presenting the comparative results, it is necessary to characterize the trust boundaries of each approach and identify where verification 
 guarantees can break down. Both approaches rely on an unverified component that constitutes the critical point of failure in the formal verification.
 
-In the extraction approach, the code is verified within \whythree and the proof obligations are discharged before extraction is invoked \ref{fig:Cameleer_pipeline}. 
+In the extraction approach, the code is verified within \whythree and the proof obligations are discharged before extraction is invoked as seen in figure \ref{fig:Cameleer_pipeline}. 
 However, the extraction driver itself is not formally verified, meaning that if it fails to faithfully reproduce the \whyml semantics in the generated \cml code, 
 the verification guarantees established in \whythree are silently lost. In this scenario, even if the resulting \cml code compiles successfully 
 through the verified compiler, the compiler's correctness theorem offers no assurance that the verified properties are preserved, meaning the guarantee 
 only extends from the \cml source downwards, not from the \whyml source through the driver.
 
-For the translation approach, the failure point arises earlier in the pipeline \ref{fig:GoalPipeline}. If the translation tool incorrectly translates \cml with 
+For the translation approach, the failure point arises earlier in the pipeline shown in figure \ref{fig:GoalPipeline}. If the translation tool incorrectly translates \cml with 
 \gospel specification into \whyml, the resulting \whyml program may not faithfully represent the original \cml code, causing the verification step in \whythree 
 to verify an inaccurate model. In this case, even if the proofs discharge successfully, they would be proving properties of the translated model rather than 
 the original program. On the other hand, if the translation is faithful and the proofs discharge, the verified \cml compiler provides a strong guarantee that the 
@@ -43,11 +44,11 @@ The case studies explored in these chapter were selected accordingly with the su
 program is subjected to both approaches independently, allowing a direct comparison of the verification effort required, the 
 expressiveness of the resulting specifications, and the degree to which each method preserves the intent of the original code.
 
-\subsection{Red Black Tree}
+\subsection{Red-Black Tree}
 
 The Red-Black tree is a classical example of a self-balancing binary search tree in which each node is assigned a colour, either 
-Red or Black, subject to two structural invariants: no two adjacent nodes may both be Red, and every path from a node to a null 
-leaf must contain the same number of Black nodes\cite{Guibas1978}. These invariants together guarantee that the height of the tree remains bounded 
+Red or Black, subject to two structural invariants: no two adjacent nodes may both be Red, and every path from a node to a 
+leaf must contain the same number of Black nodes~\cite{Guibas1978}. These invariants together guarantee that the height of the tree remains bounded 
 by \textit{O}(log \textit{n}), ensuring efficient worst-case performance for search, insertion, and deletion. Furthermore, if 
 the tree as a whole satisfies these conditions, every subtree is also guaranteed to satisfy them, making the invariant compositional by nature.
 
@@ -78,3 +79,12 @@ confirming that the translation process correctly preserved the verification int
 With the corrected \whythree extraction tool and the new translation tool, while always staying in line with the
 \whyml subset, it is evident from the results that both approaches work accordingly with what was expected in the
 expected pipeline. Both of the codes when passing through the verification tool proceeded correctly and with no errors.
+
+The values presented in the following tables (CITE TABLES HERE) show very similar values, making no significant changes in terms of
+prover efficiency. As stated in the \ref{sec:Verification_Guarantees_and_Trust_Boundaries} there seems to be only the difference in where the 
+failure points is and which code it starts with, so in a way the decision to choose one approach over another is only related in what language
+the tool is starting with. If the language the code is written is \ocaml or \whyml, extraction is the best choice, if the code is written in
+\cml it is better to add the \gospel specification and using the translation tool.
+
+Regarding the \gospel specification language there is sufficient proof in the new tool created that \gospel is quite easy to integrate correctly
+to a language from the ML family.
