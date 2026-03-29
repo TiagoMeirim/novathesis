@@ -11,18 +11,29 @@
 \chapter{Extraction}
 \label{cha:Extraction}
 
-The Extraction process, in the context of deductive program verification, refers to the process of deriving executable code from a verified specification by 
-systematically eliminating all proof-oriented content that carries no computational meaning. Rather than re-verifying correctness in the target language, extraction 
-relies on the guarantees already established during the verification phase, delegating to the extraction mechanism the responsibility of faithfully preserving the program's 
-computational behaviour across the language boundary. In \whythree, this process is formalized through a dedicated ghost code erasure phase followed by a language-specific 
-driver, which together ensure that the logical constructs of a \whyml program spanning both program-level annotations such as pre-conditions, post-conditions, invariants, and 
-ghost variables, and theory-level constructs such as predicates, lemmas, and axioms that support the proof obligations are cleanly removed before the 
-remaining computational fragment is translated to the target language. It is precisely this translation step that introduces the constraints examined in this chapter, 
-since the target language must be capable of representing the extracted fragment, the differences between \whyml and \cml impose a well-defined boundary on 
-the subset of \whyml constructs that can be viably used within the pipeline.
+In this chapter, we identify the inaccuracies and limitations found on \whythree's extraction mechanism for \cml at the beginning of
+this study, and establish a subset of \whyml that is to be supported by the end of the study. This subset is based on common features
+between the languages.
+
+\section{Overview of Extraction-based verification}
+
+The Extraction process, in the context of deductive program verification, refers to the process of deriving executable code from a verified implementation, in accordance
+to its specification, in another language. It systematically eliminates all proof-oriented content that carries no computational meaning. Rather than re-verifying
+correctness in the target language, extraction relies on the guarantees already established during the verification phase, delegating to the extraction mechanism the
+responsibility of faithfully preserving the program's computational behaviour across the language boundary. 
+
+In \whythree, this process is formalized through a dedicated ghost code erasure phase followed by a (target) language-specific driver, which together ensure that the
+logical constructs of a \whyml program spanning both program-level annotations such as pre-conditions, post-conditions, invariants, and ghost variables, and theory-level
+constructs such as predicates, lemmas, and axioms that support the proof obligations are cleanly removed before the remaining computational fragment is translated to the
+target language. It is precisely this translation step that introduces the constraints examined in this chapter, since the target language must be capable of representing
+the extracted fragment, the differences between \whyml and \cml impose a well-defined boundary on the subset of \whyml constructs that can be viably used within the pipeline.
 
 \section{\whyml Subset}
 \label{sec:Whyml_Subset}
+
+When dealing with extraction or translation-based pipelines, we must take into consideration the differences and supported features between the source language and the target language. 
+As such, we have established a subset of \whyml that is to be supported when extracting to \cml. This section discusses the limitations and supported features of \cml, in comparison 
+to those found in \whyml, which we had to take into consideration when developing that subset.
 
 \subsection{Limitations}
 
@@ -51,9 +62,11 @@ to ensure correctness across both the extraction and translation phases of the s
 \label{sec:Corrections_Cakeml}
 
 The \cml extraction driver was already partially implemented within the Why3 platform, however it contained a number of inaccuracies that produced syntactically incorrect 
-\cml output. The corrections addressed in this section are focused on the grammar of the generated code, ensuring that the extracted programs conform to the syntactic 
-requirements of \cml. As described in Section~\ref{sec:Tool_Modifications}, extraction to \cml is invoked via \cameleer using the \inlinecode{--extract} flag. 
-The following subsections detail each individual change applied to the driver:
+\cml output. The majory of corrections applied to the \cml extraction driver are syntactic in nature, addressing grammatical discrepancies between \whyml and \cml without
+affecting the verification guarantees established during the proof phase. These include: capitalization conventions, let binding delimiters, and exception handling. Such
+corrects were made to conform to the syntactic requirements of the \cml compiler. Computational semantics of the extracted program remain entirely unchanged. As described
+in Section~\ref{sec:CakeML_Extraction}, extraction to \cml is invoked via \cameleer using the \inlinecode{--extract} flag. The following subsections detail each individual
+change applied to the driver:
 
 \subsection{Capitalization Conventions}
 
@@ -80,7 +93,7 @@ The correction applied to the extraction driver ensures that this token is consi
 
 \subsection{Data Type Declarations}
 
-The declaration generated from the extraction was incorrect in the ordering and how the blocks were delimited. \cml does not delimit the blocks for the data types
+The declaration generated from the extraction was incorrect in the ordering and how the blocks were delimited. \cml does not split the blocks for the data types
 with \inlinecode{*} as it only needs them to be correctly placed in blocks so it can be correctly written and also the token of is not necessary. The ordering only 
 applies for the alpha where it should be in front of the data type instead of behind. As shown in the following example all these issues are present and need to be
 fixed for correct \cml grammar.
@@ -103,8 +116,6 @@ using let bindings, \cml restricts exception declarations exclusively to the top
 body to identify any exception declarations or raises, after which the declarations are hoisted to the top level and omitted from their original position in the generated code. 
 Furthermore, the exceptions encountered during this work were not found in \cml's standard library, which appears to offer limited support for the exceptions commonly assumed 
 by \whyml programs, requiring them to be explicitly declared in the generated output.
-
-\newpage
 
 \begin{cakeml}
     fun search_aux a c n = 
@@ -132,6 +143,11 @@ A separate but related concern is the handling of the \inlinecode{absurd} constr
 to an exception, generating an \inlinecode{exception Absurd} declaration at the top level and a corresponding \inlinecode{raise Absurd} at each point of occurrence. This 
 represents the simplest viable solution for preserving the intent of the construct when it comes to marking a branch as unreachable within \cml's constraints.
 
+The one notable exception is the handling of the \inlinecode{absurd} construct. In \whyml, \inlinecode{absurd} carries a precise logical meaning, it asserts that a given branch 
+is unreachable, a claim that must be formally justified by a discharged proof obligation. Mapping this construct to \inlinecode{raise Absurd} in \cml is ultimately not a purely 
+syntactic transformation, it replaces a statically verified impossibility with a runtime exception. While raising an exception is not a perfect semantic equivalent of an 
+unreachable branch, it represents a practical solution within \cml's constraints, given that a correctly verified program should never reach that point at runtime.
+
 \begin{cakeml}
     fun add t k v =
         (case insert t k v of
@@ -149,14 +165,4 @@ As much as the original code is correct for the way \inlinecode{absurd} is used,
         | Leaf => raise Absurd)
 \end{cakeml}
 
-\section{Summary and Pipeline Implications}
-\label{Summary_Pipeline}
-
-The majority of the corrections applied to the \cml extraction driver are syntactic in nature, addressing grammatical discrepancies between \whyml and \cml without affecting 
-the verification guarantees established during the proof phase. Capitalization conventions, let binding delimiters, and exception handling are all corrections that determine
-whether the generated code is accepted by \cml, but leave the computational semantics of the extracted program entirely unchanged.
-
-The one notable exception is the handling of the \inlinecode{absurd} construct. In \whyml, \inlinecode{absurd} carries a precise logical meaning, it asserts that a given branch 
-is unreachable, a claim that must be formally justified by a discharged proof obligation. Mapping this construct to \inlinecode{raise Absurd} in \cml is ultimately not a purely 
-syntactic transformation, it replaces a statically verified impossibility with a runtime exception. While raising an exception is not a perfect semantic equivalent of an 
-unreachable branch, it represents a practical solution within \cml's constraints, given that a correctly verified program should never reach that point at runtime.
+While raising a runtime exception is not a direct representation of termination, it provides a simpler way to create the same effect.

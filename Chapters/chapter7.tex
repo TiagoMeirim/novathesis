@@ -52,6 +52,418 @@ leaf must contain the same number of Black nodes~\cite{Guibas1978}. These invari
 by \textit{O}(log \textit{n}), ensuring efficient worst-case performance for search, insertion, and deletion. Furthermore, if 
 the tree as a whole satisfies these conditions, every subtree is also guaranteed to satisfy them, making the invariant compositional by nature.
 
+The Red-Black tree data structure has a data type of tree with it being a leaf or a node that has the values of the color,
+the key, the value and both left and right trees.
+
+\begin{whylang}
+    type key = int
+    type value = int
+
+    type color = Red | Black
+
+    type tree =
+        | Leaf
+        | Node color tree key value tree
+\end{whylang}
+
+Before going into the functions there is the need to create some predicates and lemmas to verify those functions. 
+The predicate \inlinecode{memt}
+checks whether a key value pair \inlinecode{(k, v)} occurs anywhere in the tree \inlinecode{t}, if it is a \inlinecode{Leaf} then it returns false, 
+if \inlinecode{t} is a \inlinecode{Node} then it verifies if the key and value presented to \inlinecode{memt} are the same as the key and value as
+\inlinecode{t} or it checks if the pair appears in both other subtrees.
+
+\begin{whylang}
+    predicate memt (t : tree) (k : key) (v : value) =
+        match t with
+        | Leaf -> false
+        | Node _ l k' v' r -> (k = k' /\ v = v') \/ memt l k v \/ memt r k v
+        end
+\end{whylang}
+
+The lemma \inlinecode{memt\_color} states that membership is independent of \inlinecode{Node} color.
+
+\begin{whylang}
+    lemma memt_color :
+        forall l r : tree, k k' : key, v v' : value, c c' : color.
+        memt (Node c l k v r) k' v' -> memt (Node c' l k v r) k' v'
+\end{whylang}
+
+Predicate \inlinecode{lt\_tree} and \inlinecode{gt\_tree} each state that every key in tree \inlinecode{t} is strictly lesser than \inlinecode{x} and 
+that every key in tree \inlinecode{t} is strictly greater than \inlinecode{x} respectively, this is to express the left and right tree sub-conditions 
+respectively.
+
+\begin{whylang}
+    predicate lt_tree (x : key) (t : tree) =
+        forall k : key. forall v : value. memt t k v -> k < x
+
+    predicate gt_tree (x : key) (t : tree) =
+        forall k : key. forall v : value. memt t k v -> x < k
+\end{whylang}
+
+The trivial lemmas \inlinecode{lt\_leaf} and \inlinecode{gt\_leaf} are true base cases for an empty tree that satisfies both.
+
+\begin{whylang}
+    lemma lt_leaf: forall x: key. lt_tree x Leaf
+
+    lemma gt_leaf: forall x: key. gt_tree x Leaf
+\end{whylang}
+
+The construction lemmas \inlinecode{lt\_tree\_node} and \inlinecode{gt\_tree\_node} state that if both subtrees and the node key
+satisfies the ordering condition then the complete node also satisfies that condition.
+
+\begin{whylang}
+    lemma lt_tree_node:
+        forall x y: key, v: value, l r: tree, c: color.
+        lt_tree x l -> lt_tree x r -> y < x -> lt_tree x (Node c l y v r)
+
+    lemma gt_tree_node:
+        forall x y: key, v: value, l r: tree, c: color.
+        gt_tree x l -> gt_tree x r -> x < y -> gt_tree x (Node c l y v r)
+\end{whylang}
+
+The extraction lemma \inlinecode{lt\_node\_lt} says that if the whole node satisfies the \inlinecode{lt\_tree x} then the key of
+node needs to be lesser than \inlinecode{x} and similarly for lemma \inlinecode{gt\_node\_gt} but if it satifies \inlinecode{gt\_tree x}
+then the key needs to be greater.
+
+\begin{whylang}
+    lemma lt_node_lt:
+        forall x y: key, v: value, l r: tree, c: color.
+        lt_tree x (Node c l y v r) -> y < x
+
+    lemma gt_node_gt:
+        forall x y: key, v: value, l r: tree, c: color.
+        gt_tree x (Node c l y v r) -> x < y
+\end{whylang}
+
+The propagation lemmas \inlinecode{lt\_left}, \inlinecode{lt\_right}, \inlinecode{gt\_right} and \inlinecode{gt\_right} says that
+if a node satisfies either \inlinecode{lt\_tree x} or \inlinecode{gt\_tree x} then both left and right subtrees need to satisfy
+the same conditions.
+
+\begin{whylang}
+    lemma lt_left:
+        forall x y: key, v: value, l r: tree, c : color.
+        lt_tree x (Node c l y v r) -> lt_tree x l
+
+    lemma lt_right:
+        forall x y: key, v: value,  l r: tree, c: color.
+        lt_tree x (Node c l y v r) -> lt_tree x r
+
+    lemma gt_left:
+        forall x y: key, v: value, l r: tree, c: color.
+        gt_tree x (Node c l y v r) -> gt_tree x l
+
+    lemma gt_right:
+        forall x y: key, v: value, l r: tree, c: color.
+        gt_tree x (Node c l y v r) -> gt_tree x r
+\end{whylang}
+
+The exclusion lemma \inlinecode{lt\_tree\_not\_in} state that if all the keys in a tree is less that \inlinecode{x}, then \inlinecode{x} 
+cannot be a key for the tree and for lemma \inlinecode{gt\_tree\_not\_in} is the opposite, if \inlinecode{x} is greater than it cannot be a key.
+
+\begin{whylang}
+    lemma lt_tree_not_in:
+        forall x: key, t: tree. lt_tree x t -> forall v: value. not (memt t x v)
+
+    lemma gt_tree_not_in :
+        forall x: key, t: tree. gt_tree x t -> forall v: value. not (memt t x v)
+\end{whylang}
+
+The transitivity lemma \inlinecode{lt\_tree\_trans} says that if all keys in a tree is less than \inlinecode{x} and \inlinecode{x < y}, then all
+keys are also less than \inlinecode{y}, the same goes for lemma \inlinecode{gt\_tree\_trans} but if all the keys are greater than \inlinecode{x}
+and \inlinecode{y < x}, then all keys are greater than \inlinecode{y}.
+
+\begin{whylang}
+    lemma lt_tree_trans:
+        forall x y: key. x < y -> forall t: tree. lt_tree x t -> lt_tree y t
+
+    lemma gt_tree_trans :
+        forall x y: key. y < x -> forall t: tree. gt_tree x t -> gt_tree y t
+\end{whylang}
+
+Predicate \inlinecode{bst} represents the invariant of the search tree, where every \inlinecode{Leaf} is a \inlinecode{bst} and
+a \inlinecode{Node} is \inlinecode{bst} if both subtrees are \inlinecode{bst}, if all the keys from the left subtree are less than the
+node tree and all the keys from the right subtree are greater.
+
+\begin{whylang}
+    predicate bst (t : tree) =
+        match t with
+        | Leaf -> true
+        | Node _ l k _ r -> bst l /\ bst r /\ lt_tree k l /\ gt_tree k r
+        end
+\end{whylang}
+
+The lemma \inlinecode{bst\_Leaf} is a simple representation of a \inlinecode{Leaf} that is a \inlinecode{bst}.
+
+\begin{whylang}
+    lemma bst_Leaf : bst Leaf
+\end{whylang}
+
+The following lemmas represent that if a node is a \inlinecode{bst} than for each subtree left or right it also must be a \inlinecode{bst}.
+
+\begin{whylang}
+    lemma bst_left:
+        forall k: key, v: value, l r: tree, c: color. bst (Node c l k v r) -> bst l
+
+    lemma bst_right:
+        forall k: key, v: value, l r: tree, c: color. bst (Node c l k v r) -> bst r
+\end{whylang}
+
+The lemma \inlinecode{bst\_color} says that \inlinecode{bst} condition is independent of color.
+
+\begin{whylang}
+    lemma bst_color:
+        forall c c': color, k: key, v: value, l r: tree.
+        bst (Node c l k v r) -> bst (Node c' l k v r)
+\end{whylang}
+
+The lemmas \inlinecode{rotate\_left} and \inlinecode{rotate\_right} represent the change of color and rotating the subtrees
+while still satisfying the condition of \inlinecode{bst}.
+
+\begin{whylang}
+    lemma rotate_left:
+        forall kx ky: key, vx vy: value, a b c: tree, c1 c2 c3 c4: color.
+        bst (Node c1 a kx vx (Node c2 b ky vy c)) ->
+        bst (Node c3 (Node c4 a kx vx b) ky vy c)
+
+    lemma rotate_right:
+        forall kx ky: key, vx vy: value, a b c: tree, c1 c2 c3 c4: color.
+        bst (Node c3 (Node c4 a kx vx b) ky vy c) ->
+        bst (Node c1 a kx vx (Node c2 b ky vy c))
+\end{whylang}
+
+The predicate to represent a tree that is not red is the following.
+
+\begin{whylang}
+    predicate is_not_red (t : tree) =
+        match t with
+        | Node Red _ _ _ _ -> false
+        | Leaf | Node Black _ _ _ _ -> true
+        end
+\end{whylang}
+
+The predicate that represents the red black tree is \inlinecode{rbtree} that returns zero if tree \inlinecode{t} is 
+a \inlinecode{Leaf}. If the tree is a red node than it does the \inlinecode{rbtree} for both the left and right
+subtrees without changing the value \inlinecode{n} received, while also making sure those subtrees are not red. Lastly,
+if the node is a black node than it does \inlinecode{rbtree} while subtracting one from \inlinecode{n}.
+
+
+\begin{whylang}
+    predicate rbtree (n : int) (t : tree) =
+        match t with
+        | Leaf ->
+            n = 0
+        | Node Red   l _ _ r ->
+            rbtree n l /\ rbtree n r /\ is_not_red l /\ is_not_red r
+        | Node Black l _ _ r ->
+            rbtree (n-1) l /\ rbtree (n-1) r
+        end
+\end{whylang}
+
+The lemma \inlinecode{rbtree\_Leaf} is the representation of a \inlinecode{Leaf} that satisfies the predicate \inlinecode{rbtree}.
+
+\begin{whylang}
+    lemma rbtree_Leaf: rbtree 0 Leaf
+\end{whylang}
+
+Lemma \inlinecode{rbtree\_Node1} tells us that a red node that has both of the subtrees as leafs will be a \inlinecode{rbtree} of value
+zero.
+
+\begin{whylang}
+    lemma rbtree_Node1:
+        forall k:key, v:value. rbtree 0 (Node Red Leaf k v Leaf)
+\end{whylang}
+
+The lemmas \inlinecode{rbtree\_left} and \inlinecode{rbtree\_right} say that if a tree \inlinecode{t} is a \inlinecode{rbtree}
+of value \inlinecode{n} than there exists a node in the subtree that also satisfies that \inlinecode{rbtree} condition.
+
+\begin{whylang}
+    lemma rbtree_left:
+        forall x: key, v: value, l r: tree, c: color.
+        (exists n: int. rbtree n (Node c l x v r)) -> exists n: int. rbtree n l
+
+    lemma rbtree_right:
+        forall x: key, v: value, l r: tree, c: color.
+        (exists n: int. rbtree n (Node c l x v r)) -> exists n: int. rbtree n r
+\end{whylang}
+
+The predicate \inlinecode{almost\_rbtree} is an intermediate representation of a red-black tree that does not verify if the subtrees of
+a red node are not red, this is used for when there is the need to satisfy the condition of red-black tree while it is doing some changes
+to the tree.
+
+\begin{whylang}
+    predicate almost_rbtree (n : int) (t : tree) =
+        match t with
+        | Leaf ->
+            n = 0
+        | Node Red   l _ _ r ->
+            rbtree n l /\ rbtree n r
+        | Node Black l _ _ r ->
+            rbtree (n-1) l /\ rbtree (n-1) r
+        end
+\end{whylang}
+
+Lemma \inlinecode{rbtree\_almost\_rbtree} says that if a tree is \inlinecode{rbtree} than it is also \inlinecode{almost\_rbtree}.
+
+\begin{whylang}
+    lemma rbtree_almost_rbtree:
+        forall n: int, t: tree. rbtree n t -> almost_rbtree n t
+\end{whylang}
+
+The following lemma \inlinecode{rbtree\_almost\_rbtree\_ex} says that for every tree there exists a value for the \inlinecode{rbtree} that
+is the same as the \inlinecode{almost\_rbtree}.
+
+\begin{whylang}
+    lemma rbtree_almost_rbtree_ex:
+        forall s: tree.
+        (exists n: int. rbtree n s) -> exists n: int. almost_rbtree n s
+\end{whylang}
+
+The final lemma \inlinecode{almost\_rbtree\_rbtree\_black} says that for all the black nodes that are \inlinecode{almost\_rbtree} of
+\inlinecode{n} are also \inlinecode{rbtree} of \inlinecode{n}, which means that from the black trees standpoint there was no difference from
+\inlinecode{rbtree} and \inlinecode{almost\_rbtree}.
+
+\begin{whylang}
+    lemma almost_rbtree_rbtree_black:
+        forall x: key, v: value, l r: tree, n: int.
+        almost_rbtree n (Node Black l x v r) -> rbtree n (Node Black l x v r)
+\end{whylang}
+
+After creating all the necessary gospel annotations we can correctly define the necessary invariants, pre-conditions and post-conditions for the
+following functions supported in the red-black trees data structure.
+
+The first function is the \inlinecode{find} that receives a tree \inlinecode{t} and a key \inlinecode{k} in which it traverses the tree recursively
+until it finds the tree with the same key or until it reaches all the leafs and raises the exception \inlinecode{Not\_found}. This function requires
+the \inlinecode{t} to be a \inlinecode{bst} and ensures the value returned is in line with the condition \inlinecode{memt}. It also needs to be specified
+that \inlinecode{t} variates with each passing and that raises \inlinecode{Not\_found} if the key is not equal to a key of that tree.
+
+\begin{whylang}
+    let rec find (t : tree) (k : key) : value
+        requires { bst t }
+        variant { t }
+        ensures { memt t k result }
+        raises { Not_found -> forall v : value. not (memt t k v) }
+    = match t with
+        | Leaf -> raise Not_found
+        | Node _ l k' v r ->
+            if k = k' then v
+            else if k < k' then find l k
+            else (* k > k' *) find r k
+        end
+\end{whylang}
+
+The functions need to balance each of the subtrees are \inlinecode{lbalance} for the left subtree and \inlinecode{rbalance}. The way they balance
+the tree is to receive both subtrees, the value and the key, comparing what the subtree in which it was called this balancing function and rotating
+the nodes they are not a leafs. 
+
+The functions require the key \inlinecode{k} to be lesser than the other keys in left subtree and greater in the
+right subtree, while the left and right subtrees satisfy the condition of \inlinecode{bst}. It also needs to ensure that the resulting tree is
+satisfying the condition of \inlinecode{bst}, every value \inlinecode{n} of an \inlinecode{almost\_rbtree} of the respecting subtree, left for \inlinecode{lbalance}
+and right for \inlinecode{rbalance}, implies that the opposing tree satisfies \inlinecode{rbtree} for the \inlinecode{n} and the resulting tree satifies
+\inlinecode{bst} for that \inlinecode{n+1}. To ensure that the balancing was done correctly is to say that for every key \inlinecode{k'} and value \inlinecode{v\'}
+that satisfies \inlinecode{memt} for the resulting tree than it is equivalent to satisfy \inlinecode{memt} for the left and right subtrees if the key \inlinecode{k\'}
+is not the same as the key \inlinecode{k}, otherwise the values must be the same.
+
+\begin{whylang}
+    let lbalance (l : tree) (k : key) (v : value) (r : tree)
+        requires { lt_tree k l /\ gt_tree k r /\ bst l /\ bst r }
+        ensures { bst result /\
+        (forall n : int. almost_rbtree n l -> rbtree n r -> rbtree (n+1) result)
+        /\
+        forall k':key, v':value.
+            memt result k' v' <->
+            if k' = k then v' = v else (memt l k' v' \/ memt r k' v') }
+    = match l with
+        | Node Red (Node Red a kx vx b) ky vy c
+        | Node Red a kx vx (Node Red b ky vy c) ->
+            Node Red (Node Black a kx vx b) ky vy (Node Black c k v r)
+        | _ ->
+            Node Black l k v r
+        end
+
+    let rbalance (l : tree) (k : key) (v : value) (r : tree)
+        requires { lt_tree k l /\ gt_tree k r /\ bst l /\ bst r }
+        ensures { bst result /\
+        (forall n : int. almost_rbtree n r -> rbtree n l -> rbtree (n+1) result)
+        /\
+        forall k':key, v':value.
+            memt result k' v' <->
+            if k' = k then v' = v else (memt l k' v' \/ memt r k' v') }
+    = match r with
+        | Node Red (Node Red b ky vy c) kz vz d
+        | Node Red b ky vy (Node Red c kz vz d) ->
+            Node Red (Node Black l k v b) ky vy (Node Black c kz vz d)
+        | _ ->
+            Node Black l k v r
+        end
+\end{whylang}
+
+The recursive function insert receives the \inlinecode{tree} and the key \inlinecode{k} and value \inlinecode{v} of the node which is going to
+be inserted. In order to insert correctly, the function firstly checks if the tree is a \inlinecode{Leaf}, in that case the result is the \inlinecode{Node}
+with the key and value given to the function. If the tree is a red node it will check if the key \inlinecode{k} is lesser or greater to insert on the
+left or right subtree accordingly, if the keys are the same then the value will be updated to the most recent one, so the value \inlinecode{v}. For the
+option of the tree being a black tree than it will also check if the key \inlinecode{k} is lesser or greater and will insert to the left or right
+subtrees and calling the balancing function, if the keys are the same the value is updated.
+
+This function will require the tree to satisfy the condition of \inlinecode{bst} and that exists a value in which the tree satisfies the condition
+of \inlinecode{rbtree}. As a recursive function we need to say what is the value that is variating which is the tree. To ensure the correct insertion
+the resulting tree needs to satisfy the condition of \inlinecode{bst}, for all values that satisfy the condition of \inlinecode{rbtree} for the original
+tree the resulting tree needs to satisfy the condition of \inlinecode{almost\_rbtree} for the same value. Because of the different way we insert depending
+on if the original tree was red or black, if the tree was black than the resulting tree will already satisfy the condition of \inlinecode{rbtree}. The key and
+value of the new inserted node must also be present in the resulting tree and for every key \inlinecode{k'} and value \inlinecode{v\'}
+that satisfies \inlinecode{memt} for the resulting tree than it is equivalent to satisfy \inlinecode{memt} for the left and right subtrees if the key \inlinecode{k\'}
+is not the same as the key \inlinecode{k}, otherwise the values must be the same.
+
+
+\begin{whylang}
+    let rec insert (t : tree) (k : key) (v : value) : tree
+        requires { bst t /\ exists n: int. rbtree n t }
+        variant { t }
+        ensures { bst result /\
+        (forall n : int. rbtree n t -> almost_rbtree n result /\
+            (is_not_red t -> rbtree n result)) /\
+        memt result k v /\
+        forall k':key, v':value.
+        memt result k' v' <-> if k' = k then v' = v else memt t k' v' }
+    = match t with
+        | Leaf ->
+            Node Red Leaf k v Leaf
+        | Node Red l k' v' r ->
+            if k < k' then Node Red (insert l k v) k' v' r
+            else if k' < k then Node Red l k' v' (insert r k v)
+            else (* k = k' *) Node Red l k' v r
+        | Node Black l k' v' r ->
+            if k < k' then lbalance (insert l k v) k' v' r
+            else if k' < k then rbalance l k' v' (insert r k v)
+            else (* k = k' *) Node Black l k' v r
+        end
+\end{whylang}
+
+The last function of this data structure is the \inlinecode{add} that receives the tree \inlinecode{t}, the key \inlinecode{k} and
+the value \inlinecode{v}. The process passes from matching the resulting tree of the function \inlinecode{insert t k v} and matching with
+any type of tree and changing the color of that tree into black, if the resulting tree is a \inlinecode{Leaf} then it is an absurd because 
+it is impossible because at least one node must have.
+
+The requirements for this function is the tree \inlinecode{t} to satisfy the condition \inlinecode{bst} and that exists of value that satifies the condition
+of \inlinecode{rbtree} for the \inlinecode{t}. The function must ensure that the resulting tree satisfies the condition \inlinecode{bst}, there exists a value
+that the resulting tree satisfies the condition of \inlinecode{rbtree}, the key \inlinecode{k} and the value \inlinecode{v} exist inside the resulting
+tree and for every key \inlinecode{k'} and value \inlinecode{v\'} that satisfies \inlinecode{memt} for the resulting tree than it is equivalent to satisfy 
+\inlinecode{memt} for the left and right subtrees if the key \inlinecode{k\'} is not the same as the key \inlinecode{k}, otherwise the values must be the same.
+
+\begin{whylang}
+    let add (t : tree) (k : key) (v : value) : tree
+        requires { bst t /\ exists n:int. rbtree n t }
+        ensures { bst result /\ (exists n:int. rbtree n result) /\
+        memt result k v /\
+        forall k':key, v':value.
+        memt result k' v' <-> if k' = k then v' = v else memt t k' v' }
+    = match insert t k v with
+        | Node _ l k' v' r -> Node Black l k' v' r
+        | Leaf -> absurd
+        end
+\end{whylang}
+
+The complete code is in the appendix ~\ref{subsec:Red_Black_Trees_Whyml_Og}.
+
 \subsubsection{Extraction results}
 
 The verified code used in this case study is taken directly from the \whythree library of examples~\ref{subsec:Red_Black_Trees_Whyml_Og}, which 
@@ -72,7 +484,7 @@ written manually to capture the intended correctness properties of the Red-Black
 the translation tool, which produced the corresponding \whyml code~\ref{subsec:Red_Black_Trees_Whyml}. 
 
 The generated \whyml code was subsequently submitted to \whythree, where all proof obligations were discharged automatically by the available provers, 
-confirming that the translation process correctly preserved the verification intent of the manually written Gospel specifications.
+confirming that the translation process correctly preserved the verification intent of the manually written \gospel specifications.
 
 \section{Results Comparison}
 

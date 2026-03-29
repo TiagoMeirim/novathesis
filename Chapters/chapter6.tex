@@ -11,16 +11,23 @@
 \chapter{Translation}
 \label{cha:Translation}
 
-%%maybe rewrite, probably too big for the first part
+For the following chapter, we discuss the creation of a full translation scheme from \cml with \gospel annotations to \whyml. This new
+translation scheme enables the verification of \cml programs in the \whythree platform. In particular, we detail the translation process
+and the decisions made when mapping \cml and \gospel constructs into their \whyml counterparts.
 
-For the following chapter it is referred the creation from base the full translation of \cml with the new \gospel annotations that were
-previously not present in the code. Unlike extraction, which derives executable code from a verified program by eliminating its logical 
-content, translation operates in the opposite direction, taking an existing implementation together with its specifications and expressing 
-both in \whyml so that verification can be carried out within the Why3 platform. The purpose of this process is not to replace extraction 
-but to serve as a basis for comparison: by independently constructing a \whyml representation of the same program, it becomes possible to 
-evaluate the two approaches against each other in terms of the verification effort required, the expressiveness of the resulting specifications, 
-and the degree to which each method preserves the intent of the original code. The following section details the translation process and the 
-decisions made when mapping \cml and \gospel constructs into their \whyml counterparts.
+\section{Overview of Translation-based verification}
+
+Unlike extraction, which derives executable code from a verified program by eliminating its logical content, translation operates in the
+opposite direction. It amounts to converting a program and its specification from a pair of programming and specification languages (or
+simply a verification-aware language) to another. This approach combines the benefits of writing a program and/or its specifications in
+a given language with the advantages of verifying in another. For instance, \cameleer enables the verification of \ocaml programs in
+the \whythree platform, by internally translating to \whyml. The advantages of such pipeline include writing the program in a multi-paradigm 
+general-purpose language while using a stable and flexible deductive verification platform.
+
+The purpose of this process is not to replace extraction but to serve as a basis for comparison: by independently constructing a \whyml
+representation of the same program, it becomes possible to evaluate the two approaches against each other in terms of the verification
+effort required, the expressiveness of the resulting specifications, and the degree to which each method preserves the intent of the
+original code. 
 
 \section{Lexer}
 \label{sec:Lexer}
@@ -30,6 +37,56 @@ of the lexer, which scans the input sequentially and produces a stream of tokens
 receiving regarding \cml it will deconstruct it into tokens for the parser, on the other hand the raw text received inside the delimited \gospel
 specifications, in between the \inlinecode{(*@} and \inlinecode{*)}, will just return the raw text into parser so it can be deconstructed in another
 phase later.
+
+\begin{center}
+\begin{bnf}
+$token$ ::=
+| \texttt{newline} : new line
+| \texttt{space+} : spaces
+| \texttt{ident as s} : identifier
+| \texttt{number as n} : number
+| \texttt{'\textasciicircum'' ['a'-'z']+} as id : var
+| \texttt{'"' ([\textasciicircum'"']* as s) '"'} : string
+| \texttt{(*@} : gospel comment
+| \texttt{(*} : comment
+| \texttt{!=} : inequality
+| \texttt{<=} : lesser or equal
+| \texttt{>=} : greater or equal
+| \char58\texttt{=} : assign ref
+| \texttt{=>} : logical consequence
+| \char58\char58 : cons
+| \texttt{@} : append
+| \texttt{[} : left square bracket
+| \texttt{]} : right square bracket
+| \texttt{!} : dereference or negation
+| \texttt{<} : lesser
+| \texttt{>} : greater
+| \texttt{+} : addition
+| \texttt{-} : subtraction
+| \texttt{*} : multiplication
+| \texttt{/} : division
+| \texttt{\%} : mod
+| \texttt{(} : left parenthesis
+| \texttt{)} : left parenthesis
+| \texttt{=} : assign
+| \char124 : pipe
+| \texttt{\_} : underscore
+| \texttt{,} : comma
+| \texttt{.} : dot
+| \texttt{;} : semicolon
+| \texttt{eof} : end of file
+\end{bnf}
+\end{center}
+
+\begin{ocamlenv}
+    let char = ['a'-'z' 'A'-'Z' '_']
+    let digit = ['0'-'9']
+    let ident = char (char | digit)*
+    let number = digit+
+    let space = ' ' | '\t'
+    let newline = '\n'
+\end{ocamlenv}
+
 
 \section{Parser}
 \label{sec:Parser}
@@ -41,7 +98,44 @@ is faithfully preserved prior to translation into \whyml. Lastly, \gospel annota
 deferring their interpretation to a later stage of the translation process. The resulting AST serves as the central intermediate representation 
 from which the translation into \whyml is driven.
 
-\section{Abstract Syntax Tree(AST)}
+\begin{center}
+\begin{bnf}
+\texttt{toplevel} ::= ... ;;
+\texttt{tyvar\_list} ::= ... ;;
+\texttt{constructor\_list} ::= ... ;;
+\texttt{more\_constructors} ::= ... ;;
+\texttt{constructor} ::= ... ;;
+\texttt{atyp} ::= ... ;;
+\texttt{typ} ::= ... ;;
+\texttt{def} ::= ... ;;
+\texttt{aexpr} ::= ... ;;
+\texttt{expr} ::= ... ;;
+\texttt{list\_elements} ::= ... ;;
+\texttt{case\_clause} ::= ... ;;
+\texttt{case\_clauses} ::= ... ;;
+\texttt{more\_case\_clauses} ::= ... ;;
+\texttt{apattern} ::= ... ;;
+\texttt{pattern} ::= ... ;;
+\texttt{pattern\_seq} ::= ... ;;
+\texttt{more\_patterns} ::= ... ;;
+\texttt{pat\_elements} ::= ... ;;
+\texttt{expr\_seq} ::= ... ;;
+\texttt{expr\_seq\_tail} ::= ... ;;
+\texttt{ident} ::= ...
+\end{bnf}
+\end{center}
+
+The following variables were used to divide the different lexer tokens and pattern match it with the correct structures, firstly it is matched
+with the \texttt{toplevel} dividing into exceptions, datatypes, types, definitions, comments and \gospel comments. \texttt{tyvar\_list} was mainly
+used for lists of types, however if the type was in a simpler form it was \texttt{atyp} or \texttt{typ} depending on the context. The variables 
+\texttt{constructor\_list}, \texttt{more\_constructors} and \texttt{constructor} were used to pattern match the different constructors used in
+datatypes. Expressions such as operations between integers or lists were matched in the variables \texttt{aexpr} and \texttt{expr}, while depending
+of various others like \texttt{case\_clause} and \texttt{case\_clauses} for case clauses that also needed the right side to be pattern matched with 
+\texttt{apattern}, \texttt{pattern}, \texttt{pattern\_seq}, \texttt{more\_patterns} and \texttt{pat\_elements}. After traversing through the parser
+the AST tokens were transferred into the AST in order to be used in a printer.
+
+
+\section{Abstract Syntax Tree (AST)}
 \label{sec:AST}
 
 The AST serves as the first structured internal representation of the input program, produced directly from the parsing phase. At this stage, the 
@@ -49,25 +143,116 @@ AST captures the full syntactic content of the \cml source file, each represente
 \gospel annotations, having been recognised by the lexer and passed through the parser as raw strings, are preserved at this stage without further 
 interpretation, attached to their corresponding top-level positions in the tree.
 
-\section{\gospel Abstract Syntax Tree(GAST)}
-\label{sec:GAST}
+\begin{ocamlenv}
+    type ident = { loc: location; id: string; }
+
+    type op = Badd | Bsub | Bmul | Bdiv | Bminus | Bmod | Bassign | Bneq | Blt | Bgt 
+    | Ble | Bge | Bandalso | Borelse | Bnot
+
+    type qident = {
+    modname : ident; 
+    field      : ident; 
+    loc     : location;
+    }
+
+    type expr =
+    | Eunit
+    | Ecst           of int
+    | Evar           of ident
+    | Etuple         of expr list
+    | Eunop          of op * expr
+    | Ebinop         of op * expr * expr
+    | Eref           of expr
+    | Ederef         of expr
+    | Ebool          of bool
+    | Eif            of expr * expr * expr
+    | Elet           of ident * expr * expr
+    | Eraise         of ident
+    | Ecall          of ident * expr list
+    | Eassign        of expr * expr
+    | Ecase          of expr * case_clause list
+    | Econstr        of ident * expr list
+    | Enil
+    | Elist          of expr list
+    | Econs          of expr * expr 
+    | Eappend        of expr * expr
+    | Estring        of string
+    | Eprint         of expr
+    | Eqcall         of qident * expr list
+    | Efun           of ident list * expr
+
+    and pattern =
+    | Pnil
+    | Plist   of pattern list
+    | Pcons   of pattern * pattern
+    | Pvar    of ident (* variable *)
+    | Pwild (* _ *)
+    | Pcst    of int (* int *)
+    | Pbool   of bool
+    | Pconstr of ident * pattern list (* Node l x r *)
+    | Ptuple  of pattern list (* (x1, x2) *)
+    | Pqconstr of qident * pattern list
+
+    and case_clause = pattern * expr
+
+    type def = {
+    name    : ident; 
+    formals : ident list; 
+    body    : expr;
+    (* spec    : string option; *)
+    }
+
+    type typ = 
+    | TyInt   of int
+    | TyBool  of bool
+    | TyName  of ident
+    | TyVar   of string
+    | TyApp   of typ * typ list
+    | TyTuple of typ list
+    | TyArr   of typ * typ
+
+    type constructor = {
+    cname : ident;
+    args : typ list
+    }
+
+    type toplevel = 
+    | Texn         of ident * typ option
+    | Tdef         of def
+    | Tdatatype    of string list * ident * constructor list
+    | Ttype        of ident * typ
+    | Tgospel_spec of string
+\end{ocamlenv}
+
+\subsection{\gospel Abstract Syntax Tree (GAST)}
+\label{subsec:GAST}
 
 The GAST represents the final structured intermediate representation prior to translation into \whyml. It extends the AST by replacing raw \gospel 
 annotation strings with fully parsed \gospel nodes, producing a unified representation in which \cml program content and \gospel specifications 
 coexist in a structured and typed form.
 
-\section{AST To GAST}
-\label{sec:AST_to_GAST}
+\subsection{AST To GAST}
+\label{subsec:AST_to_GAST}
 
 The transformation from AST to GAST is responsible for promoting the raw \gospel annotation strings preserved in the AST into structured \gospel AST nodes, 
 producing a unified representation in which each \cml definition is paired with its corresponding specification. This phase is driven by the \gospel parser, 
-which is invoked selectively depending on the nature of each annotation encountered.
+which is invoked selectively depending on the nature of each annotation encountered. In figure \ref{fig:ast_to_gast}, we observe the process that allows
+converting from the AST to GAST, since both of these abstract syntax trees are necessary for the printer phase:
 
-A central distinction in this transformation is between \textit{floating} and \textit{inline} \gospel annotations. Floating annotations are top-level logical 
-declarations that stand independently of any function definition, these include predicates, functions, axioms, and lemmas, which are parsed and mapped directly 
-to their corresponding GAST nodes. Inline annotations, by contrast, are specifications attached to function definitions, such as pre-conditions and post-conditions,
-that are associated with the definition that follows or precedes them in the source file. To handle this, consecutive inline annotation strings are collected and 
-merged before being passed to the \gospel parser as a single unified specification.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{images/ast_to_gast.pdf}
+    \caption{Process that transforms AST into GAST}
+    \label{fig:ast_to_gast}
+\end{figure}
+
+
+To successfully obtain the GAST, one must take into consideration and distinguish between the two types of \gospel annotations, those being \textit{floating}
+and \textit{inline}. Floating annotations are top-level logical declarations that stand independently of any function definition, these include predicates,
+functions, axioms, and lemmas, which are parsed and mapped directly to their corresponding GAST nodes. Inline annotations, by contrast, are specifications
+attached to function definitions, such as pre-conditions and post-conditions, that are associated with the definition that follows or precedes them in the
+source file. To handle this, consecutive inline annotation strings are collected and merged before being passed to the \gospel parser as a single unified
+specification.
 
 A further consideration arises from the fact that \gospel annotations may appear either before or after their associated function definition in the source file. 
 The transformation accounts for both orderings, collecting specification fragments from either side of the definition and combining them into a single coherent 
@@ -76,8 +261,9 @@ specification prior to parsing.
 \section{Printer}
 \label{sec:Printer}
 
-The final phase of the translation is the printer, where traversing the GAST and printing the correct \whyml code. While much of the translation is a 
-straightforward structural mapping from \cml constructs to their \whyml equivalents, several design decisions merit discussion from a verification standpoint.
+The final phase of the translation is the printer, where traversing the AST and GAST and printing the correct \whyml code as seen in the Figure \ref{fig:ast_to_gast}. 
+While much of the translation is a straightforward structural mapping from \cml constructs to their \whyml equivalents, several design decisions merit discussion 
+from a verification standpoint.
 
 Another decision to note is the automatic detection of recursive functions. Rather than requiring the user to explicitly mark recursive definitions, the 
 printer analyses the function body to determine whether it contains a self-referential call, emitting the \inlinecode{rec} keyword accordingly.
