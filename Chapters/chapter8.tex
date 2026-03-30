@@ -35,7 +35,7 @@ without manual intervention.
 
 The second contribution is the design and implementation of a new translation tool that takes \cml code annotated with \gospel specifications and produces a corresponding \whyml representation suitable 
 for verification in \whythree. This tool encompasses a complete pipeline including a lexer, parser, AST, Gospel AST, and a printer that maps both \cml constructs and \gospel annotations into their 
-\whyml equivalents.
+\whyml equivalents, giving the already existing \cml library of code a new way to easily verify that code with only some handwritten specifications.
 
 The third and main contribution is a comparative evaluation of the two verification approaches, extraction and translation, using a large and complex case study, that being a verified implementation
 of Red-Black trees. This evaluation characterizes the trust boundaries of each approach, identifies the critical points of failure in each pipeline, and discusses the implications for end-to-end 

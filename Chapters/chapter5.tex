@@ -58,6 +58,14 @@ to ensure correctness across both the extraction and translation phases of the s
 
 \subsection{Supported Features}
 
+Despite the imposed restrictions, the resulting subset retains comprehensive support for variables and naming except \inlinecode{o},
+an extended pattern matching for single branch patterns, wildcard patterns, constructor patterns, tuple patterns, list
+patterns and nested patterns. In terms of the function there is still all the \whyml features such as regular function definitions,
+recursive functions, anonymous functions and high-order functions. Data types continue to support algebraic data type definitions,
+type aliases, polymorphic types and non-multiple recursive type definitions. Data structures like lists, tuples and references are supported,
+like exception handling. Lastly, all the specifications of logical predicates, lemmas, axioms, ghost variables, invariants, pre-conditions and
+post-conditions.
+
 \section{Corrections to the \cml Extraction Driver}
 \label{sec:Corrections_Cakeml}
 

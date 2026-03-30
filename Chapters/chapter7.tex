@@ -135,7 +135,7 @@ then the key needs to be greater.
         gt_tree x (Node c l y v r) -> x < y
 \end{whylang}
 
-The propagation lemmas \inlinecode{lt\_left}, \inlinecode{lt\_right}, \inlinecode{gt\_right} and \inlinecode{gt\_right} says that
+The propagation lemmas \inlinecode{lt\_left}, \inlinecode{lt\_right}, \inlinecode{gt\_left} and \inlinecode{gt\_right} says that
 if a node satisfies either \inlinecode{lt\_tree x} or \inlinecode{gt\_tree x} then both left and right subtrees need to satisfy
 the same conditions.
 
@@ -492,11 +492,14 @@ With the corrected \whythree extraction tool and the new translation tool, while
 \whyml subset, it is evident from the results that both approaches work accordingly with what was expected in the
 expected pipeline. Both of the codes when passing through the verification tool proceeded correctly and with no errors.
 
-The values presented in the following tables (CITE TABLES HERE) show very similar values, making no significant changes in terms of
-prover efficiency. As stated in the \ref{sec:Verification_Guarantees_and_Trust_Boundaries} there seems to be only the difference in where the 
+The values presented in the following tables \ref{subsec:Red_Black_Trees_Original_Whyml} and \ref{subsec:Red_Black_Trees_Translated_Whyml} show 
+very similar values, making no significant changes in terms of prover efficiency. What changed was the provers while execution times remained relatively 
+consistent, exhibiting no apparent fluctuations. It is to be expected since the specification had no major changes from the original after being
+translated from \cml to \whyml. The only notable distinction is in Section \ref{sec:Verification_Guarantees_and_Trust_Boundaries} where the 
 failure points is and which code it starts with, so in a way the decision to choose one approach over another is only related in what language
 the tool is starting with. If the language the code is written is \ocaml or \whyml, extraction is the best choice, if the code is written in
 \cml it is better to add the \gospel specification and using the translation tool.
 
 Regarding the \gospel specification language there is sufficient proof in the new tool created that \gospel is quite easy to integrate correctly
-to a language from the ML family.
+to a language from the ML family, only needing the communication with the \gospel AST in order to print the correct language for an 
+intermideate language like \whyml.

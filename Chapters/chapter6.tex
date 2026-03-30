@@ -29,6 +29,10 @@ representation of the same program, it becomes possible to evaluate the two appr
 effort required, the expressiveness of the resulting specifications, and the degree to which each method preserves the intent of the
 original code. 
 
+In order to use this translation process there needs to be installed the following the repository for this new tool 
+\footnote{Modified \cameleer code: \link{https://github.com/TiagoMeirim/cakeml_compiler/tree/main}} in which you can run the command
+\inlinecode{make translate FILE=program.cml} and it will print the corresponding \whyml code into the console.
+
 \section{Lexer}
 \label{sec:Lexer}
 
@@ -37,6 +41,38 @@ of the lexer, which scans the input sequentially and produces a stream of tokens
 receiving regarding \cml it will deconstruct it into tokens for the parser, on the other hand the raw text received inside the delimited \gospel
 specifications, in between the \inlinecode{(*@} and \inlinecode{*)}, will just return the raw text into parser so it can be deconstructed in another
 phase later.
+
+\begin{ocamlenv}
+    let kwds = [
+        "andalso", ANDALSO;
+        "orelse", ORELSE;
+        "let", LET;
+        "val", VAL;
+        "in", IN;
+        "end", END;
+        "print", PRINT;
+        "if", IF;
+        "then", THEN;
+        "else", ELSE;
+        "True", TRUE;
+        "False", FALSE;
+        "fun", FUN;
+        "exception", EXCEPTION;
+        "raise", RAISE;
+        "datatype", DATATYPE;
+        "type", TYPE;
+        "Ref", REF;
+        "case", CASE;
+        "of", OF
+    ]
+
+    let char = ['a'-'z' 'A'-'Z' '_']
+    let digit = ['0'-'9']
+    let ident = char (char | digit)*
+    let number = digit+
+    let space = ' ' | '\t'
+    let newline = '\n'
+\end{ocamlenv}
 
 \begin{center}
 \begin{bnf}
@@ -77,16 +113,6 @@ $token$ ::=
 | \texttt{eof} : end of file
 \end{bnf}
 \end{center}
-
-\begin{ocamlenv}
-    let char = ['a'-'z' 'A'-'Z' '_']
-    let digit = ['0'-'9']
-    let ident = char (char | digit)*
-    let number = digit+
-    let space = ' ' | '\t'
-    let newline = '\n'
-\end{ocamlenv}
-
 
 \section{Parser}
 \label{sec:Parser}
@@ -143,6 +169,8 @@ AST captures the full syntactic content of the \cml source file, each represente
 \gospel annotations, having been recognised by the lexer and passed through the parser as raw strings, are preserved at this stage without further 
 interpretation, attached to their corresponding top-level positions in the tree.
 
+The following code defines the set of tokens that may be generated from the AST, thereby producing a stream of structured tokens.
+
 \begin{ocamlenv}
     type ident = { loc: location; id: string; }
 
@@ -151,7 +179,7 @@ interpretation, attached to their corresponding top-level positions in the tree.
 
     type qident = {
     modname : ident; 
-    field      : ident; 
+    field   : ident; 
     loc     : location;
     }
 
@@ -224,12 +252,38 @@ interpretation, attached to their corresponding top-level positions in the tree.
     | Tgospel_spec of string
 \end{ocamlenv}
 
+The tokens are divided into different levels of grammar, at the top there is the \inlinecode{toplevel} where exception, datatype, definitions, types
+and \gospel comments can only be found. For the operations tokens it is saved in the \inlinecode{op} and the most important the \inlinecode{expr} is where all 
+the different tokens for constants, variables, tuples, references, printing, function calling, list operations and case clauses.
+
 \subsection{\gospel Abstract Syntax Tree (GAST)}
 \label{subsec:GAST}
 
 The GAST represents the final structured intermediate representation prior to translation into \whyml. It extends the AST by replacing raw \gospel 
 annotation strings with fully parsed \gospel nodes, producing a unified representation in which \cml program content and \gospel specifications 
 coexist in a structured and typed form.
+
+\begin{ocamlenv}
+    type gdef = {
+    name    : ident; 
+    formals : ident list; 
+    body    : expr;
+    spec    : Gospel.Uast.val_spec option;
+    }
+
+    type gtoplevel = 
+    | GTexn          of ident * Ast.typ option
+    | GTdef          of gdef
+    | GTdatatype     of string list * ident * constructor list
+    | GTtype         of ident * typ
+    | GTgospel_func  of Gospel.Uast.function_
+    | GTgospel_axiom of Gospel.Uast.axiom
+    | GTgospel_lemma of Gospel.Uast.prop
+    | GTgospel_raw   of string
+\end{ocamlenv}
+
+In contrast to the original AST, the \gospel specification is now embedded directly within the type \inlinecode{Gospel.Uast}. This integration ensures 
+that the specification can be rendered accurately, as it is now represented in a structured form aligned with the corresponding token definitions.
 
 \subsection{AST To GAST}
 \label{subsec:AST_to_GAST}
