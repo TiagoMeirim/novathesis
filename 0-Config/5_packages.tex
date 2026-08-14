@@ -43,8 +43,7 @@
 % \usepackage[orphans/prevent, widows/prevent]{widows-and-orphans} % add warnings about widows and orphans to “template.log”
 % \usepackage{refcheck}     % list used and unused labels
 
-\usepackage[shortlabels, inline]{enumitem} % To enable costumizable inline enumerates.  See the documentation.
-\input{paralist-compat}
+\usepackage{paralist}     % To enable costumizable enumerates.  See the documentation.
 
 \usepackage[textsize=footnotesize]{todonotes}  % To register TODO notes in the text
 
@@ -52,44 +51,42 @@
 
 \usepackage{tcolorbox}    % pretty print color boxes
 
-% \usepackage{indentfirst}       % Indent first list after a (sub)section title
+\usepackage{indentfirst}       % Indent first list after a (sub)section title
 
 % \usepackage{algorithm2e}
 % \RestyleAlgo{ruled}
 
-\usepackage{minted}    % Fontification of source code listings
+% \usepackage{minted}    % Fontification of source code listings
+\usepackage{xspace}
+\newcommand{\whyml}{\gls{WhyML}\xspace}
+\newcommand{\whythree}{\gls{Why3}\xspace}
+\newcommand{\cvc}{\gls{CVC5}\xspace}
+\newcommand{\altergo}{\gls{Alt-Ergo}\xspace}
+\newcommand{\zthree}{\gls{Z3}\xspace}
+\newcommand{\ocaml}{\gls{OCaml}\xspace}
+\newcommand{\cml}{\gls{CakeML}\xspace}
+\newcommand{\gospel}{\gls{GOSPEL}\xspace}
+\newcommand{\cameleer}{\gls{Cameleer}\xspace}
+\newcommand{\gantt}{\gls{Gantt Chart}\xspace}
+\newcommand{\compcert}{\gls{CompCert}\xspace}
+\usepackage{caption} 
+\usepackage{bold-extra} 
+\usepackage{xcolor} 
+\usepackage{listings}
+\usepackage{gospel}
+\usepackage{mathpartir}
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usepackage{pgfgantt}
+\usepackage{hyperref}
+\usepackage{simplebnf}
+\newcommand{\link}[1]{\href{#1}{\url{#1}}}
+\newtcbox{\inlinecode}{on line, boxrule=0pt, boxsep=0pt, top=2pt, left=2pt, bottom=2pt, right=2pt, colback=gray!15, colframe=white, fontupper={\ttfamily \footnotesize}}
+\DeclareCaptionFormat{listing}{\hfill#3}
+\captionsetup[lstlisting]{format=listing,singlelinecheck=false, margin=0pt,
+  font={sf,it},labelsep=space,labelfont=bf,belowskip=-1pt}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% 6. Customization for LaTeX pretty print with minted
-\definecolor{latexbg}{HTML}{F5F5EE}
-\newminted{latex}{
-  bgcolor=latexbg,
-  fontsize=\small,
-  breaklines,
-  tabsize=2,
-  autogobble,
-  % frame=single,
-  % framesep=3mm,
-  % rulecolor=black!20,
-}
-\newmintinline{latex}{}
-\newenvironment{ltx}
-  {\VerbatimEnvironment
-   \begin{minted}[
-    bgcolor=latexbg,
-    fontsize=\small,
-    breaklines,
-    tabsize=2,
-    autogobble,
-    % frame=single,
-    % framesep=3mm,
-    % rulecolor=black!20,
-   ]{latex}}
-  {\end{minted}}
-
-
-
-% \usepackage{listings}    % Fontification of source code listingsConfig/5_packages.tex
+% Fontification of source code listingsConfig/5_packages.tex
 %                          % In alternative, use the package “minted” (highly recomended)
 
 % \lstset{

@@ -1938,20 +1938,12 @@
               \hypertarget{lottarget}{\listoftables}%
               % \bookmark[dest=lottarget]{\listtablename}%
     }}}%
-    {listoflistings}{\options{/@nt/listof/\@listofat/.newpush={%
-            \ifcsdef{listoflistings}{%
-                \clearforchapter%
-                \hypertarget{loltarget}{\listoflistings}%
-                \ifcsdef{listoflistingscaption}{%
-                  \bookmark[dest=loltarget]{\listoflistingscaption}%
-                }{}%
-            }{}%
-    }}}%
-    {lstlistoflistings}{\options{/@nt/listof/\@listofat/.newpush={%
-              \clearforchapter%
-              \hypertarget{loltarget}{\lstlistoflistings}%
-              % \bookmark[dest=loltarget]{\lstlistlistingname}%
-    }}}%
+    {listoflistings}{\options{/@nt/list/listof/.newpush={%
+            \pdfbookmark{\listoflistingscaption}{loltarget}%
+            \hypertarget{loltarget}{\listoflistings}}}}%
+    {lstlistoflistings}{\options{/@nt/list/listof/.newpush={%
+            \pdfbookmark{\lstlistlistingname}{loltarget}%
+            \hypertarget{loltarget}{\lstlistoflistings}}}}%
     {listofalgorithms}{\options{/@nt/listof/\@listofat/.newpush = {%
               \clearforchapter%
               \listofalgorithms

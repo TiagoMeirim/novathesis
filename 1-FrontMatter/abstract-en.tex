@@ -8,36 +8,45 @@
 
 \typeout{NT FILE abstract-en.tex}%
 
-Regardless of the language in which the dissertation is written, usually there are at least two abstracts: one abstract in the same language as the main text, and another abstract in some other language.
+The study of the Formal Verification field is very important for critical systems that
+involve high levels of trust. A significant advancement in recent research has been the
+development of certified compilers, such as \cml, which ensure that the generated 
+machine code preserves the behaviour of the original program. The integration of these 
+properties in a pipeline with previously verified code can provide powerful correctness
+guarantees. 
 
-The abstracts' order varies with the school.  If your school has specific regulations concerning the abstracts' order, the \gls{novathesis} (\LaTeX) template will respect them.  Otherwise, the default rule in the \gls{novathesis} template is to have in first place the abstract in \emph{the same language as main text}, and then the abstract in \emph{the other language}. For example, if the dissertation is written in Portuguese, the abstracts' order will be first Portuguese and then English, followed by the main text in Portuguese. If the dissertation is written in English, the abstracts' order will be first English and then Portuguese, followed by the main text in English.
-%
-However, this order can be customized by adding one of the following to the file \verb+5_packages.tex+.
+The main objective of this work is to explore and develop a verification pipeline 
+that starts with programs written in \ocaml with \gospel annotations with the end goal of
+producing correct-by-construction \cml code. The first step involves translating the
+annotated \ocaml code to \whyml using the \cameleer tool. This \whyml code should then be 
+verified on the \whythree platform and ultimately extracted to \cml. Additionally, the 
+pipeline should also feature a translation scheme in the opposite direction, in which
+we propose \gospel as a generic specification language for the ML family languages, in
+particular \cml, in order to verify programs in these languages using \cameleer.
 
-\begin{verbatim}
-    \ntsetup{abstractorder={<LANG_1>,...,<LANG_N>}}
-    \ntsetup{abstractorder={<MAIN_LANG>={<LANG_1>,...,<LANG_N>}}}
-\end{verbatim}
+Currently, the extraction mechanism in \whythree to \cml is outdated and only supports
+a subset of the language. As such, we intend to revisit and expand upon it in this 
+work, by updating the translation scheme, implement a mechanism to stop the extraction
+of non-verified code and to report cases where translation is not possible due to 
+incompatibilities between features. On the opposite direction we want to develop
+a translation scheme from \cml to \ocaml and reutilize the \gospel parser to allow 
+verification with \cameleer.
 
-For example, for a main document written in German with abstracts written in German, English and Italian (by this order) use:
-\begin{verbatim}
-    \ntsetup{abstractorder={de={de,en,it}}}
-\end{verbatim}
+In this document, a thorough study was conducted concerning the state of \whythree's
+extraction mechanism, alongside the selected tools, to identify which steps of the 
+pipeline require modifications. Moreover, we also present the theoretical 
+concepts concerning Operational Semantics, Deductive Verification and Verified 
+Compilers.
 
-Concerning its contents, the abstracts should not exceed one page and may answer the following questions (it is essential to adapt to the usual practices of your scientific area):
 
-\begin{enumerate}
-  \item What is the problem?
-  \item Why is this problem interesting/challenging?
-  \item What is the proposed approach/solution/contribution?
-  \item What results (implications/consequences) from the solution?
-\end{enumerate}
-
-% Abstract keywords
 \keywords{
-  One keyword \and
-  Another keyword \and
-  Yet another keyword \and
-  One keyword more \and
-  The last keyword
+  Deductive Verification \and
+  Certified Compilers \and
+  Verification Pipeline \and
+  \cml \and
+  \cameleer \and
+  \gospel \and
+  \ocaml \and
+  \whythree
 }
+

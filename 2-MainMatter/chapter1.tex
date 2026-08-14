@@ -1,0 +1,134 @@
+%!TEX root = ../template.tex
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% chapter1.tex
+%% NOVA thesis document file
+%%
+%% Chapter with introduction
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\typeout{NT FILE chapter1.tex}%
+
+\chapter{Introduction}
+\label{cha:introduction}
+
+% This work is motivated by the importance of ensuring correctness in critical systems and the recent developments 
+% in formal verification with certified compilers. Which, we present, in detail, below:
+
+\section{Motivation}
+\label{sec:Motivation}
+
+
+Progress in Formal Verification has steadily been made over the years. 
+The foundational ideas emerged as early as 1937 by Alan Turing~\cite{Turing37} and by 1949 a program
+represented as a flowchart was formally verified~\cite{early-proof}. Other notable papers where mathematical propositions 
+established purely through theoretical reasoning include works by Alan Turing~\cite{Turing38}, Church
+~\cite{church-unsolvableproblemof-1936} and Gödel~\cite{ZACH2005917}. These results laid important 
+groundwork in logic, computation, and formal reasoning without relying on physical implementation or empirical methods.
+Significant progress was made in the 1960s with the introduction of formal systems to reason about program correctness. 
+Floyd's work on flowcharts~\cite{Floyd93} and Hoare's in programs~\cite{Hoare69} marked a shift toward systematic verification of 
+program behaviour using logical assertions.
+In recent years, two major developments have transformed the landscape of formal verification. The first is the so-called SMT~\cite{abs-1711-10641} 
+(Satisfiability Modulo Theories) revolution, which has enabled powerful automated verification tools capable of discharging 
+logical obligations without human intervention~\cite{Barrett2018}. The second is the emergence of certified compilers, such as 
+CompCert~\cite{Leroy09-back-end}, which provably ensures that the generated machine code faithfully preserves the semantics of the source 
+program.
+
+Why are verified compilers such an important target for formal verification? If a verified program is compiled by a 
+faulty compiler, the resulting executable may not preserve its intended behaviour, invalidating any higher-level correctness
+obtained previously. Compilers like CompCert and \cml~\cite{POPL14} address this issue by providing formally verified compilation pipelines
+~\cite{LoowKTMNAF19, GrossEPPC22, Leroy09}, thereby eliminating a major source of uncertainty and ensuring that correctness is 
+preserved from source code to machine code~\cite{LeroyCompilerMeaning}.
+
+Developments in relation to verified code have become increasingly crucial to achieve correctness and provide safety, 
+the way we define correctness has more than one definition, it can be specified informally or written in formal language 
+~\cite{Filliatre11}. The weight of functional languages for deductive software verification has been quite low despite having
+good candidates for verification, like \ocaml. Ever since 2018 with the introduction of \gospel~\cite{ChargueraudFLP19}, a
+formal specification language designed specifically for \ocaml, verification has become easier with modular specification
+that doesn't need many changes to \ocaml code. This wasn't the first time formal logic and proof has been merged with 
+functional programming, previous and more foundational systems like Coq~\cite{75277.75285} and \whyml~\cite{FilliatreP13} have
+paved the way. With the development of a behavioural specification language for \ocaml, soon after a deductive verification tool
+was created for this language, that being \cameleer~\cite{PereiraR20}, a tool that translates a formally-specified program into 
+corresponding code in \whyml.
+
+With the introduction of certified compilers and state-of-the-art automated verification tools, it is possible to merge them in
+a pipeline to create correct high-level programs that when compiled that are not faulty.
+This is a highly trustworthy deductive verification system, that benefits from the features and correctness guarantees from each 
+component of the pipeline throughout all the steps. Our motivation stems from the insurance that such a pipeline could provide 
+to the verification of \ocaml programs with \gospel annotations that eventually compile to correct machine code, by using the \cml
+compiler.
+
+It is also important to distinguish two broad methodologies in deductive verification. On one hand, extraction-based verification involves 
+developing verified programs directly within a proof assistant and then extracting executable code, ensuring correctness by construction. 
+On the other hand, translation-based verification starts from existing codebases, often annotated with formal specifications, and translates 
+them into an intermediate verification language. Verification conditions are then generated and discharged by automated or interactive 
+theorem provers~\cite{Leroy09}.
+
+\section{Problem Definition}
+\label{sec:Problem_Definition}
+
+In order to create a pipeline from \ocaml to \cml and back, there is the need to understand the already existing translation tools.
+Firstly, \cameleer takes as input \ocaml programs with \gospel annotations and internally these are translated onto \whyml code, which
+can then be verified inside \whythree's ide or extracted to another language. The \whythree extraction mechanism currently allows the 
+translation from \whyml to four other languages, with one of them being \cml. By combining these two mechanisms we reach our goal
+of creating a pipeline to produce compiled code completely verified. However, we observed that the current extraction mechanism 
+concerning \cml is severely outdated and unreliable, after extensive tests using multiple \ocaml features since it failed to compile 
+on several instances. \cameleer also features an extraction mechanism that currently produces \ocaml code from its intermediary
+representation, \whyml, instead of producing \cml code. Another facet of this pipeline is to translate \cml programs into \ocaml
+code, and surprisingly, there is no such tool. The development of this new tool should enable direct verification of \cml code, 
+allowing correctness to be established before any extraction process takes place. This leads us to the following question: 
+
+\vspace{5mm}
+\centerline{\textit{How do extraction-based and translation-based approaches differ in ensuring program correctness?}}
+
+In our proposed pipeline, both extraction-based and translation-based approaches are integrated, offering a unique opportunity 
+to examine how these methodologies apply for the same case studies. This dual exploration not only highlights the distinctions 
+between the two, but also leads to reflection on:
+
+\begin{enumerate}
+    \item \textit{How do we bridge these tools to create a pipeline that ensures correctness throughout all steps?}
+    \item \textit{How does adding a specification language affect the verification workflow of certified compilers?}
+\end{enumerate}
+
+\section{Goals and Expected Contributions}
+\label{sec:Goals_and_Expected_Contributions}
+
+The first goal in this work is to have a detailed look into the features of both \ocaml and \cml languages, find the notable 
+differences and absences, to know which features to test using the extraction mechanism. The next goal should be to change 
+internally the source code of the \cameleer tool to support the extraction of \cml code. With this, we should be able to identify
+in detail the issues with the translation, what are the necessary changes to compile correctly, which may include introducing new features
+or fixing syntactic issues for the features already supported by the extraction mechanism, directly in \whythree source code.
+For the features that are not supported by one of the languages, providing a comprehensive error message rather than allowing 
+the extraction to take place. To make the pipeline more robust we should confirm if the program is verified beforehand when performing 
+an extraction. Since, there is no translation mechanism from \cml to \ocaml, it creates the need to develop a new tool. Our objective is 
+to extend the \gospel parser to support languages within the ML family, enabling the application of formal specifications directly to 
+\cml code. This will allow verification to take place prior to translation. Specifically, we aim to build a new translation tool, 
+driven by a custom parser, that converts \cml with \gospel annotations into \ocaml with \gospel annotation. To achieve this, we define
+a subset of the \cml code that respects all the syntactic and semantic differences, meanwhile flagging with an error message any 
+unsupported features.
+
+\section{Report Structure}
+\label{sec:Report_Structure}
+
+The document is divided by 5 chapters and 1 appendix. 
+
+In chapter \ref{cha:Background} it is possible to find the foundational theoretical concepts for Hoare Logic and an introduction to 
+the languages and tools used for verification and extraction mechanism.
+
+Chapter \ref{cha:State_Of_The_Art} describes the relevant pieces of work already available on the context of certified compilers, 
+while also mentioning the current verification pipeline available using \cameleer, \whythree and \cml. 
+
+For the chapter \ref{cha:Pipeline} presents the goal pipeline, the necessary tool modifications to accommodate that pipeline and
+a set of examples showing how \ocaml + \gospel code can be correctly translated into \cml. 
+
+Chapter \ref{cha:Extraction} presents the \cml subset to which this study is restricted, and identifies the limitations and
+inaccuracies in the current extraction mechanism from \whythree.
+
+Chapter \ref{cha:Translation} explains the creation of a full translation scheme from \cml with \gospel annotations to \whyml.
+
+In chapter \ref{cha:Comparative_Evaluation} presents a complete and extensive use case applied for both approaches, in order to 
+create a fair comparison between the two approaches evaluated in this work.
+
+Finally, chapter \ref{cha:Conclusion} draws and presents the conclusions as critically as possible, discussing both
+approaches and how they compare. It also outlines of this work and possible directions for future work.
+
+The appendix \ref{app:appendix} contains the complete and ordered code used for each of the case studies.
